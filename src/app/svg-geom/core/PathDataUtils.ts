@@ -39,7 +39,8 @@ export class PathDataUtils {
             m)
         bounds.setValues(0, 0, s * bounds.width, s * bounds.height)
         pathData.view_box = bounds.serialize()
-        pathData.path_length = path.getTotalLength() * s;
+        path.setAttribute('d', pathData.path)
+        pathData.path_length = path.getTotalLength()
         return pathData
     }
 

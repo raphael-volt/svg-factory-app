@@ -1,7 +1,9 @@
 <button mat-raised-button color="primary" (click)="importClick()">Importer un svg</button>
 <input #input type="file" (change)="inputChange($event)">
+
 <div *ngIf="imports">
-    <div *ngFor="let s of imports">
+    <button mat-raised-button color="primary" (click)="createCatalog()">Créer catalogue</button>
+    <div #div *ngFor="let s of imports" (click)="symbolClick(s, div)">
         <svg version="1.1" xmlns="http://www.w3.org/2000/svg" 
         x="0px" y="0px" width="200" height="200"
 	    viewBox="0 0 200 200" style="enable-background:new 0 0 200 200;" xml:space="preserve">
