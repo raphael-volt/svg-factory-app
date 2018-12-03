@@ -23,7 +23,7 @@ export class AppComponent implements OnInit {
     },
     {
       path: 'catalog',
-      label: 'Catalog',
+      label: 'Catalogue',
       icon: 'book-open'
     }
     

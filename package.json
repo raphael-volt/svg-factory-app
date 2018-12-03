@@ -8,7 +8,7 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "testd": "ng test --browsers ChromeDebug"
+    "testd": "ng test --watch=true --browsers=ChromeHeadless"
   },
   "private": true,
   "dependencies": {
