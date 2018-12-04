@@ -137,6 +137,41 @@
           }
         }
       }
+    },
+    "svg-geom": {
+      "root": "projects/svg-geom",
+      "sourceRoot": "projects/svg-geom/src",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/svg-geom/tsconfig.lib.json",
+            "project": "projects/svg-geom/ng-package.json"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/svg-geom/src/test.ts",
+            "tsConfig": "projects/svg-geom/tsconfig.spec.json",
+            "karmaConfig": "projects/svg-geom/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/svg-geom/tsconfig.lib.json",
+              "projects/svg-geom/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
     }
   },
   "defaultProject": "web-app"

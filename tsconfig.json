@@ -17,6 +17,14 @@
     "lib": [
       "es2018",
       "dom"
-    ]
+    ],
+    "paths": {
+      "svg-geom": [
+        "dist/svg-geom"
+      ],
+      "svg-geom/*": [
+        "dist/svg-geom/*"
+      ]
+    }
   }
 }

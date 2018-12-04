@@ -191,10 +191,12 @@ export class PrintSvgService {
   makeCatalog(shapes: PathData[], numRow: number = 4, orientation: "l" | "p" = "l", style: { stroke?: string, fill?: string } = { stroke: "#000000" }) {
     if (!style.fill && !style.stroke)
       style.stroke = "#000000"
-
+    /*
     style = {
       fill: "#000000"
     }
+    */
+    numRow = 3
 
     const pdf: jsPDF = new jsPDF(orientation, 'px', 'a4')
     pdf.setFontSize(10)

@@ -25,18 +25,16 @@ export class PathDataUtils {
         return null
     }
 
-    static validateBounds(pathData: PathDataBase, path: SVGPathElement): PathDataBase {
+    static validateBounds(pathData: PathDataBase, path: SVGPathElement, height:number = PathDataUtils.SYMBOL_HEIGHT): PathDataBase {
         const data: PathCommand[][] = PathDataUtils.getCommands(pathData.path)
         const bb: SGBBox = new SGBBox()
         bb.parseCommands(data)
 
         let bounds: SGRect = new SGRect(bb.x, bb.y, bb.width, bb.height)
-        let s: number = PathDataUtils.SYMBOL_HEIGHT / bounds.height
-        let m: SGMatrix = new SGMatrix()
+        const s: number = height / bounds.height
+        const m: SGMatrix = new SGMatrix()
         m.translate(-bounds.x, -bounds.y).scale(s, s)
-        pathData.path = PathDataUtils.serialize(
-            PathDataUtils.getCommands(pathData.path),
-            m)
+        pathData.path = PathDataUtils.serialize(data, m)
         bounds.setValues(0, 0, s * bounds.width, s * bounds.height)
         pathData.view_box = bounds.serialize()
         path.setAttribute('d', pathData.path)
