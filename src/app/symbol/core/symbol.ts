@@ -3,4 +3,6 @@ export interface SVGSymbol {
     data?: string
     width?: number
     height?: number
+    holes?: number
+    pathLength?: number
 }

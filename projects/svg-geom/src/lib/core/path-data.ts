@@ -1,5 +1,5 @@
-import { parse, serialize, transformPathData, drawToCanvas } from "./path-builder";
-import { SGRect, SGMatrix } from "./geom";
+import { parse, serialize, transformPathData, draw } from "./path-builder";
+import { SGRect, SGMatrix, IDrawable } from "./geom";
 import { PathCommand, IPathData } from "./commands";
 
 export class PathData implements IPathData {
@@ -27,8 +27,8 @@ export class PathData implements IPathData {
         return serialize(this.commands, this.digits, matrix)
     }
 
-    drawToCanvas(context: CanvasRenderingContext2D, matrix: SGMatrix) {
-        drawToCanvas(context, this.commands, matrix)
+    draw(context: IDrawable, matrix: SGMatrix) {
+        draw(context, this.commands, matrix)
     }
 
 

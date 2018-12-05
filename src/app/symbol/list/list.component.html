@@ -1,3 +1,8 @@
-<p>
-  list works! <fa-icon icon="coffee"></fa-icon>
-</p>
+<div mat-elevation-z4 class="svg-list">
+  <div *ngFor="let s of symbols" matRipple matRippleCentered [class.selected]="isSelected(s)" (click)="symbolClick($event, s)">
+    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" [attr.width]="s.width" [attr.height]="s.height"
+      [attr.viewBox]="getViewBox(s)" [attr.style]="getStyle(s)" xml:space="preserve">
+      <path [attr.d]="s.data" />
+    </svg>
+  </div>
+</div>

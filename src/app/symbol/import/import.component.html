@@ -1,13 +1,25 @@
-<button mat-raised-button color="primary" (click)="importClick()">Importer un svg</button>
-<input #input type="file" (change)="inputChange($event)">
+<mat-toolbar>
+    <input #input type="file" (change)="inputChange($event)">
+    <button mat-raised-button color="accent" (click)="importClick()">Importer un svg</button>
+    <button [disabled]="!svgCollection"mat-raised-button color="primary" (click)="selectAll()">Tous sélectionner</button>
+    <button [disabled]="!svgCollection" mat-raised-button color="primary" (click)="unselect()">Désélectionner</button>
+</mat-toolbar>      
 
-<div *ngIf="imports">
-    <button mat-raised-button color="primary" (click)="createCatalog()">Créer catalogue</button>
-    <div #div *ngFor="let s of imports" (click)="symbolClick(s, div)">
-        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" 
-        x="0px" y="0px" width="200" height="200"
-	    viewBox="0 0 200 200" style="enable-background:new 0 0 200 200;" xml:space="preserve">
-            <path [attr.d]="s.path"/>
-        </svg>
+<div *ngIf="svgCollection">
+    <button [disabled]="!hasSelection" style="width: 100%" mat-raised-button color="warn" (click)="insertSelected()">{{importMessage}}</button>
+    <div mat-elevation-z4 
+        class="svg-list">
+        <div *ngFor="let s of svgCollection"
+            matRipple
+            matRippleCentered 
+            [class.selected]="isSelected(s.data)" 
+            (click)="symbolClick($event, s.data)">
+            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" 
+                [attr.width]="s.data.bounds.width" [attr.height]="s.data.bounds.height" 
+                [attr.viewBox]="getViewBox(s.data.bounds)"
+                [attr.style]="getStyle(s.data.bounds)" xml:space="preserve">
+                <path #path [attr.d]="setPathData(s, path)" />
+            </svg>
+        </div>
     </div>
 </div>

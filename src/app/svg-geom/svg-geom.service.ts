@@ -1,9 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Observable, Observer } from "rxjs";
 
-import { PathDataUtils } from "./core/PathDataUtils";
-import { PathData } from "./core/PathData";
-import { SGRect } from "./core/SGRect";
+import { PathData, SGMatrix, SGRect } from "svg-geom";
 @Injectable({
   providedIn: 'root'
 })
@@ -11,20 +8,7 @@ export class SvgGeomService {
 
   constructor() { }
 
-  loadSVG(url: string) {
-
-  }
-
-  private startSvgImport(file) {
-    let reader: FileReader = new FileReader()
-    let t = this
-    reader.onloadend = function (event: Event) {
-      t.parseSvgContent(reader.result as string)
-    }
-    reader.readAsText(file)
-  }
-  
-  parseSvgContent(svg: string): PathData[] {
+  parseSvgContent(svg: string, shapeHeight: number): PathData[] {
     let div: HTMLElement = document.createElement("div")
     div.innerHTML = svg
 
@@ -33,13 +17,21 @@ export class SvgGeomService {
     let n: number = children.length
     let path: SVGPathElement
     let pathData: PathData
+    let b: SGRect
+    const m: SGMatrix = new SGMatrix()
+    let s: number
     for (let i = 0; i < n; i++) {
       path = children.item(i)
       if (this.isSymbolChild(path))
-      continue
-      pathData = new PathData()
-      pathData.path = path.getAttribute("d")
-      pathDataList.push(PathDataUtils.validateBounds(pathData, path) as PathData)
+        continue
+      pathData = new PathData(path.getAttribute("d"))
+      b = pathData.bounds
+      if(! isNaN(s))
+        m.identity()
+      s = shapeHeight / pathData.bounds.height
+      m.translate(-b.x, -b.y).scale(s, s)
+      pathData.transform(m)
+      pathDataList.push(pathData)
     }
     div.innerHTML = ""
     return pathDataList

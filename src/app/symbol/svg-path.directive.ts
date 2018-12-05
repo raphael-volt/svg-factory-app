@@ -9,7 +9,7 @@ export class SvgPathDirective {
     const elmt: HTMLElement = this.ref.nativeElement
     elmt.setAttribute("d", value)
   }
-  get scgPath(): string {
+  get svgPath(): string {
     const elmt: HTMLElement = this.ref.nativeElement
     return elmt.getAttribute("d")
   }

@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { 
-    MatButtonModule, MatButtonToggleModule, MatToolbarModule
+    MatButtonModule, MatButtonToggleModule, MatToolbarModule, MatRippleModule
 } from '@angular/material';
 import {MatTabsModule} from '@angular/material/tabs';
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
@@ -12,10 +12,10 @@ library.add(faCoffee, faList, faThList, faBook, faBookOpen, faBookDead, faFileIm
 
 @NgModule({
     imports: [
-        MatButtonModule, MatButtonToggleModule, MatToolbarModule, MatTabsModule,
+        MatButtonModule, MatButtonToggleModule, MatToolbarModule, MatTabsModule, MatRippleModule,
         FontAwesomeModule],
     exports: [
-        MatButtonModule, MatButtonToggleModule, MatToolbarModule, MatTabsModule,
+        MatButtonModule, MatButtonToggleModule, MatToolbarModule, MatTabsModule, MatRippleModule,
         FontAwesomeModule]
 })
 

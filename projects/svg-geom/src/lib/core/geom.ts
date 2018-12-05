@@ -1,3 +1,9 @@
+export interface IDrawable {
+    moveTo(x: number, y:number)
+    lineTo(x: number, y:number)
+    bezierCurveTo(ax: number, ay:number, bx: number, by: number, cx:number, cy: number)
+}
+
 export class SGMath {
 
     static readonly EPSILON: number = 1e-14
@@ -264,7 +270,7 @@ export class SGString {
             output.push(Number(s))
         return output
     }
-    private static readonly _MATRIX_RE: RegExp = /^matrix\s*\((.*)\)$/
+    private static readonly _MATRIX_RE: RegExp = new RegExp(`^matrix\s*\((.*)\)$`)
     private static readonly _MATRIX_NUM_VALUES: number = 6
     static getMatrix(data:string, matrix:SGMatrix=null): SGMatrix {
         const re = SGString._MATRIX_RE

@@ -1,13 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as jsPDF from 'jspdf'
-
-import { PathData } from "./core/PathData";
-import { PathCommand } from '../svg-geom/core/PathCommand';
-import { PathDataUtils } from '../svg-geom/core/PathDataUtils';
-import { SGRect } from '../svg-geom/core/SGRect';
-import { SGString } from '../svg-geom/core/SGString';
-import { PathCommandTypes } from '../svg-geom/core/PathCommandTypes';
-import { SGMatrix } from '../svg-geom/core/SGMatrix';
+import { PathData, SGRect, SGMatrix } from "svg-geom";
 
 interface RowItem {
   index: number
@@ -33,20 +26,6 @@ interface PDFPage {
   shapeHeight: number
   numRows: number
   style: { stroke?: string, fill?: string }
-}
-
-class PDFRow {
-  constructor() {
-
-  }
-  items: {
-    pathData: PathData
-
-  }[]
-  canAdd(item: PathData): boolean {
-
-    return true
-  }
 }
 
 @Injectable({
@@ -75,7 +54,7 @@ export class PrintSvgService {
     let y: number = marginTop
 
     let items: RowItem[] = shapes.map((value: PathData, index: number) => {
-      const bounds: SGRect = SGString.getViewBox(value.view_box)
+      const bounds: SGRect = value.bounds
       const s: number = symHeight / bounds.height
       return {
         data: value,
@@ -140,28 +119,12 @@ export class PrintSvgService {
     let count: number = 0
     const draw = (row: RowItem[]) => {
       let b: SGRect
-      let cmds: PathCommand[][]
       for (let i of row) {
         b = i.bounds
         m.identity().scale(i.scale, i.scale).translate(b.x, b.y)
-        cmds = PathDataUtils.getCommands(i.data.path)
-        PathDataUtils.transform(cmds, m)
         context.beginPath()
-        for (let l of cmds) {
-          for (let c of l) {
-            switch (c.type) {
-              case PathCommandTypes.MOVE_TO:
-                context.moveTo(c.vertex.x, c.vertex.y)
-                break;
-              case PathCommandTypes.LINE_TO:
-                context.lineTo(c.vertex.x, c.vertex.y)
-                break
-              case PathCommandTypes.CUBIC_CURVE_TO:
-                context.bezierCurveTo(c.anchorA.x, c.anchorA.y, c.anchorB.x, c.anchorB.y, c.vertex.x, c.vertex.y)
-                break
-            }
-          }
-        }
+        i.data.draw(context, m)
+
         if (fillColor)
           context.fill()
         if (strokeColor)

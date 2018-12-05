@@ -1,4 +1,4 @@
-import { SGMath, SGString, SGRect, SGMatrix, Coord } from "./geom";
+import { SGMath, SGString, SGRect, SGMatrix, Coord, IDrawable } from "./geom";
 import { PathCommand, PathCommandNames, PathCommandTypes, PathBounds, IPathData } from "./commands";
 
 const getSVGnumber = (value: number, digits: number, ignoreComma: boolean = false): string => {
@@ -289,7 +289,7 @@ const transformCommands = (commands: PathCommand[][], matrix: SGMatrix) => {
         }
     }
 }
-const drawToCanvas = (context: CanvasRenderingContext2D, cmds: PathCommand[][], matrix: SGMatrix) => {
+const draw = (context: IDrawable, cmds: PathCommand[][], matrix: SGMatrix) => {
     let v: Coord
     let a: Coord
     let b: Coord
@@ -307,8 +307,8 @@ const drawToCanvas = (context: CanvasRenderingContext2D, cmds: PathCommand[][], 
                     break
                 case PathCommandTypes.CUBIC_CURVE_TO:
                     a = <Coord>c.anchorA.slice()
-                    matrix.transformCoord(a)
                     b = <Coord>c.anchorB.slice()
+                    matrix.transformCoord(a)
                     matrix.transformCoord(b)
 
                     context.bezierCurveTo(a[0], a[1], b[0], b[1], v[0], v[1])
@@ -317,4 +317,4 @@ const drawToCanvas = (context: CanvasRenderingContext2D, cmds: PathCommand[][], 
         }
     }
 }
-export { parse, serialize, transformCommands, transformPathData, drawToCanvas }
+export { parse, serialize, transformCommands, transformPathData, draw }
