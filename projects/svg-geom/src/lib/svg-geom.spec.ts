@@ -1,5 +1,6 @@
 import { PathData } from "./core/path-data";
-import { SGMath, SGMatrix } from "./core/geom"
+import { SGMath, SGMatrix, SGRect } from "./core/geom"
+import { SvgboxPipe } from "./svgbox.pipe";
 
 const P: number = .001
 const D = `M236.3,1240c-0.1-0.6-0.3-1.3-0.4-2c2.3-2.6,7.5-5.8,11.4-5.9c0.5,2.4,1.7,5.2,7,3.7c-0.4-0.8-0.7-1.8-1.1-2.8
@@ -31,7 +32,66 @@ c-5.1,1.2-7.7,5.1-7.7,8C227.3,1236.3,230.4,1239.7,236.3,1240z M268.7,1174.4c0-16
 c0,2,0,3.9-0.1,5.8c-0.3,14.1-1.8,24.7-3.7,24.7c-1.8,0-3.3-10.6-3.7-24.7C268.8,1178.3,268.7,1176.4,268.7,1174.4z`
 
 describe('svg-geom', () => {
-
+    describe('SvgboxPipe', () => {
+        describe('should transform', () => {
+            it('string', () => {
+                const p = new SvgboxPipe()
+                let vb = p.transform("10 20 100 200")
+                expect(vb).toEqual("10 20 100 200")
+            })
+            it('SGRect', () => {
+                const p = new SvgboxPipe()
+                let vb = p.transform(new SGRect(10, 20, 100, 200))
+                expect(vb).toEqual("10 20 100 200")
+            })
+            it('IRect', () => {
+                const p = new SvgboxPipe()
+                let vb = p.transform({ x: 10, y: 20, width: 100, height: 200 })
+                expect(vb).toEqual("10 20 100 200")
+            })
+            it('ISize', () => {
+                const p = new SvgboxPipe()
+                let vb = p.transform({ width: 100, height: 200 })
+                expect(vb).toEqual("0 0 100 200")
+            })
+        })
+        describe('should be 0 0 0 0', () => {
+            it('string', () => {
+                const p = new SvgboxPipe()
+                let vb = p.transform(null)
+                expect(vb).toEqual("0 0 0 0")
+                vb = p.transform(undefined)
+                expect(vb).toEqual("0 0 0 0")
+                vb = p.transform("")
+                expect(vb).toEqual("0 0 0 0")
+                vb = p.transform("10 20")
+                expect(vb).toEqual("0 0 0 0")
+                vb = p.transform("10 20 100")
+                expect(vb).toEqual("0 0 0 0")
+            })
+            it('SGRect', () => {
+                const p = new SvgboxPipe()
+                let vb = p.transform(null)
+                expect(vb).toEqual("0 0 0 0")
+                vb = p.transform(undefined)
+                expect(vb).toEqual("0 0 0 0")
+            })
+            it('IRect', () => {
+                const p = new SvgboxPipe()
+                let vb = p.transform(null)
+                expect(vb).toEqual("0 0 0 0")
+                vb = p.transform(undefined)
+                expect(vb).toEqual("0 0 0 0")
+            })
+            it('ISize', () => {
+                const p = new SvgboxPipe()
+                let vb = p.transform(null)
+                expect(vb).toEqual("0 0 0 0")
+                vb = p.transform(undefined)
+                expect(vb).toEqual("0 0 0 0")
+            })
+        })
+    })
     describe('PathData', () => {
 
         it("should create", () => {
@@ -74,6 +134,20 @@ describe('svg-geom', () => {
             expect(SGMath.equals(p.bounds.height, p2.bounds.height, P)).toBeTruthy()
 
             expect(p.svgData).toEqual(p2.svgData)
+        })
+    })
+    describe("Path Length", ()=>{
+        it("should calculate path total length", ()=>{
+            const pathElmt:SVGPathElement = document.createElementNS("http://www.w3.org/2000/svg", "path") as SVGPathElement
+            pathElmt.setAttribute("d", D)
+            const ipl = pathElmt.getTotalLength()
+            const p = new PathData(D)
+            const m: SGMatrix = new SGMatrix()
+            m.scale(.5, .5)
+            p.transform(m)
+            pathElmt.setAttribute("d", p.svgData)
+            const ipl2 = pathElmt.getTotalLength()
+            expect(SGMath.equals(pathElmt.getTotalLength(), ipl/2, P)).toBeTruthy()
         })
     })
 })

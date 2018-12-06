@@ -1,3 +1,9 @@
+export interface PathStyle {
+    stroke: string
+    strokeWidth: string
+    fill: string
+}
+
 export interface IDrawable {
     moveTo(x: number, y:number)
     lineTo(x: number, y:number)
@@ -34,7 +40,7 @@ export class SGMath {
     }
     static toFixed(value: number, digits): string {
         const d = Math.pow(10, digits)
-        return (Math.round(value*d) / d).toFixed(digits)
+        return parseFloat((Math.round(value*d) / d).toFixed(digits)).toString()
     }
 }
 export type Coord = [number, number]
@@ -237,11 +243,7 @@ export class SGRect {
     }
 
     toString() {
-        const x = (Math.round(this.x * 100) / 100).toFixed(3)
-        const y = (Math.round(this.y * 100) / 100).toFixed(3)
-        const w = (Math.round(this.width * 100) / 100).toFixed(3)
-        const h = (Math.round(this.height * 100) / 100).toFixed(3)
-        return `{x:${x}, y:${y}, w:${w}, h:${h}}`
+        return this.serialize()
     }
     serialize(digits: number=3): string {
         return [
