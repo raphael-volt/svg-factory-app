@@ -1,1 +1,76 @@
-/* You can add global styles to this file, and also import other style files */
+html {
+  padding: 0;
+  margin: 0;
+  height: 100vh;
+}
+body {
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+}
+div {
+  box-sizing: border-box;
+}
+.ofh {
+    overflow: hidden;
+}
+.ofa {
+    overflow: auto;
+}
+.h100 {
+  height: 100%;
+}
+.v-box {
+  outline-color: red;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-content: flex-start;
+  align-items: stretch;
+}
+
+.v-box > .v-item {
+  order: 0;
+  flex: 0 1 auto;
+  align-self: auto;
+}
+
+.v-box > .v-item.f-h {
+  height: 100%;
+  order: 0;
+  flex: 1 1 auto;
+  align-self: auto;
+  overflow: hidden;
+  margin-bottom: 0;
+  outline-color: purple;
+}
+
+.h-box {
+  outline-color: orange;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-content: flex-start;
+  align-items: stretch;
+}
+
+.h-box > .h-item {
+  order: 0;
+  flex: 0 1 auto;
+  align-self: auto;
+}
+
+.h-box > .h-item.f-w {
+  outline-color: dodgerblue;
+  order: 0;
+  flex: 1 1 auto;
+  align-self: auto;
+  margin-right: 0px;
+  overflow: auto;
+}

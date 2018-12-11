@@ -5,9 +5,9 @@ export interface PathStyle {
 }
 
 export interface IDrawable {
-    moveTo(x: number, y:number)
-    lineTo(x: number, y:number)
-    bezierCurveTo(ax: number, ay:number, bx: number, by: number, cx:number, cy: number)
+    moveTo(x: number, y: number)
+    lineTo(x: number, y: number)
+    bezierCurveTo(ax: number, ay: number, bx: number, by: number, cx: number, cy: number)
 }
 
 export class SGMath {
@@ -18,19 +18,19 @@ export class SGMath {
         return !Number.isFinite(value)
     }
 
-    static equals(a: number, b: number, precision:number = SGMath.EPSILON): boolean {
+    static equals(a: number, b: number, precision: number = SGMath.EPSILON): boolean {
         if (SGMath.isNaN(a) || SGMath.isNaN(b)) {
             return a == b
         }
         return Math.abs(a - b) <= precision
     }
 
-    static lessThanOrEqual(a: number, b: number, precision:number = SGMath.EPSILON): boolean {
+    static lessThanOrEqual(a: number, b: number, precision: number = SGMath.EPSILON): boolean {
         if (SGMath.equals(a, b, precision))
             return true
         return a < b
     }
-    static greaterThanOrEqual(a: number, b: number, precision:number = SGMath.EPSILON): boolean {
+    static greaterThanOrEqual(a: number, b: number, precision: number = SGMath.EPSILON): boolean {
         if (SGMath.equals(a, b, precision))
             return true
         return a > b
@@ -40,7 +40,7 @@ export class SGMath {
     }
     static toFixed(value: number, digits): string {
         const d = Math.pow(10, digits)
-        return parseFloat((Math.round(value*d) / d).toFixed(digits)).toString()
+        return parseFloat((Math.round(value * d) / d).toFixed(digits)).toString()
     }
 }
 export type Coord = [number, number]
@@ -55,7 +55,7 @@ export class SGPoint {
     toCord(): Coord {
         return [this.x, this.y]
     }
-    
+
     clone(): SGPoint {
         return new SGPoint(this.x, this.y)
     }
@@ -65,9 +65,9 @@ export class SGPoint {
         this.y = y
     }
 
-    equals(target: SGPoint, precision:number = SGMath.EPSILON): boolean {
-        return (SGMath.equals(this.x, target.x, precision) 
-        && SGMath.equals(this.y, target.y, precision))
+    equals(target: SGPoint, precision: number = SGMath.EPSILON): boolean {
+        return (SGMath.equals(this.x, target.x, precision)
+            && SGMath.equals(this.y, target.y, precision))
     }
 
     static distance(a: SGPoint, b: SGPoint): number {
@@ -123,10 +123,10 @@ export class SGRect {
         this._height = v
     }
 
-    public get json() : any {
-        return {x:this.x, y:this.y, width: this._width, height: this.height};
+    public get json(): any {
+        return { x: this.x, y: this.y, width: this._width, height: this.height };
     }
-    public set json(v : any) {
+    public set json(v: any) {
         this.x = v.x;
         this.y = v.y;
         this.width = v.width
@@ -159,7 +159,7 @@ export class SGRect {
         return this.y + this._height
     }
     protected normalize() {
-        
+
         if (this._width < 0) {
             this.x += this._width
             this._width = - this._width
@@ -168,10 +168,10 @@ export class SGRect {
             this.y += this._height
             this._height = - this.height
         }
-        
+
     }
     copyFrom(target: SGRect) {
-        if(! target) {
+        if (!target) {
             this.identity()
             return
         }
@@ -203,7 +203,7 @@ export class SGRect {
         }
         if (this.contains(target))
             return
-                if (target.left < this.left) {
+        if (target.left < this.left) {
             this._width = this.right - target.left
             this.x = target.left
             this.normalize()
@@ -245,7 +245,7 @@ export class SGRect {
     toString() {
         return this.serialize()
     }
-    serialize(digits: number=3): string {
+    serialize(digits: number = 3): string {
         return [
             SGMath.toFixed(this.left, digits),
             SGMath.toFixed(this.top, digits),
@@ -266,22 +266,22 @@ export class SGString {
         return null
     }
     static strings2numbers(inputs: string[], output: number[] = null): number[] {
-        if( ! output)
+        if (!output)
             output = []
-        for(let s of inputs)
+        for (let s of inputs)
             output.push(Number(s))
         return output
     }
     private static readonly _MATRIX_RE: RegExp = new RegExp(`^matrix\s*\((.*)\)$`)
     private static readonly _MATRIX_NUM_VALUES: number = 6
-    static getMatrix(data:string, matrix:SGMatrix=null): SGMatrix {
+    static getMatrix(data: string, matrix: SGMatrix = null): SGMatrix {
         const re = SGString._MATRIX_RE
-        if(re.test(data)) {
+        if (re.test(data)) {
             let match = re.exec(data)
             let inputs: number[] = SGString.strings2numbers(SGString.split(match[1]))
-            if(inputs.length == SGString._MATRIX_NUM_VALUES) {
+            if (inputs.length == SGString._MATRIX_NUM_VALUES) {
                 let i: number = 0
-                if(matrix)
+                if (matrix)
                     matrix.setValues(
                         inputs[i++],
                         inputs[i++],
@@ -475,3 +475,5 @@ export class SGMatrix {
     }
 }
 
+const SVG_NS: string = "http://www.w3.org/2000/svg"
+export { SVG_NS }

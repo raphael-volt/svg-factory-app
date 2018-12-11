@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { SymbolService } from "../symbol.service";
+import { SymbolService } from "../services/symbol.service";
 import { Subscription } from "rxjs";
 import { SVGSymbol } from "./symbol";
 export class SymbolController implements OnInit, OnDestroy {

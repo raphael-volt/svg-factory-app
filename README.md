@@ -10,13 +10,50 @@ Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app w
 
 Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
 
+### Library
+
+Run `ng g library my-lib` to create a library, then create a [index.ts]() file at the root directory :
+```bash
+echo "export * from './src/public_api'" >> projects/svg-geom/index.ts
+```   
+In [tsconfig.json](./tsconfig.json), modify the path of the new library :
+```json
+{
+  "compilerOptions": {
+    "paths": {
+      "my-lib": [
+        "projects/my-lib"
+      ],
+      "my-lib/*": [
+        "projects/my-lib/src/*"
+      ]
+    }
+  }
+}
+```
 ## Build
 
 Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
 
+Building the libraries seems not be required. 
 ## Running unit tests
 
 Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+
+Run `ng test my-lib` to only run unit tests of a library.
+
+[angular.json](./angular.json) has been modified to make working the vscode debugger during the tests :
+```json
+{
+    "projects": {
+        "web-app": {
+            "architect": {
+                "test": {
+                    "options": {
+                        "sourceMap": false
+
+```
+
 
 ## Running end-to-end tests
 

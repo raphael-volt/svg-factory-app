@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { SymbolService } from "./symbol/symbol.service";
 import { Router, NavigationEnd } from '@angular/router';
 
 @Component({
@@ -29,18 +28,8 @@ export class AppComponent implements OnInit {
     
   ]
 
-  constructor(
-    private symbolService: SymbolService,
-    private router: Router) {
-    let sub = this.router.events.subscribe(e => {
-      if (e instanceof NavigationEnd) {
-        sub.unsubscribe()
-        this.symbolService.getList().subscribe(symbols => {
-
-        })
-      }
-    })
-
+  constructor() {
+    
   }
   ngOnInit() {
 

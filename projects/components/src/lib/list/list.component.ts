@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
-import { SymbolService } from "../symbol.service";
+import { SymbolService } from "../services/symbol.service";
 import { SymbolController } from "../core/symbol-controller";
-import { Subscription } from "rxjs";
 import { SVGSymbol } from '../core/symbol';
+import { SelectHelper } from "../core/select-helper";
+
 @Component({
   selector: 'symbol-list',
   templateUrl: './list.component.html',
@@ -10,28 +11,22 @@ import { SVGSymbol } from '../core/symbol';
 })
 export class ListComponent extends SymbolController {
 
+  private selectHelper: SelectHelper<SVGSymbol> = new SelectHelper()
+
   constructor(symbolService: SymbolService) {
     super(symbolService)
   }
 
   setSymbols(symbols) {
     super.setSymbols(symbols)
+    this.selectHelper.collection = this.symbols
   }
   
-  getViewBox(s: SVGSymbol) {
-    return `0 0 ${s.width} ${s.height}`
-  }
-
-  getStyle(s: SVGSymbol) {
-    return `enable-background:new ${this.getViewBox(s)};`
-  }
-
   isSelected(s: SVGSymbol) {
-    return false
+    return this.selectHelper.isSelected(s)
   }
 
   symbolClick(event: MouseEvent, s: SVGSymbol) {
-
+    this.selectHelper.checkEvent(event, s)
   }
-  //[attr.viewBox]="getViewBox(s)" [attr.style]="getStyle(s)"
 }

@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { PathStyle } from "../core/geom";
+import { PathStyle, SVG_NS } from "../core/geom";
 
 const defaultPathStyle = (): PathStyle => {
   return {
@@ -23,6 +23,8 @@ export class SvgRendererComponent {
   @Input()
   pathStyle: PathStyle
 
+  svgNS = SVG_NS
+  
   constructor() { 
     this.pathStyle = defaultPathStyle()
   }

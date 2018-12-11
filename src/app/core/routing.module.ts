@@ -1,13 +1,14 @@
 import { NgModule, Injectable } from '@angular/core'
-import { SymbolService } from "./symbol/symbol.service";
+import { 
+    SymbolService,
+    ListComponent, 
+    ImportComponent, 
+    CatalogComponent 
+} from "components";
+
 import { RouterModule, Routes } from '@angular/router'
-
-import { ListComponent } from "./symbol/list/list.component";
-import { ImportComponent } from "./symbol/import/import.component";
-import { CatalogComponent } from "./symbol/catalog/catalog.component";
-
 import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router'
-import { Observable, Observer, of, Subscription } from "rxjs";
+import { Observable,  of } from "rxjs";
 
 @Injectable()
 export class AppGuard implements CanActivate {

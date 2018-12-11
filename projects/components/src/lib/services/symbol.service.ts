@@ -3,7 +3,7 @@ import { HttpClient } from "@angular/common/http";
 import { Observable, of, Subscription } from "rxjs";
 import { map } from 'rxjs/operators';
 
-import { SVGSymbol } from "./core/symbol";
+import { SVGSymbol } from "../core/symbol";
 const URL: string = "http://localhost:4280"
 
 @Injectable({

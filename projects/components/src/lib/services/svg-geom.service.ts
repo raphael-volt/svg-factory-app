@@ -7,8 +7,9 @@ import { PathData, SGMatrix, SGRect } from "svg-geom";
 export class SvgGeomService {
 
   constructor() { }
+  public defaultSymbolHeight: number = 200
 
-  parseSvgContent(svg: string, shapeHeight: number): PathData[] {
+  parseSvgContent(svg: string): PathData[] {
     let div: HTMLElement = document.createElement("div")
     div.innerHTML = svg
 
@@ -28,7 +29,7 @@ export class SvgGeomService {
       b = pathData.bounds
       if(! isNaN(s))
         m.identity()
-      s = shapeHeight / pathData.bounds.height
+      s = this.defaultSymbolHeight / pathData.bounds.height
       m.translate(-b.x, -b.y).scale(s, s)
       pathData.transform(m)
       pathDataList.push(pathData)

@@ -1,0 +1,13 @@
+{
+    "projects": {
+        "web-app": {
+            "architect": {
+                "test": {
+                    "options": {
+                        "sourceMap": false
+                    }
+                }
+            }
+        }
+    }
+}

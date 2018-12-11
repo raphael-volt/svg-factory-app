@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { SymbolService } from "../symbol.service";
+import { SymbolService } from "../services/symbol.service";
 import { SymbolController } from "../core/symbol-controller";
 
 @Component({

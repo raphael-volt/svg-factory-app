@@ -1,9 +1,13 @@
-<div class="mat-typography">
-    <nav mat-tab-nav-bar>
-        <a mat-tab-link *ngFor="let link of navLinks" [routerLink]="link.path" routerLinkActive #rla="routerLinkActive"
-            [active]="rla.isActive">
-            {{link.label}} <fa-icon style="margin-left: 10px; font-size: 20px" icon="{{link.icon}}"></fa-icon>
-        </a>
-    </nav>
-    <router-outlet></router-outlet>
+<div class="v-box">
+    <div class="v-item">
+        <nav mat-tab-nav-bar>
+            <a mat-tab-link *ngFor="let link of navLinks" [routerLink]="link.path" routerLinkActive #rla="routerLinkActive"
+                [active]="rla.isActive">
+                {{link.label}} <fa-icon style="margin-left: 10px; font-size: 20px" icon="{{link.icon}}"></fa-icon>
+            </a>
+        </nav>
+    </div>
+    <div class="v-item f-h">
+        <router-outlet></router-outlet>
+    </div>
 </div>

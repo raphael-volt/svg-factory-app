@@ -1,7 +1,6 @@
-import { PathData } from "./core/path-data";
-import { SGMath, SGMatrix, SGRect } from "./core/geom"
+import { SGMath, SGMatrix, SGRect } from "./core/geom";
 import { SvgboxPipe } from "./svgbox.pipe";
-
+import { PathData } from "./core/path-data";
 const P: number = .001
 const D = `M236.3,1240c-0.1-0.6-0.3-1.3-0.4-2c2.3-2.6,7.5-5.8,11.4-5.9c0.5,2.4,1.7,5.2,7,3.7c-0.4-0.8-0.7-1.8-1.1-2.8
 c1-1.5,2.8-3.2,4.7-3.9c0.9,3.1,1.9,6,3.1,8.6c-1.6,1-3.7,1.9-6,1c-0.4-1.3-0.6-2.3-0.7-2.9c-2.6,0.9-3.6,4.2-3.2,6.5
