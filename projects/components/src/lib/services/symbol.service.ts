@@ -1,10 +1,8 @@
 import { Injectable, EventEmitter } from '@angular/core';
-import { HttpClient } from "@angular/common/http";
 import { Observable, of, Subscription } from "rxjs";
 import { map } from 'rxjs/operators';
-
+import { ApiService, HTTPRequestOptions } from "./api.service";
 import { SVGSymbol } from "../core/symbol";
-const URL: string = "http://localhost:4280"
 
 @Injectable({
   providedIn: 'root'
@@ -17,13 +15,17 @@ export class SymbolService {
   public populated: boolean = false
   public populatedChange: EventEmitter<boolean> = new EventEmitter<boolean>()
 
-  constructor(private http: HttpClient) {
-    this.populate()
-  }
+  constructor(private http: ApiService) {
 
-  private populate() {
-    const sub: Subscription = this.http.get<SVGSymbol[]>(URL).pipe(
+  }
+  private _populating: boolean = false
+  populate() {
+    if (this._populating)
+      return
+    this._populating = true
+    const sub: Subscription = this.http.get<SVGSymbol[]>().pipe(
       map(symbols => {
+        this._populating = false
         this._symbols = symbols
         this.populated = true
         this.populatedChange.emit(true)
@@ -38,18 +40,18 @@ export class SymbolService {
   }
 
   getById(id: string): Observable<SVGSymbol> {
-    return this.http.get<SVGSymbol>(URL, { params: { id: id } })
+    return this.http.get<SVGSymbol>({ params: { id: id } })
   }
 
   update(symbol: SVGSymbol): Observable<boolean> {
-    return this.http.put(URL, symbol).pipe(
+    return this.http.put(symbol).pipe(
       map(response => {
         return true;
       }))
   }
 
   add(symbol: SVGSymbol): Observable<boolean> {
-    return this.http.post<SVGSymbol>(URL, symbol).pipe(
+    return this.http.post<SVGSymbol>(symbol).pipe(
       map(result => {
         symbol.id = result.id
         this._symbols.push(symbol)
@@ -58,7 +60,7 @@ export class SymbolService {
   }
 
   delete(symbol: SVGSymbol): Observable<boolean> {
-    return this.http.delete<SVGSymbol>(URL, { params: { id: String(symbol.id) } }).pipe(
+    return this.http.delete<SVGSymbol>({ params: { id: String(symbol.id) } }).pipe(
       map(result => {
         const i = this._symbols.indexOf(symbol)
         this._symbols.splice(i, 1)

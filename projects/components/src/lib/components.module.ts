@@ -6,6 +6,7 @@ import { SVGGeomModule } from "svg-geom";
 
 import { AppMaterialModule } from "./services/app-material.module";
 
+import { ApiService } from "./services/api.service";
 import { PrintSvgService } from "./services/print-svg.service";
 import { SvgGeomService } from "./services/svg-geom.service";
 import { SymbolService } from "./services/symbol.service";
@@ -13,9 +14,11 @@ import { SymbolService } from "./services/symbol.service";
 import { CatalogComponent } from "./catalog/catalog.component";
 import { ImportComponent } from "./import/import.component";
 import { ListComponent } from "./list/list.component";
+import { LoginComponent } from './login/login.component';
+
 @NgModule({
   declarations: [
-    CatalogComponent, ImportComponent, ListComponent
+    CatalogComponent, ImportComponent, ListComponent, LoginComponent
   ],
   imports: [
     SVGGeomModule,
@@ -27,7 +30,10 @@ import { ListComponent } from "./list/list.component";
     AppMaterialModule
   ],
   providers: [
-    PrintSvgService, SvgGeomService, SymbolService
+    PrintSvgService, SvgGeomService, SymbolService, ApiService
+  ],
+  entryComponents: [
+    LoginComponent
   ]
 })
 export class ComponentsModule { }

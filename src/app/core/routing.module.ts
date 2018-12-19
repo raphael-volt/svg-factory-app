@@ -1,26 +1,70 @@
 import { NgModule, Injectable } from '@angular/core'
-import { 
+import { MatDialog } from "@angular/material";
+import {
+    ApiService,
     SymbolService,
-    ListComponent, 
-    ImportComponent, 
-    CatalogComponent 
+    LoginComponent,
+    ListComponent,
+    ImportComponent,
+    CatalogComponent
 } from "components";
 
 import { RouterModule, Routes } from '@angular/router'
 import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router'
-import { Observable,  of } from "rxjs";
+import { Observable, Observer, of } from "rxjs";
 
 @Injectable()
 export class AppGuard implements CanActivate {
-    constructor(private service: SymbolService) { }
+    constructor(
+        private service: SymbolService,
+        private api: ApiService,
+        private dialog: MatDialog) { }
     canActivate(
         route: ActivatedRouteSnapshot,
         state: RouterStateSnapshot): Observable<boolean> {
-        const s = this.service
-        if (s.populated)
-            return of(true)
 
-        return s.populatedChange.asObservable()
+        const service = this.service
+        if (this.api.logedIn) {
+            if (service.populated)
+                return of(true)
+            service.populate()
+            return service.populatedChange.asObservable()
+        }
+        const populate = (obs: Observer<Boolean>) => {
+            if (service.populated) {
+                obs.next(true)
+                return obs.complete()
+            }
+            service.populatedChange.subscribe(
+                symbols => {
+                    obs.next(true)
+                    obs.complete()
+                }
+            )
+            service.populate()
+        }
+        return Observable.create(
+            (obs: Observer<Boolean>) => {
+                this.api.checkCookie()
+                    .subscribe(
+                        loggedIn => {
+                            if (loggedIn) {
+                                populate(obs)
+                            }
+                            else {
+                                this.dialog.open(LoginComponent, {
+                                    disableClose:true
+                                })
+                                    .afterClosed()
+                                    .subscribe(
+                                        loggedIn => {
+                                            populate(obs)
+                                        }
+                                    )
+                            }
+                        })
+            }
+        )
     }
 }
 

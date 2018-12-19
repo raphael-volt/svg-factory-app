@@ -13,10 +13,10 @@ div {
   box-sizing: border-box;
 }
 .ofh {
-    overflow: hidden;
+  overflow: hidden;
 }
 .ofa {
-    overflow: auto;
+  overflow: auto;
 }
 .h100 {
   height: 100%;
@@ -59,7 +59,14 @@ div {
   align-content: flex-start;
   align-items: stretch;
 }
-
+.dialog-tool-bar {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-content: flex-start;
+  align-items: flex-start;
+}
 .h-box > .h-item {
   order: 0;
   flex: 0 1 auto;

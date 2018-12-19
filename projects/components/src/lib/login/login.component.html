@@ -1,0 +1,18 @@
+<h2 mat-dialog-title>Connexion</h2>
+<div mat-dialog-content>
+  <p *ngIf="error" class="warn">{{error}}</p>
+  <form #form="ngForm" class="v-box">
+    <mat-form-field>
+      <input [(ngModel)]="user.api" [required]="true" name="api" matInput placeholder="API url">
+    </mat-form-field>
+    <mat-form-field>
+      <input [(ngModel)]="user.login" [required]="true" name="login" matInput placeholder="Login">
+    </mat-form-field>
+    <mat-form-field>
+      <input [(ngModel)]="user.password" [required]="true" type="password" name="password" matInput placeholder="Mot de passe">
+    </mat-form-field>
+  </form>
+</div>
+<div mat-dialog-actions class="dialog-tool-bar">
+  <button (click)="send()" mat-raised-button>Envoyer</button>
+</div>

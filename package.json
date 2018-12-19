@@ -25,6 +25,7 @@
     "@fortawesome/angular-fontawesome": "^0.3.0",
     "@fortawesome/fontawesome-svg-core": "^1.2.8",
     "@fortawesome/free-solid-svg-icons": "^5.5.0",
+    "@ngx-pwa/local-storage": "^7.2.0",
     "@types/jspdf": "^1.2.2",
     "add": "^2.0.6",
     "core-js": "^2.6.0",
