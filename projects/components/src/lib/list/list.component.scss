@@ -4,14 +4,14 @@
   -ms-transition: background-color $duration linear;
   transition: background-color $duration linear;
 }
-
+.svg-box {
+  width: 200px;
+  height: 200px;
+  user-select: none;
+}
 .svg-list > div {
   cursor: pointer;
   display: inline-block;
-  min-width: 0;
-  min-height: 0;
-  width: 200px;
-  height: 200px;
   margin: 5px;
   padding: 5px;
   border: 1px solid grey;

@@ -1,10 +1,13 @@
 <div class="h-box">
-  <div class="h-item">
-    <button mat-raised-button>Some action</button>
+  <div class="h-item content pad-8">
+    <button [disabled]="!hasSelection" mat-raised-button (click)="edit()">Modifier</button>
   </div>
   <div class="svg-list h-item f-w" mat-elevation-z4>
     <div *ngFor="let s of symbols" matRipple matRippleCentered [class.selected]="isSelected(s)" (click)="symbolClick($event, s)">
-      <svg-renderer [path]="s.data" [viewBox]="s | svgbox"></svg-renderer>
+      <div class="svg-box">
+        <svg-renderer [path]="s.data" [viewBox]="s | svgbox"></svg-renderer>
+      </div>
+      <span>{{s | svgName}}</span>
     </div>
   </div>
 </div>

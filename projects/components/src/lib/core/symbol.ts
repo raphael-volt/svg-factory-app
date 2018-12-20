@@ -1,5 +1,6 @@
 export interface SVGSymbol {
     id?: number
+    name?: string
     data?: string
     width?: number
     height?: number

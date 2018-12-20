@@ -67,6 +67,9 @@ div {
   align-content: flex-start;
   align-items: flex-start;
 }
+.dialog-tool-bar > button {
+  margin-left: 8px;
+}
 .h-box > .h-item {
   order: 0;
   flex: 0 1 auto;
