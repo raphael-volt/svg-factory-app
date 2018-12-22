@@ -131,7 +131,7 @@ export class ImportComponent extends SymbolController {
     return this.inputRef.nativeElement
   }
 
-  private get hasSelection(): boolean {
+  get hasSelection(): boolean {
     return this.selectHelper.hasSelection
   }
   isSelected(p: PathData) {

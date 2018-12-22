@@ -49,8 +49,8 @@ export class CatalogComponent extends SymbolController implements OnInit {
         const v = control.value
         if (!v)
           return null
-        
-        if(checkName && cssColors.indexOf(v) > -1) {
+
+        if (checkName && cssColors.indexOf(v) > -1) {
           return null
         }
         let re = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i
@@ -59,32 +59,33 @@ export class CatalogComponent extends SymbolController implements OnInit {
       }
     }
 
-
     const group = this.formBuilder.group(
       {
-        format: ['', [Validators.required, formatValidator()]],
-        orientation: ['', [Validators.required, orientationValidator()]],
-        rowGap: ['', [Validators.required]],
-        itemGap: ['', [Validators.required]],
-        numRows: ['', [Validators.required]],
-        textPadding: ['', [Validators.required]],
-        fontSize: ['', [Validators.required]],
-        textColor:['', [Validators.required, colorValidator(false)]], 
+        format: ['format', [Validators.required, formatValidator()]],
+        orientation: ['orientation', [Validators.required, orientationValidator()]],
+        rowGap: ['rowGap', [Validators.required]],
+        itemGap: ['itemGap', [Validators.required]],
+        numRows: ['numRows', [Validators.required]],
+        textPadding: ['textPadding', [Validators.required]],
+        fontSize: ['fontSize', [Validators.required]],
+        textColor: ['textColor', [Validators.required, colorValidator(false)]],
         style: this.formBuilder.group({
-          stroke: ['', [colorValidator()]],
-          fill: ['', [colorValidator()]],
-          strokeWidth: [''],
+          stroke: ['stroke', [colorValidator()]],
+          fill: ['fill', [colorValidator()]],
+          strokeWidth: ['strokeWidth'],
         }),
-
         margin: this.formBuilder.group({
-          top: ['', [Validators.required]],
-          right: ['', [Validators.required]],
-          bottom: ['', [Validators.required]],
-          left: ['', [Validators.required]],
+          top: ['top', [Validators.required]],
+          right: ['right', [Validators.required]],
+          bottom: ['bottom', [Validators.required]],
+          left: ['left', [Validators.required]],
         })
       }
     )
     this.formGroup = group
+    this.marginGroup = group.get("margin") as FormGroup
+    this.styleGroup = group.controls.style as FormGroup
+
     let sub: Subscription = group.statusChanges.subscribe(status => {
       if (!configSet)
         return
@@ -98,10 +99,11 @@ export class CatalogComponent extends SymbolController implements OnInit {
         configSet = true
         group.patchValue(config, { emitEvent: true, onlySelf: true });
         group.updateValueAndValidity()
+        
         this.canSave = group.valid
         this.createPages()
         sub = group.valueChanges.subscribe(event => {
-          if(group.valid) {
+          if (group.valid) {
             Object.assign(this.config, event)
             this.createPages()
           }
@@ -131,6 +133,8 @@ export class CatalogComponent extends SymbolController implements OnInit {
   canSave: boolean = false
 
   formGroup: FormGroup
+  styleGroup: FormGroup
+  marginGroup: FormGroup
   setSymbols(symbols) {
     super.setSymbols(symbols)
   }

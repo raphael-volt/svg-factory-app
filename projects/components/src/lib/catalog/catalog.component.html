@@ -30,57 +30,57 @@
         </div>
         <div class="form-item">
           <label>Marges:</label>
-          <div class="form-item" formGroupName="margin">
+          <div class="form-item" formGroupName="margin" [formGroup]="marginGroup">
             <mat-form-field>
               <input placeholder="Haut" matInput type="number" formControlName="top">
-              <mat-error *ngIf="formGroup.controls.margin.controls.top.invalid">
-                {{getErrorMessage(formGroup.controls.margin.controls.top)}}
+              <mat-error *ngIf="marginGroup.controls.top.invalid">
+                {{getErrorMessage(marginGroup.controls.top)}}
               </mat-error>
             </mat-form-field>
             <mat-form-field>
               <input placeholder="Bas" matInput type="number" formControlName="bottom">
-              <mat-error *ngIf="formGroup.controls.margin.controls.bottom.invalid">
-                {{getErrorMessage(formGroup.controls.margin.controls.bottom)}}
+              <mat-error *ngIf="marginGroup.controls.bottom.invalid">
+                {{getErrorMessage(marginGroup.controls.bottom)}}
               </mat-error>
             </mat-form-field>
             <mat-form-field>
               <input placeholder="Gauche" matInput type="number" formControlName="left">
-              <mat-error *ngIf="formGroup.controls.margin.controls.left.invalid">
-                {{getErrorMessage(formGroup.controls.margin.controls.left)}}
+              <mat-error *ngIf="marginGroup.controls.left.invalid">
+                {{getErrorMessage(marginGroup.controls.left)}}
               </mat-error>
             </mat-form-field>
             <mat-form-field>
               <input placeholder="Droite" matInput type="number" formControlName="right">
-              <mat-error *ngIf="formGroup.controls.margin.controls.right.invalid">
-                {{getErrorMessage(formGroup.controls.margin.controls.right)}}
+              <mat-error *ngIf="marginGroup.controls.right.invalid">
+                {{getErrorMessage(marginGroup.controls.right)}}
               </mat-error>
             </mat-form-field>
           </div>
         </div>
       </div>
-      <div class="form-item-group border content border br-4 pad-8" formGroupName="style">
+      <div class="form-item-group border content border br-4 pad-8" formGroupName="style" [formGroup]="styleGroup">
         <label>Motif</label>
         <div class="form-item">
           <mat-form-field>
             <input placeholder="Couleur fond" matInput formControlName="fill">
           </mat-form-field>
-          <mat-error *ngIf="formGroup.controls.style.controls.fill.invalid">
-            {{getErrorMessage(formGroup.controls.style.controls.fill)}}
+          <mat-error *ngIf="styleGroup.controls.fill.invalid">
+            {{getErrorMessage(styleGroup.controls.fill)}}
           </mat-error>
         </div>
         <div class="form-item">
           <mat-form-field>
             <input placeholder="Couleur contour" matInput formControlName="stroke">
           </mat-form-field>
-          <mat-error *ngIf="formGroup.controls.style.controls.stroke.invalid">
-            {{getErrorMessage(formGroup.controls.style.controls.stroke)}}
+          <mat-error *ngIf="styleGroup.controls.stroke.invalid">
+            {{getErrorMessage(styleGroup.controls.stroke)}}
           </mat-error>
         </div>
         <div class="form-item">
           <mat-form-field>
             <input placeholder="Épaisseur contour" matInput type="number" formControlName="strokeWidth">
-            <mat-error *ngIf="formGroup.controls.style.controls.strokeWidth.invalid">
-              {{getErrorMessage(formGroup.controls.style.controls.strokeWidth)}}
+            <mat-error *ngIf="styleGroup.controls.strokeWidth.invalid">
+              {{getErrorMessage(styleGroup.controls.strokeWidth)}}
             </mat-error>
           </mat-form-field>
         </div>

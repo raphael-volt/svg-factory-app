@@ -20,10 +20,16 @@
     ],
     "paths": {
       "svg-geom": [
-        "projects/svg-geom/src/public_api"
+        "dist/svg-geom"
       ],
       "components": [
-        "projects/components/src/public_api"
+        "dist/components"
+      ],
+      "svg-geom/*": [
+        "dist/svg-geom/*"
+      ],
+      "components/*": [
+        "dist/components/*"
       ]
     }
   }
