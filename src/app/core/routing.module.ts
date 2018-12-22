@@ -6,19 +6,35 @@ import {
     LoginComponent,
     ListComponent,
     ImportComponent,
-    CatalogComponent
+    CatalogComponent,
+    ConfigComponent
 } from "components";
 
 import { RouterModule, Routes } from '@angular/router'
-import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router'
+import { CanActivate, CanDeactivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router'
 import { Observable, Observer, of } from "rxjs";
-
+import { Route } from '@angular/compiler/src/core';
+export interface IAppRoute extends Route {
+    label: string
+    icon: string
+}
 @Injectable()
-export class AppGuard implements CanActivate {
+export class AppGuard implements CanActivate, CanDeactivate<ConfigComponent> {
     constructor(
         private service: SymbolService,
         private api: ApiService,
         private dialog: MatDialog) { }
+
+    canDeactivate(
+        component: ConfigComponent,
+        currentRoute: ActivatedRouteSnapshot,
+        currentState: RouterStateSnapshot,
+        nextState?: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
+        if (component.connected)
+            return true
+
+        return component.connectedChange.asObservable()
+    }
     canActivate(
         route: ActivatedRouteSnapshot,
         state: RouterStateSnapshot): Observable<boolean> {
@@ -53,7 +69,7 @@ export class AppGuard implements CanActivate {
                             }
                             else {
                                 this.dialog.open(LoginComponent, {
-                                    disableClose:true
+                                    disableClose: true
                                 })
                                     .afterClosed()
                                     .subscribe(
@@ -73,14 +89,25 @@ const routes: Routes = [
         path: '',
         canActivate: [AppGuard],
         children: [
-            {
-                path: 'list', component: ListComponent
+            <IAppRoute>{
+                path: 'list', component: ListComponent,
+                label: 'Motifs',
+                icon: 'th-list'
             },
-            {
-                path: 'import', component: ImportComponent
+            <IAppRoute>{
+                path: 'import', component: ImportComponent,
+                label: 'Importer',
+                icon: 'file-import'
             },
-            {
-                path: 'catalog', component: CatalogComponent
+            <IAppRoute>{
+                path: 'catalog', component: CatalogComponent,
+                label: 'Catalogue',
+                icon: 'book-open'
+            },
+            <IAppRoute>{
+                path: 'config', component: ConfigComponent, canDeactivate: [AppGuard],
+                label: 'Config',
+                icon: 'cogs'
             },
             {
                 path: '',
@@ -92,6 +119,10 @@ const routes: Routes = [
     }
 ]
 
+const appRoutes: IAppRoute[] = routes[0].children.filter((r: IAppRoute) => {
+    return r.label != undefined
+}) as IAppRoute[]
+export { appRoutes }
 @NgModule({
     imports: [
         RouterModule.forRoot(routes)

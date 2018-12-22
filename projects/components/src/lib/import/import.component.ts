@@ -48,7 +48,7 @@ export class ImportComponent extends SymbolController {
       this.updateImportMessage()
   }
   createCatalog() {
-    this.printService.makeCatalog(this.imports)
+    //this.printService.makeCatalog(this.imports)
   }
 
   setSymbols(symbols) {

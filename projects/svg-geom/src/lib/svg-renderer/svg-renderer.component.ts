@@ -1,11 +1,11 @@
 import { Component, Input } from '@angular/core';
 import { PathStyle, SVG_NS } from "../core/geom";
-
+import { BindablePath } from "../svg-drawer.directive";
 const defaultPathStyle = (): PathStyle => {
   return {
     fill: "black",
     stroke: "none",
-    strokeWidth: "none"
+    strokeWidth: 0
   }
 }
 
@@ -17,14 +17,17 @@ const defaultPathStyle = (): PathStyle => {
 export class SvgRendererComponent {
 
   @Input()
-  path: string
-  @Input()
-  viewBox: string
+  set path(value: string) {
+    this.bindablePath.path = value
+  }
   @Input()
   pathStyle: PathStyle
-
-  svgNS = SVG_NS
   
+  @Input()
+  rotateBox: boolean
+  
+  bindablePath: BindablePath = new BindablePath()
+
   constructor() { 
     this.pathStyle = defaultPathStyle()
   }

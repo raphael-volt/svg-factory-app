@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, NavigationEnd } from '@angular/router';
-
+import { appRoutes } from "./core/routing.module";
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -9,24 +8,7 @@ import { Router, NavigationEnd } from '@angular/router';
 export class AppComponent implements OnInit {
   title = 'web-app';
 
-  navLinks = [
-    {
-      path: 'list',
-      label: 'Motifs',
-      icon: 'th-list'
-    },
-    {
-      path: 'import',
-      label: 'Importer',
-      icon: 'file-import'
-    },
-    {
-      path: 'catalog',
-      label: 'Catalogue',
-      icon: 'book-open'
-    }
-    
-  ]
+  navLinks = appRoutes
 
   constructor() {
     

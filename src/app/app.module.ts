@@ -22,7 +22,7 @@ import { RoutingModule } from "./core/routing.module";
     RoutingModule
   ],
   exports: [
-    
+    AppMaterialModule
   ],
   providers:   [],
   bootstrap: [AppComponent]

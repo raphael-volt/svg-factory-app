@@ -47,7 +47,6 @@ export class ListComponent extends SymbolController implements AfterViewInit {
   }
 
   ngAfterViewInit() {
-    this.selectHelper.selectedItems = this.symbols.slice(0, 3)
-    this.edit()
+    
   }
 }

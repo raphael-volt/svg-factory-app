@@ -55,7 +55,7 @@ export class ApiService {
       options = {}
     if (!options.headers)
       options.headers = {}
-    options.headers['Authorization'] = this.authData
+    options.headers['X-Auth'] = this.authData
     return options
   }
 
@@ -79,6 +79,10 @@ export class ApiService {
     )
   }
 
+  private _user: IUser
+  get user(): IUser {
+    return this._user
+  }
   login(user: IUser) {
     this._authorizing = true
     this.setAuthdata(user)
@@ -91,12 +95,32 @@ export class ApiService {
         this._authorizing = false
         this._logedIn = true
         this.storage.setItemSubscribe("user", user)
+        this._user = user
         return true
       },
         catchError(error => {
           this._authorizing = false
           return error
         }))
+    )
+  }
+
+  loginCheck(user: IUser) {
+    this.setAuthdata(user)
+    const done = (value: any): any => {
+      this._authorizing = false
+      this.setAuthdata(this._user)
+      return value
+    }
+    return this.get({
+      params: {
+        login: "1"
+      }
+    }).pipe(
+      map(
+        done,
+        catchError(done)
+      )
     )
   }
 

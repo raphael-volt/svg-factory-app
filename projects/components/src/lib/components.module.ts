@@ -3,7 +3,7 @@ import { CommonModule } from "@angular/common";
 import { HttpClientModule } from "@angular/common/http";
 
 import { SVGGeomModule } from "svg-geom";
-
+import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { AppMaterialModule } from "./services/app-material.module";
 
 import { ApiService } from "./services/api.service";
@@ -17,22 +17,27 @@ import { ListComponent } from "./list/list.component";
 import { LoginComponent } from './login/login.component';
 import { SvgNamePipe } from './pipes/svg-name.pipe';
 import { SvgEditorComponent } from './svg-editor/svg-editor.component';
-
+import { AutoRepeatDirective } from './directives/auto-repeat.directive';
+import { CatalogConfigService } from "./services/catalog-config.service";
+import { ConfigComponent } from './config/config.component';
 @NgModule({
   declarations: [
-    CatalogComponent, ImportComponent, ListComponent, LoginComponent, SvgNamePipe, SvgEditorComponent
+    CatalogComponent, ImportComponent, ListComponent, LoginComponent, SvgNamePipe, SvgEditorComponent, AutoRepeatDirective, ConfigComponent
   ],
   imports: [
     SVGGeomModule,
     AppMaterialModule,
     HttpClientModule,
-    CommonModule
+    CommonModule,
+    PdfViewerModule
   ],
   exports: [
-    AppMaterialModule
+    AppMaterialModule,
+    AutoRepeatDirective,
+    PdfViewerModule
   ],
   providers: [
-    PrintSvgService, SvgGeomService, SymbolService, ApiService, SvgEditorService
+    PrintSvgService, SvgGeomService, SymbolService, CatalogConfigService, ApiService, SvgEditorService
   ],
   entryComponents: [
     LoginComponent, SvgEditorComponent

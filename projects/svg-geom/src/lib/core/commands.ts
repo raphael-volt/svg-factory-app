@@ -160,6 +160,7 @@ export class PathBounds {
                         this.addPoint(pen[0], pen[1])
                         break;
                     case PathCommandTypes.CUBIC_CURVE_TO:
+                    this.addPoint(pen[0], pen[1])
                         this.addCurve(
                             pen[0], pen[1], 
                             cmd.anchorA[0], cmd.anchorA[1], 
@@ -168,11 +169,8 @@ export class PathBounds {
                         pen = cmd.vertex
                         
                         break
-                    default:
-                        break;
                 }
             }
-
         }
     }
 

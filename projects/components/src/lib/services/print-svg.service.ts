@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
+import { CatalogConfigService, ICatalogConfig } from "./catalog-config.service";
 import * as jsPDF from 'jspdf'
 import { PathData, SGRect, SGMatrix } from "svg-geom";
-
+import { SVGSymbol } from "../core/symbol";
 interface RowItem {
   index: number
   bbox: SGRect
@@ -25,7 +26,8 @@ interface PDFPage {
   rowHeight: number
   shapeHeight: number
   numRows: number
-  style: { stroke?: string, fill?: string }
+  style: { stroke?: string, fill?: string, strokeWidth?: number }
+  textColor: string
 }
 
 @Injectable({
@@ -73,6 +75,7 @@ export class PrintSvgService {
       const availableWidth = pageWidth - marginLeft - marginRight
       if (numItem == 1) {
         last.bounds.x = marginLeft + (availableWidth - last.bounds.width) / 2
+        last.bounds.y = y
         return
       }
       let tw: number = 0
@@ -81,13 +84,13 @@ export class PrintSvgService {
 
       let g: number = (availableWidth - tw) / (numItem - 1)
       let x: number = marginLeft
-      
+
       if (g > page.itemGap * 3) {
         tw += (numItem - 1) * page.itemGap
         x = marginLeft + (availableWidth - tw) / 2
         g = page.itemGap
       }
-      
+
       for (let item of row) {
         item.bounds.x = x
         item.bounds.y = y
@@ -107,28 +110,52 @@ export class PrintSvgService {
         rows.push(row)
       }
     }
-
+    const checkStyleValue = (value: any): any => {
+      if (value == undefined || value == null)
+        return undefined
+      if (typeof value == "string") {
+        if (value == "none" || value == "")
+          return undefined
+      }
+      return value
+    }
     let context = pdf.context2d
-    const strokeColor: string = page.style.stroke
-    const fillColor: string = page.style.fill
-    if (fillColor)
-      context.setStrokeStyle(fillColor)
-    if (strokeColor)
-      context.setFillStyle(strokeColor)
+    let strokeColor: any = checkStyleValue(page.style.stroke)
+    let fillColor: any = checkStyleValue(page.style.fill)
+    let strokeWidth: any = checkStyleValue(page.style.strokeWidth)
+    let textColor: any = checkStyleValue(page.textColor)
+    if (strokeWidth != undefined) {
+      const px2mm: number = 297 / 631.4175
+      strokeWidth = Number(strokeWidth) * px2mm
+    }
+    if (strokeWidth == 0) {
+      strokeColor = undefined
+      strokeWidth = undefined
+    }
 
+    if (strokeColor == undefined && fillColor == undefined)
+      fillColor = "#000000"
     let count: number = 0
     const draw = (row: RowItem[]) => {
       let b: SGRect
       for (let i of row) {
+        if (fillColor != undefined)
+          context.setFillStyle(fillColor)
+        if (strokeColor != undefined)
+          context.setStrokeStyle(strokeColor)
+        if (strokeWidth != undefined)
+          context.setLineWidth(strokeWidth)
         b = i.bounds
         m.identity().scale(i.scale, i.scale).translate(b.x, b.y)
         context.beginPath()
         i.data.draw(context, m)
 
-        if (fillColor)
+        if (fillColor != undefined)
           context.fill()
-        if (strokeColor)
+        if (strokeColor != undefined)
           context.stroke()
+        const f: any = pdf.setTextColor
+        f(textColor)
         pdf.text("bo" + (i.index + 1), b.x + b.width / 2, b.y + symHeight + page.textTop + page.lineHeight / 2, null, null, "center")
 
       }
@@ -141,37 +168,27 @@ export class PrintSvgService {
       count++
       y += page.rowHeight + page.rowGap
       if (count == page.numRows) {
-        count = 0
-        y = marginTop
         if (value != lastRow)
           pdf.addPage()
+        count = 0
+        y = marginTop
       }
     })
-
   }
 
 
-  makeCatalog(shapes: PathData[], numRow: number = 4, orientation: "l" | "p" = "l", style: { stroke?: string, fill?: string } = { stroke: "#000000" }) {
-    if (!style.fill && !style.stroke)
-      style.stroke = "#000000"
-    /*
-    style = {
-      fill: "#000000"
-    }
-    */
-    numRow = 3
 
-    const pdf: jsPDF = new jsPDF(orientation, 'px', 'a4')
-    pdf.setFontSize(10)
+  makeCatalog(symbols: SVGSymbol[], config: ICatalogConfig): jsPDF {
+    const pathDataCollection: PathData[] = symbols.map(s => new PathData(s.data))
+    const numRow: number = config.numRows
+    const orientation: string = config.orientation
+    const style = config.style
+
+    const pdf: jsPDF = new jsPDF(orientation, 'px')
     const page: PDFPage = {
       width: pdf.internal.pageSize.getWidth(),
       height: pdf.internal.pageSize.getHeight(),
-      margin: {
-        top: 10,
-        bottom: 15,
-        left: 10,
-        right: 10
-      },
+      margin: config.margin,
       numRows: numRow,
       rowGap: 18,
       itemGap: 15,
@@ -179,13 +196,14 @@ export class PrintSvgService {
       shapeHeight: 0,
       style: style,
       textTop: pdf.getLineHeight(),
-      lineHeight: pdf.getLineHeight()
+      lineHeight: pdf.getLineHeight(),
+      textColor: config.textColor
     }
+    pdf.setFontSize(config.fontSize)
     page.rowHeight = (page.height - page.margin.top - page.margin.bottom - (numRow - 1) * page.rowGap) / numRow
     page.shapeHeight = page.rowHeight - page.lineHeight - page.textTop
 
-    this.createRows(shapes, page, pdf)
-
-    pdf.save("catalogue.pdf")
+    this.createRows(pathDataCollection, page, pdf)
+    return pdf
   }
 }

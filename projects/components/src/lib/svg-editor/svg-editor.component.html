@@ -1,16 +1,28 @@
 <div class="flex-container">
-  <h2 mat-dialog-title class="flex-item">Modifier des motifs</h2>
-  <div class="flex-item editor-toolbar">
-    <button (click)="next()" mat-raised-button>Rotation +90°</button>
-    <button (click)="next()" mat-raised-button>Rotation -90°</button>
+  <h2 mat-dialog-title class="editor-title">Modifier des motifs</h2>
+  <div class="editor-box">
+    <div class="editor-toolbar">
+      <div>
+        <h3>Rotation</h3>
+        <div class="row">
+          <button autoRepeat (click)="rotate(90)" mat-raised-button>+ 90</button>
+          <button autoRepeat (click)="rotate(-90)" mat-raised-button>- 90</button>
+        </div>
+        <div class="row">
+          <button autoRepeat (click)="rotate(1)" mat-raised-button>+ 1</button>
+          <button autoRepeat (click)="rotate(-1)" mat-raised-button>- 1</button>
+        </div>
+        <div class="row">
+          <button autoRepeat (click)="rotate(0.1)" mat-raised-button>+ 0.1</button>
+          <button autoRepeat (click)="rotate(-0.1)" mat-raised-button>- 0.1</button>
+        </div>
+      </div>
+    </div>
+    <div class="svg-box">
+        <svg-renderer *ngIf="current" [path]="current.data" [rotateBox]="true"></svg-renderer>
+    </div>
   </div>
-  <div class="flex-item">
-    <svg xml:space="preserve" preserveAspectRatio="xMidYMid meet" version="1.1" x="0px" y="0px" xmlns="http://www.w3.org/2000/svg"
-      width="100%" height="100%" [attr.viewBox]="current | svgbox">
-      <path [attr.d]="current.data" stroke="none" stroke-width="none" fill="black"></path>
-    </svg>
-  </div>
-  <div class="flex-item dialog-tool-bar">
+  <div class="dialog-tool-bar">
     <button (click)="next()" mat-raised-button>Suivant</button>
     <button (click)="cancel()" mat-raised-button>Annuler</button>
   </div>

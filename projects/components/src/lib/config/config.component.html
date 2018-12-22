@@ -1,0 +1,28 @@
+<form #form="ngForm" [formGroup]="formGroup">
+  <div class="v-box">
+    <button color="accent" class="save-button" [disabled]="!canConnect" mat-raised-button (click)="login()">Envoyer</button>
+  </div>
+  <div class="form-item-group border content border br-4 pad-8">
+    <label>Configuration API</label>
+    <div class="form-item">
+      <mat-form-field>
+        <input placeholder="API URL" matInput formControlName="api">
+        <mat-error *ngIf="formGroup.controls.api.invalid">
+          {{getErrorMessage(formGroup.controls.api)}}
+        </mat-error>
+      </mat-form-field>
+      <mat-form-field>
+        <input placeholder="Login" matInput formControlName="login">
+        <mat-error *ngIf="formGroup.controls.login.invalid">
+          {{getErrorMessage(formGroup.controls.login)}}
+        </mat-error>
+      </mat-form-field>
+      <mat-form-field>
+        <input placeholder="Mot de passe" matInput type="password" formControlName="password">
+        <mat-error *ngIf="formGroup.controls.password.invalid">
+          {{getErrorMessage(formGroup.controls.password)}}
+        </mat-error>
+      </mat-form-field>
+    </div>
+  </div>
+</form>

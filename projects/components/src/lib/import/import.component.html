@@ -15,8 +15,7 @@
             matRippleCentered 
             [class.selected]="isSelected(s.data)" 
             (click)="symbolClick($event, s.data)">
-            <svg-renderer [path]="s.path" [viewBox]="s.data.bounds | svgbox"></svg-renderer>
-            
+            <svg-renderer [path]="s.path"></svg-renderer>
         </div>
     </div>
 </div>

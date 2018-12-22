@@ -20,15 +20,14 @@ export class SvgGeomService {
     let pathData: PathData
     let b: SGRect
     const m: SGMatrix = new SGMatrix()
-    let s: number
+    let s: number = NaN
     for (let i = 0; i < n; i++) {
       path = children.item(i)
       if (this.isSymbolChild(path))
         continue
       pathData = new PathData(path.getAttribute("d"))
       b = pathData.bounds
-      if(! isNaN(s))
-        m.identity()
+      m.identity()
       s = this.defaultSymbolHeight / pathData.bounds.height
       m.translate(-b.x, -b.y).scale(s, s)
       pathData.transform(m)

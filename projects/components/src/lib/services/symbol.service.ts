@@ -18,6 +18,16 @@ export class SymbolService {
   constructor(private http: ApiService) {
 
   }
+  refresh(): Observable<SVGSymbol[]> {
+    return this.http.get<SVGSymbol[]>().pipe(
+      map(symbols => {
+        this._populating = false
+        this._symbols = symbols
+        this.populated = true
+        this.populatedChange.emit(true)
+        return symbols
+      }))
+  }
   private _populating: boolean = false
   populate() {
     if (this._populating)

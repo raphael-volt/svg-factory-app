@@ -1,6 +1,6 @@
 export interface PathStyle {
     stroke: string
-    strokeWidth: string
+    strokeWidth: number
     fill: string
 }
 
@@ -88,7 +88,7 @@ export class SGPoint {
         return `{x:${x}, y:${y}}`
     }
 }
-
+export interface IRect { x: number, y: number, width: number, height: number }
 export class SGRect {
 
     static getElementBounds(element: Element): SGRect {
@@ -170,12 +170,12 @@ export class SGRect {
         }
 
     }
-    copyFrom(target: SGRect) {
+    copyFrom(target: IRect) {
         if (!target) {
             this.identity()
             return
         }
-        this.setValues(target.left, target.top, target.right - target.left, target.bottom - target.top)
+        this.setValues(target.x, target.y, target.width, target.height)
     }
     contains(target: SGRect, precision: number = 0): boolean {
         return (

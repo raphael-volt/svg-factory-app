@@ -9,34 +9,65 @@
   align-items: stretch;
 }
 
-.flex-item:nth-child(1) {
+.editor-box {
+  order: 0;
+  flex: 1 1 auto;
+  align-self: auto;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-content: stretch;
+  align-items: stretch;
+}
+.editor-toolbar {
   order: 0;
   flex: 0 1 auto;
   align-self: auto;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-content: flex-start;
+  align-items: flex-start;
 }
-
-.flex-item:nth-child(3) {
-    order: 0;
+.svg-box {
+  order: 0;
   flex: 1 1 auto;
   align-self: auto;
-  overflow: hidden;
   padding: 5px;
   position: relative;
 }
-.flex-item:nth-child(3) svg {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  width: 100%;
-  height: 100%;
-}
-.flex-item:nth-child(2) {
+.dialog-tool-bar,
+.editor-title {
   order: 0;
   flex: 0 1 auto;
   align-self: auto;
 }
-.editor-toolbar > button {
+.dialog-tool-bar {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  align-content: flex-start;
+  align-items: flex-start;
+}
+.dialog-tool-bar > button {
+  order: 0;
+  flex: 0 1 auto;
+  align-self: auto;
+  margin-right: 8px;
+}
+
+.row {
+  padding: 5px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-content: flex-start;
+  align-items: flex-start;
+}
+.row > button:first-child {
   margin-right: 8px;
 }

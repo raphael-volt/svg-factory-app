@@ -1,4 +1,4 @@
-import { SGMath, SGString, SGRect, SGMatrix, Coord, IDrawable } from "./geom";
+import { SGMath, SGString, SGRect, SGMatrix, Coord, IDrawable, IRect } from "./geom";
 import { PathCommand, PathCommandNames, PathCommandTypes, PathBounds, IPathData } from "./commands";
 
 const getSVGnumber = (value: number, digits: number, ignoreComma: boolean = false): string => {
@@ -143,6 +143,7 @@ const parse = (data: string, result: IPathData = null): IPathData => {
         if (!SGMath.equals(last.vertex[0], first.vertex[0]) || !SGMath.equals(last.vertex[1], first.vertex[1])) {
             addLineTo(first.vertex[0], first.vertex[1])
         }
+        bounds.addPoint(first.vertex[0], first.vertex[1])
         currentX = NaN
         currentY = NaN
         lastCurveControlX = NaN
@@ -227,8 +228,42 @@ const parse = (data: string, result: IPathData = null): IPathData => {
         }
     }
     result.commands = commands
-    result.bounds = new SGRect(bounds.x, bounds.y, bounds.width, bounds.height)
+    const bbox: SGRect = new SGRect()
+    bbox.copyFrom(validateBBox(data))
+    result.bounds = bbox
+    /*
+    const logRect: SGRect = new SGRect()
+    let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg")
+    svg.style.position = "absolute" 
+    document.body.appendChild(svg)
+    let path = document.createElementNS("http://www.w3.org/2000/svg", "path")
+    path.setAttribute("d", data)
+    svg.appendChild(path)
+    let bb = path.getBBox({fill:true, stroke:false, clipped: false, markers: false})
+    document.body.removeChild(svg)
+    let b: PathBounds = new PathBounds()
+    b.parseCommands(result.commands)
+    console.log("--------------------------------------------")
+    console.log("bounds", result.bounds.toString())
+    logRect.copyFrom(bb)
+    console.log("bbox  ", logRect.toString())
+    logRect.copyFrom(b)
+    console.log("parse ", logRect.toString())
+    result.bounds = new SGRect(bb.x, bb.y, bb.width, bb.height)
+    */
     return result
+}
+
+const validateBBox = (data: string): IRect => {
+    let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg")
+    svg.style.position = "absolute" 
+    document.body.appendChild(svg)
+    let path = document.createElementNS("http://www.w3.org/2000/svg", "path")
+    path.setAttribute("d", data)
+    svg.appendChild(path)
+    let bb = path.getBBox({fill:true, stroke:false, clipped: false, markers: false})
+    document.body.removeChild(svg)
+    return bb
 }
 
 const serialize = (commands: PathCommand[][], digits: number = 3, matrix: SGMatrix = null): string => {
@@ -269,7 +304,7 @@ const transformPathData = (target: IPathData, matrix: SGMatrix) => {
                         c.anchorB[0], c.anchorB[1],
                         c.vertex[0], c.vertex[1])
                     pen = c.vertex
-
+                    bounds.addPoint(pen[0], pen[1])
                     break
                 default:
                     break;
