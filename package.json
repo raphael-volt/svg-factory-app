@@ -1,5 +1,5 @@
 {
-  "name": "web-app",
+  "name": "svg-factory-app",
   "version": "0.0.0",
   "main": "main.js",
   "scripts": {
@@ -10,7 +10,7 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
     "debug": "ng test --source-map=false",
-    "build:lib":"ngh link -a -d && ngh build",
+    "build:lib": "ngh link -a -d && ngh build",
     "build:app": "ng build --prod --base-href=./ --output-hashing=none",
     "build:all": "npm run build:lib && npm run build:app",
     "build:electron": "npm run build:all && npm run electron",
@@ -62,6 +62,7 @@
     "karma-jasmine": "~1.1.2",
     "karma-jasmine-html-reporter": "^0.2.2",
     "ng-packagr": "^4.2.0",
+    "ng-workspace-command-helper": "^1.1.1",
     "protractor": "~5.4.0",
     "ts-node": "~7.0.0",
     "tsickle": ">=0.29.0",
