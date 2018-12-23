@@ -143,8 +143,8 @@
   </div>
   <div class="h-item f-w" mat-elevation-z4>
     <div class="pdf-preview">
-      <pdf-viewer *ngIf="pdfUrl != undefined" (after-load-complete)="pdfLoaded($event)" [src]="pdfUrl" [fit-to-page]="true"
+        <pdf-viewer (after-load-complete)="pdfLoaded($event)" [src]="data" [fit-to-page]="true"
         [original-size]="false" [render-text]="true" style="display: block;"></pdf-viewer>
-    </div>
+      </div>
   </div>
 </div>

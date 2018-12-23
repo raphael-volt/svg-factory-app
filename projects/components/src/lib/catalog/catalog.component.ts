@@ -6,6 +6,7 @@ import { FormBuilder, FormControl, AbstractControl, Validators, ValidationErrors
 import { Subscription } from "rxjs";
 import { PrintSvgService } from "../services/print-svg.service";
 import * as jsPDF from 'jspdf'
+
 @Component({
   selector: 'app-catalog',
   templateUrl: './catalog.component.html',
@@ -15,6 +16,13 @@ export class CatalogComponent extends SymbolController implements OnInit {
 
   private subscriptions: Subscription[] = []
   config: ICatalogConfig
+  private pdf: jsPDF
+  data: Uint8Array
+  canSave: boolean = false
+  formGroup: FormGroup
+  styleGroup: FormGroup
+  marginGroup: FormGroup
+
   constructor(
     symbolService: SymbolService,
     private printService: PrintSvgService,
@@ -113,7 +121,7 @@ export class CatalogComponent extends SymbolController implements OnInit {
     )
     this.subscriptions.push(sub)
   }
-  pages: any[] = []
+
   getErrorMessage(control: AbstractControl) {
     if (!control.errors)
       return "no error"
@@ -130,11 +138,7 @@ export class CatalogComponent extends SymbolController implements OnInit {
     }
     return messages.join(" | ")
   }
-  canSave: boolean = false
 
-  formGroup: FormGroup
-  styleGroup: FormGroup
-  marginGroup: FormGroup
   setSymbols(symbols) {
     super.setSymbols(symbols)
   }
@@ -144,16 +148,23 @@ export class CatalogComponent extends SymbolController implements OnInit {
   download() {
     this.pdf.save("catalog.pdf")
   }
-  private pdf: jsPDF
-  pdfUrl: string = undefined
+
   private createPages() {
     const pdf: jsPDF = this.printService.makeCatalog(this.symbols, this.config)
-    this.pdfUrl = pdf.output("bloburl")
+    type outputMode = 'arraybuffer'|'blob'|'bloburi'|'bloburl'|'datauristring'|'dataurlstring'|'dataurlnewwindow'|'datauri'|'dataurl'
+    const output = (m:outputMode) => {
+      return pdf.output(m)
+    }
+    const b = <Blob>output("blob")
+    const fileReader: FileReader = new FileReader();
+    fileReader.onload = () => {
+      this.data = new Uint8Array(<any>fileReader.result)
+    };
+    fileReader.readAsArrayBuffer(b);
     this.pdf = pdf
   }
 
   pdfLoaded(event: string) {
-    window.URL.revokeObjectURL(event)
   }
 }
 const cssColors = [

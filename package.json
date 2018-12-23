@@ -1,14 +1,20 @@
 {
   "name": "web-app",
   "version": "0.0.0",
+  "main": "main.js",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "test": "ng test --source-map false",
+    "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "debug": "ng test --source-map=false"
+    "debug": "ng test --source-map=false",
+    "build:lib":"ngh link -a -d && ngh build",
+    "build:app": "ng build --prod --base-href=./ --output-hashing=none",
+    "build:all": "npm run build:lib && npm run build:app",
+    "build:electron": "npm run build:all && npm run electron",
+    "electron": "electron ."
   },
   "private": true,
   "dependencies": {
@@ -33,7 +39,6 @@
     "jspdf": "^1.4.1",
     "ng2-pdf-viewer": "^5.2.3",
     "rxjs": "~6.3.3",
-    "tslib": "^1.9.0",
     "yarn": "^1.12.3",
     "zone.js": "~0.8.26"
   },
@@ -47,6 +52,8 @@
     "@types/jasminewd2": "~2.0.3",
     "@types/node": "~8.9.4",
     "codelyzer": "~4.5.0",
+    "electron": "^4.0.0",
+    "ionic": "^4.6.0",
     "jasmine-core": "~2.99.1",
     "jasmine-spec-reporter": "~4.2.1",
     "karma": "^3.1.3",

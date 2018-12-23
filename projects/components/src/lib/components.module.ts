@@ -2,8 +2,9 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from "@angular/common";
 import { HttpClientModule } from "@angular/common/http";
 
-import { SVGGeomModule } from "svg-geom";
 import { PdfViewerModule } from 'ng2-pdf-viewer';
+
+import { SVGGeomModule } from "svg-geom";
 import { AppMaterialModule } from "./services/app-material.module";
 
 import { ApiService } from "./services/api.service";
@@ -22,7 +23,14 @@ import { CatalogConfigService } from "./services/catalog-config.service";
 import { ConfigComponent } from './config/config.component';
 @NgModule({
   declarations: [
-    CatalogComponent, ImportComponent, ListComponent, LoginComponent, SvgNamePipe, SvgEditorComponent, AutoRepeatDirective, ConfigComponent
+    CatalogComponent, 
+    ImportComponent, 
+    ListComponent, 
+    LoginComponent, 
+    SvgNamePipe, 
+    SvgEditorComponent, 
+    AutoRepeatDirective, 
+    ConfigComponent
   ],
   imports: [
     SVGGeomModule,
