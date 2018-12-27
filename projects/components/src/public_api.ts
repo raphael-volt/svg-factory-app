@@ -2,7 +2,6 @@ export * from './lib/components.module';
 export * from './lib/services/app-material.module'
 
 export * from './lib/services/svg-geom.service'
-export * from './lib/services/print-svg.service'
 export * from './lib/services/symbol.service'
 export * from './lib/services/api.service'
 export * from './lib/services/catalog-config.service'

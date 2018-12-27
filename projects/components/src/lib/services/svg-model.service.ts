@@ -1,0 +1,608 @@
+import { Injectable } from '@angular/core';
+import { SGMatrix, SGRect, Coord, PathData } from "svg-geom";
+import { SVGSymbol } from "../core/symbol";
+import JsPDF from 'js/fix/jspdf.debug'
+import { RobotoName, Robotodata } from "./roboto";
+const Roboto = 'Roboto-Regular.ttf'
+
+const createPdf = (orientation: "p" | "l", format: "a4" | "a3", unit: string = "px"): JsPDF => {
+  return new JsPDF(orientation, unit, format)
+}
+const addSvg = (svgElement: SVGElement, pdf: JsPDF) => {
+  try {
+    const f = window['svg2pdf']
+    return f(svgElement, pdf, {
+      xOffset: 0,
+      yOffset: 0,
+      scale: 1
+    });
+  } catch (error) {
+
+  }
+  return undefined
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class SvgModelService {
+
+  private textDrawer: SVGTextElement
+  constructor() { }
+  createCollection(symbols: SVGSymbol[], config: SVGConfig): RowItemCollection[] {
+    const pdf: JsPDF = createPdf(config.orientation, config.format)
+    config.fontFamily = "Roboto"
+    const textStyle: SVGTextStyleDesc = new SVGTextStyleDesc("text", config.fontFamily, config.textColor, config.fontSize)
+    const pathStyle: SVGPathStyleDesc = new SVGPathStyleDesc("path", config.style.fill, config.style.stroke, config.style.strokeWidth)
+    let desc: SVGDesc = new SVGDesc(300, 300, textStyle, pathStyle)
+    let svg = desc.createSvg()
+    svg.style.position = "absolute"
+    document.body.appendChild(svg)
+    const textDesc: SVGTextDesc = new SVGTextDesc("", new SGMatrix())
+    this.textDrawer = textDesc.createText(textStyle.name)
+    svg.appendChild(this.textDrawer)
+
+    config.sizes = getFormatSizes(config)
+
+    const result = this.createRows(symbols, config, textStyle, pathStyle)
+
+    document.body.removeChild(svg)
+    return result
+  }
+
+  private defaultLabelFunction: (item: SVGSymbol) => string = (item: SVGSymbol): string => {
+    return "bo-" + item.id
+  }
+  private createRows(
+    symbols: SVGSymbol[],
+    config: SVGConfig,
+    textStyle: SVGTextStyleDesc,
+    pathStyle: SVGPathStyleDesc,
+    labelFunction?: (item: SVGSymbol) => string): RowItemCollection[] {
+    if (labelFunction == undefined)
+      labelFunction = this.defaultLabelFunction
+
+    const rowDesc = this.calculateRowSizes(config)
+    const paddings = config.paddings
+    const maxX: number = rowDesc.row[0] + paddings.left
+    const yInc: number = rowDesc.row[1] + config.rowGap
+    let r: SGRect
+    let s: number
+    let m: SGMatrix = new SGMatrix()
+    let x: number = paddings.left
+    let y: number = paddings.top
+    const ig: number = config.itemGap
+    const tp: number = config.textPadding
+    let svgDesc: SVGDesc
+    let symbolDesc: SVGSymbolDesc
+
+    const rowItems: RowItem[] = symbols.map((symbol: SVGSymbol) => {
+      const s = rowDesc.height / symbol.height
+      return <RowItem>{
+        symbol: symbol,
+        bbox: new SGRect(0, 0, symbol.width, symbol.height),
+        scale: s,
+        name: labelFunction(symbol),
+        bounds: new SGRect(0, 0, s * symbol.width, s * symbol.height)
+      }
+    })
+
+    let collections: RowItemCollection[] = []
+    let collection: RowItemCollection
+    let item: RowItem
+    let row: RowItem[]
+    let count: number = 0
+    while (rowItems.length) {
+      if (!collection) {
+        svgDesc = new SVGDesc(config.sizes[0], config.sizes[1], pathStyle, textStyle)
+        row = []
+        collection = {
+          rows: [row],
+          svgDesc: svgDesc
+        }
+        svgDesc.createSvg()
+        collections.push(collection)
+        x = paddings.left
+        y = paddings.top
+        count = 0
+      }
+      item = rowItems[0]
+      item.bounds.y = y
+      if (x + ig + item.bounds.width <= maxX) {
+        symbolDesc = svgDesc.addSymbol(item.symbol)
+        item.symbolDesc = symbolDesc
+        row.push(rowItems.shift())
+        x += ig + item.bounds.width
+      }
+      else {
+        count++
+        if (count >= config.numRows) {
+          collection = null
+        }
+        else {
+          row = []
+          collection.rows.push(row)
+          y += yInc
+          x = paddings.left
+        }
+      }
+    }
+
+    let bb: DOMRect
+    for (collection of collections) {
+      svgDesc = collection.svgDesc
+      for (row of collection.rows) {
+        this.spaceBetween(paddings.left, rowDesc.row[0], row)
+        for (item of row) {
+          s = item.scale
+          r = item.bounds
+          m.identity().scale(s, s).translate(r.x, r.y)
+          symbolDesc = item.symbolDesc
+          item.pathElement = svgDesc.addPath(symbolDesc, m)
+          bb = this.getTextBBox(item.name)
+          m.identity()
+            .translate(-bb.width / 2, tp + bb.height)
+            .translate(r.x + r.width / 2, r.y + r.height)
+          item.textElement = svgDesc.addText(item.name, m)
+        }
+      }
+    }
+    return collections
+  }
+
+
+  private getTextBBox(text: string): DOMRect {
+    const textDrawer = this.textDrawer
+    setText(textDrawer, text)
+    return textDrawer.getBBox()
+  }
+
+  private spaceBetween(x: number, width: number, items: RowItem[]) {
+    if (items.length < 1)
+      return false
+    let i: RowItem
+    let b: SGRect
+    if (items.length < 2) {
+      b = items[0].bounds
+      b.x = x + (width - b.width) / 2
+      return true
+    }
+
+    let totalWidth: number = 0
+    for (i of items)
+      totalWidth += i.bounds.width
+    const d = (width - totalWidth) / (items.length - 1)
+    for (i of items) {
+      b = i.bounds
+      b.x = x
+      x += b.width + d
+    }
+    return true
+  }
+
+  private calculateRowSizes(config: SVGConfig): { height: number, row: Coord } {
+    const textDrawer = this.textDrawer
+    setText(textDrawer, "XXXyyy")
+    const bb = textDrawer.getBBox()
+    const pw: number = config.sizes[0]
+    const ph: number = config.sizes[1]
+    const th: number = bb.height + config.textPadding
+    const paddings = config.paddings
+    const nr = config.numRows
+    const rg = config.rowGap
+    const result: { height: number, row: Coord } = {
+      height: 0,
+      row: [
+        pw - paddings.left - paddings.right,
+        (ph - paddings.top - paddings.bottom - (nr - 1) * rg) / config.numRows
+      ]
+    }
+    result.height = result.row[1] - th
+    return result
+  }
+  savePDF(collections: RowItemCollection[], config: SVGConfig, filename: string = "catalog.pdf") {
+    const pdf: JsPDF = createPdf(config.orientation, config.format)
+    let context = pdf.context2d
+    //console.log(context)
+    let strokeColor: any = checkStyleValue(config.style.stroke)
+    let fillColor: any = checkStyleValue(config.style.fill)
+    let strokeWidth: any = checkStyleValue(config.style.strokeWidth)
+    let textColor: any = checkStyleValue(config.textColor)
+    let fontName: any = checkStyleValue(config.fontFamily)
+    let fontSize: any = checkStyleValue(config.fontSize)
+    if (fontSize == undefined)
+      fontSize = 10
+
+    if (strokeWidth != undefined) {
+      strokeWidth = Number(strokeWidth) * px2mm
+    }
+    if (strokeWidth == 0) {
+      strokeColor = undefined
+      strokeWidth = undefined
+    }
+    let m: SGMatrix = new SGMatrix()
+    const textPadding: number = config.textPadding
+    if (strokeColor == undefined && fillColor == undefined)
+      fillColor = "#000000"
+    let count: number = 0
+    const drawer: PathData = new PathData()
+
+    const lineHeight: number = pdf.getLineHeight()
+    let b: SGRect
+    let addPage: boolean = false
+    pdf.addFileToVFS(RobotoName, Robotodata)
+    pdf.addFont("Roboto-Regular.ttf", "Roboto", "normal")
+    pdf.setFont(fontName)
+    pdf.setFontSize(fontSize)
+    pdf["setTextColor"](textColor)
+
+    for (const collection of collections) {
+      if (addPage)
+        pdf.addPage(config.format, config.orientation)
+
+      addPage = true
+      for (let row of collection.rows) {
+        for (let i of row) {
+          if (fillColor != undefined)
+            context.fillStyle = fillColor
+          if (strokeColor != undefined)
+            context.strokeStyle = strokeColor
+          if (strokeWidth != undefined)
+            context.lineWidth = strokeWidth
+          b = i.bounds
+          m.identity().scale(i.scale, i.scale).translate(b.x, b.y)
+          context.beginPath()
+          drawer.svgData = i.symbol.data
+          drawer.draw(context, m)
+
+          if (fillColor != undefined)
+            context.fill()
+          if (strokeColor != undefined)
+            context.stroke()
+          pdf.text(i.name,
+            b.x + b.width / 2,
+            b.y + b.height + textPadding + lineHeight / 2, null, null, "center")
+        }
+      }
+    }
+    pdf.save(filename)
+  }
+  saveSvg(svg: SVGElement, filename = "catalog.svg") {
+    var file = new Blob([svg.outerHTML], { type: "image/svg+xml" });
+    if (window.navigator.msSaveOrOpenBlob) // IE10+
+      window.navigator.msSaveOrOpenBlob(file, filename);
+    else { // Others
+      var a = document.createElement("a"),
+        url = URL.createObjectURL(file);
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function () {
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      }, 0);
+    }
+  }
+}
+export interface RowItem {
+  index?: number
+  bbox?: SGRect
+  scale?: number
+  bounds?: SGRect
+  symbol: SVGSymbol
+  symbolDesc?: SVGSymbolDesc
+  textElement?: SVGTextElement
+  useElement?: SVGUseElement
+  pathElement?: SVGPathElement
+  name: string
+}
+export interface RowItemCollection {
+  rows: RowItem[][]
+  svgDesc: SVGDesc
+}
+export type SVGConfigPadding = {
+  top: number
+  right: number
+  bottom: number
+  left: number
+}
+export type SVGConfig = {
+  format: "a4" | "a3"
+  sizes?: Coord
+  orientation: "l" | "p",
+  style: { strokeWidth?: number, stroke?: string, fill?: string }
+  paddings: SVGConfigPadding,
+  rowGap: number
+  itemGap: number
+  numRows: number,
+  textPadding: number,
+  fontSize: number,
+  textColor: string,
+  fontFamily: string
+}
+
+const SVGNS: string = "http://www.w3.org/2000/svg"
+const XLINKNS: string = "http://www.w3.org/1999/xlink"
+const px2mm: number = 297 / 631.4175
+
+const createElement = (name) => {
+  return document.createElementNS(SVGNS, name)
+}
+/*
+var svgElem = document.createElementNS('http://www.w3.org/2000/svg', 'svg'),
+	useElem = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+
+useElem.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', '#down-arrow');
+*/
+
+const setAttribute = (elmt: Element, name: string, value: any, ns: string = null) => {
+  elmt.setAttributeNS(ns, name, String(value))
+}
+
+const viewBox = (x: number, y: number, width: number, height: number): string => {
+  return [x, y, width, height].join(" ")
+}
+const matrixToString = (matrix: SGMatrix) => {
+  //transform="matrix(0.4977 0 0 -0.4977 330.1496 456.2473)"
+  return `matrix(${matrix.a} ${matrix.b} ${matrix.c} ${matrix.d} ${matrix.tx} ${matrix.ty})`
+}
+const setMatrix = (element: Element, matrix: SGMatrix) => {
+  setAttribute(element, "transform", matrixToString(matrix))
+}
+const clearChildNode = (element: Element) => {
+  const childNodes = element.childNodes
+  while (childNodes.length)
+    element.removeChild(childNodes[0])
+}
+const setText = (text: SVGElement, value: string) => {
+  clearChildNode(text)
+  appendText(text, value)
+}
+const appendText = (element: Element, value: string) => {
+  element.appendChild(createText(value))
+}
+const createText = (text: string) => {
+  return document.createTextNode(text)
+}
+const getFormatSizes = (config: SVGConfig): Coord => {
+  const pdf: JsPDF = createPdf(config.orientation, config.format)
+  return [
+    pdf.internal.pageSize.getWidth(),
+    pdf.internal.pageSize.getHeight()
+  ]
+}
+const checkStyleValue = (value: any): any => {
+  if (value == undefined || value == null)
+    return undefined
+  if (typeof value == "string") {
+    if (value == "none" || value == "")
+      return undefined
+  }
+  return value
+}
+export class SVGViewBoxDesc {
+
+  constructor(
+    public x?: number,
+    public y?: number,
+    public width?: number,
+    public height?: number,
+  ) { }
+
+  get viexBox(): string {
+    return viewBox(this.x, this.y, this.width, this.height)
+  }
+}
+
+export abstract class SVGStyleDesc {
+  constructor(
+    public name: string
+  ) { }
+  toCss(): string {
+    return null
+  }
+}
+
+export class SVGTextStyleDesc extends SVGStyleDesc {
+  constructor(
+    name: string,
+    public fontFamily?: string,
+    public color?: string,
+    public fontSize?: string | number
+  ) {
+    super(name)
+  }
+  toCss() {
+    let font: any = checkStyleValue(this.fontFamily)
+    let color: any = checkStyleValue(this.color)
+    let size: any = checkStyleValue(this.fontSize)
+    const l: string[] = []
+    /* 
+    @font-face {
+        font-family: "Sample font";
+        src: url("data:application/font-woff;charset=utf-8;base64,...");
+    }
+    */
+    if (font != undefined) {
+      l.push("font-family:" + font)
+    }
+    if (color != undefined) {
+      l.push("color:" + color)
+    }
+    if (size != undefined) {
+      l.push("font-size:" + size + "px")
+    }
+    return l.join(";")
+  }
+}
+
+export class SVGPathStyleDesc extends SVGStyleDesc {
+  constructor(
+    name: string,
+    public fill?: string,
+    public stroke?: string,
+    public strokeWidth?: string | number
+  ) {
+    super(name)
+  }
+  toCss() {
+    let strokeColor: any = checkStyleValue(this.stroke) //page.style.stroke)
+    let fillColor: any = checkStyleValue(this.fill)
+    let strokeWidth: any = checkStyleValue(this.strokeWidth)
+    const l: string[] = []
+
+    if (strokeColor == undefined)
+      strokeColor = "none"
+    if (strokeWidth != undefined)
+      strokeWidth = strokeWidth + "px"
+    if (fillColor == undefined)
+      fillColor = "none"
+
+    if (fillColor == "none" && strokeColor == "none") {
+      fillColor = "#000000"
+    }
+    l.push("stroke-width:" + strokeWidth)
+    l.push("fill:" + fillColor)
+    l.push("stroke:" + strokeColor)
+    return l.join(";")
+  }
+}
+export class SVGSymbolDesc {
+  static ID: number = 1
+  public id: string
+  constructor(
+    public data?: SVGSymbol
+  ) {
+    this.id = "#" + SVGSymbolDesc.ID++
+  }
+  createSymbol(className: string): SVGSymbolElement {
+    const symbol = <SVGSymbolElement>createElement("symbol")
+    const data = this.data
+    setAttribute(symbol, "id", this.id)
+    setAttribute(symbol, "viewBox", viewBox(0, 0, data.width, data.height))
+    const path = <SVGPathElement>createElement("path")
+    path.classList.add(className)
+    setAttribute(path, "d", data.data)
+    symbol.appendChild(path)
+    return symbol
+  }
+  createUse(matrix: SGMatrix): SVGUseElement {
+    const use: SVGUseElement = <SVGUseElement>createElement("use")
+    setAttribute(use, "xlink:href", this.id, XLINKNS)
+    setAttribute(use, "width", this.data.width)
+    setAttribute(use, "height", this.data.height)
+    setAttribute(use, "style", "overflow:visible;")
+    setMatrix(use, matrix)
+    return use
+  }
+  createPath(className: string, matrix: SGMatrix) {
+    const path = <SVGPathElement>createElement("path")
+    path.classList.add(className)
+    setAttribute(path, "d", this.data.data)
+    setMatrix(path, matrix)
+    return path
+  }
+
+}
+class SVGTextDesc {
+  constructor(
+    public text: string,
+    public matrix: SGMatrix
+  ) { }
+  createText(className: string) {
+    const text = <SVGTextElement>createElement("text")
+    setMatrix(text, this.matrix)
+    text.appendChild(document.createTextNode(this.text))
+    text.classList.add(className)
+    return text
+  }
+}
+export class SVGDesc extends SVGViewBoxDesc {
+  public svg: SVGElement
+  constructor(
+    width: number,
+    height: number,
+    public pathStyle: SVGPathStyleDesc,
+    public textStyle: SVGTextStyleDesc
+  ) {
+    super(0, 0, width, height)
+  }
+
+  private styleNode: SVGStyleElement
+
+  createSvg(): SVGElement {
+    const svg = <SVGElement>document.createElementNS(SVGNS, "svg")
+    svg.setAttribute('xmlns', SVGNS)
+    svg.setAttribute('xmlns:xlink', XLINKNS)
+    setAttribute(svg, "x", 0)
+    setAttribute(svg, "y", 0)
+    setAttribute(svg, "width", this.width)
+    setAttribute(svg, "height", this.height)
+    setAttribute(svg, "viewBox", this.viexBox)
+    const style = <SVGStyleElement>createElement("style")
+    this.styleNode = style
+    this.svg = svg
+    this.updateStyles()
+    svg.append(style)
+
+    let rect = <SVGRectElement>createElement("rect")
+    setAttribute(rect, "x", 0)
+    setAttribute(rect, "y", 0)
+    setAttribute(rect, "width", this.width)
+    setAttribute(rect, "height", this.height)
+    setAttribute(rect, "stroke", "gray")
+    setAttribute(rect, "fill", "none")
+    svg.appendChild(rect)
+    return svg
+  }
+  updateStyles() {
+    const text: SVGStyleDesc = this.textStyle
+    const path: SVGStyleDesc = this.pathStyle
+    const style = this.styleNode
+    let rows = [text, path].map(
+      style => {
+        return `.${style.name}{${style.toCss()}}`
+      }
+    )
+    /*
+    /* 
+@font-face {
+    font-family: "Sample font";
+    src: url("data:application/font-woff;charset=utf-8;base64,...");
+}
+
+*/
+
+    rows.unshift(
+      "@font-face {",
+      "font-family: 'Roboto';",
+      `src: url("data:application/font-ttf;charset=utf-8;base64,${Robotodata}");`,
+      '}')
+    setText(this.styleNode, rows.join("\r\n"))
+  }
+  addSymbol(symbol: SVGSymbol): SVGSymbolDesc {
+    const desc = new SVGSymbolDesc(symbol)
+    return desc
+  }
+  setSymbols(symbols: SVGSymbol[]): SVGSymbolDesc[] {
+    return symbols.map(s => {
+      return this.addSymbol(s)
+    })
+  }
+  addUse(symboDesc: SVGSymbolDesc, matrix: SGMatrix) {
+    return this.svg.appendChild(symboDesc.createUse(matrix))
+  }
+  addPath(symboDesc: SVGSymbolDesc, matrix: SGMatrix) {
+    return this.svg.appendChild(symboDesc.createPath(this.pathStyle.name, matrix))
+  }
+
+  addText(text: string, matrix: SGMatrix) {
+    let node = new SVGTextDesc(text, matrix)
+    return this.svg.appendChild(node.createText(this.textStyle.name))
+  }
+  updateMatrix(element: Element, matrix: SGMatrix) {
+    setMatrix(element, matrix)
+  }
+}
+export { clearChildNode }

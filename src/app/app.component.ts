@@ -11,7 +11,11 @@ export class AppComponent implements OnInit {
   navLinks = appRoutes
 
   constructor() {
-    
+    /*
+    "js/yworks.jspdf.debuh.js",
+    "js/customfonts.js",
+    "js/default_vfs.js"
+    */
   }
   ngOnInit() {
 

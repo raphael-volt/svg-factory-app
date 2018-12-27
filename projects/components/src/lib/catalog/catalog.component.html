@@ -4,6 +4,7 @@
       <div class="v-box">
         <button color="accent" class="save-button" [disabled]="!canSave" mat-raised-button (click)="saveConfig()">Enregister la configuration</button>
         <button color="accent" class="save-button" [disabled]="!canSave" mat-raised-button (click)="download()">Télécharger le catalogue</button>
+        <button color="accent" class="save-button" [disabled]="!canSave" mat-raised-button (click)="downloadSVG()">Télécharger SVG</button>
       </div>
 
       <div class="form-item-group border content border br-4 pad-8">
@@ -30,29 +31,29 @@
         </div>
         <div class="form-item">
           <label>Marges:</label>
-          <div class="form-item" formGroupName="margin" [formGroup]="marginGroup">
+          <div class="form-item" formGroupName="paddings" [formGroup]="paddingsGroup">
             <mat-form-field>
               <input placeholder="Haut" matInput type="number" formControlName="top">
-              <mat-error *ngIf="marginGroup.controls.top.invalid">
-                {{getErrorMessage(marginGroup.controls.top)}}
+              <mat-error *ngIf="paddingsGroup.controls.top.invalid">
+                {{getErrorMessage(paddingsGroup.controls.top)}}
               </mat-error>
             </mat-form-field>
             <mat-form-field>
               <input placeholder="Bas" matInput type="number" formControlName="bottom">
-              <mat-error *ngIf="marginGroup.controls.bottom.invalid">
-                {{getErrorMessage(marginGroup.controls.bottom)}}
+              <mat-error *ngIf="paddingsGroup.controls.bottom.invalid">
+                {{getErrorMessage(paddingsGroup.controls.bottom)}}
               </mat-error>
             </mat-form-field>
             <mat-form-field>
               <input placeholder="Gauche" matInput type="number" formControlName="left">
-              <mat-error *ngIf="marginGroup.controls.left.invalid">
-                {{getErrorMessage(marginGroup.controls.left)}}
+              <mat-error *ngIf="paddingsGroup.controls.left.invalid">
+                {{getErrorMessage(paddingsGroup.controls.left)}}
               </mat-error>
             </mat-form-field>
             <mat-form-field>
               <input placeholder="Droite" matInput type="number" formControlName="right">
-              <mat-error *ngIf="marginGroup.controls.right.invalid">
-                {{getErrorMessage(marginGroup.controls.right)}}
+              <mat-error *ngIf="paddingsGroup.controls.right.invalid">
+                {{getErrorMessage(paddingsGroup.controls.right)}}
               </mat-error>
             </mat-form-field>
           </div>
@@ -142,9 +143,7 @@
     </form>
   </div>
   <div class="h-item f-w" mat-elevation-z4>
-    <div class="pdf-preview">
-        <pdf-viewer (after-load-complete)="pdfLoaded($event)" [src]="data" [fit-to-page]="true"
-        [original-size]="false" [render-text]="true" style="display: block;"></pdf-viewer>
-      </div>
+    <div *ngIf="collections" class="pdf-preview">
+      <div *ngFor="let c of collections" [svgChild]="c.svgDesc.svg"></div>
   </div>
 </div>

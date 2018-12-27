@@ -2,24 +2,8 @@ import { Injectable } from '@angular/core';
 import { LocalStorage } from "@ngx-pwa/local-storage";
 import { map } from "rxjs/operators";
 import { Observable, of } from "rxjs";
+import { SVGConfig } from "./svg-model.service";
 
-export type ICatalogConfig = {
-  format: "a4" | "a3"
-  orientation: "l" | "p",
-  style: { strokeWidth?: number, stroke?: string, fill?: string }
-  margin: {
-    top: number,
-    right: number,
-    bottom: number,
-    left: number
-  },
-  rowGap: number
-  itemGap: number
-  numRows: number,
-  textPadding: number,
-  fontSize: number,
-  textColor: string
-}
 @Injectable({
   providedIn: 'root'
 })
@@ -27,18 +11,26 @@ export class CatalogConfigService {
 
   constructor(private storage: LocalStorage) { }
 
-  private data: ICatalogConfig
+  private data: SVGConfig
   getConfig() {
     if (this.data)
       return of(this.data)
 
-    return this.storage.getItem<ICatalogConfig>("catalog-config")
+    return this.storage.getItem<SVGConfig>("catalog-config")
       .pipe(
-        map((config: ICatalogConfig) => {
+        map((config: SVGConfig) => {
+          const defaultConf = this.getDefaultConfig()
           if (!config)
-            config = this.getDefaultConfig()
+            config = defaultConf
+          if (config['margin'] !== undefined) {
+            config.paddings = config['margin']
+            delete(config['margin'])
+          }
           if (config.textColor == undefined)
-            config.textColor = "#333333"
+            config.textColor = defaultConf.textColor
+          if (config.fontFamily == undefined)
+            config.fontFamily = defaultConf.fontFamily
+          config.fontFamily = "Roboto"
           this.data = config
           return config
         })
@@ -52,11 +44,11 @@ export class CatalogConfigService {
   }
 
 
-  getDefaultConfig(): ICatalogConfig {
+  getDefaultConfig(): SVGConfig {
     return {
       format: "a4",
       orientation: "l",
-      margin: {
+      paddings: {
         top: 10,
         right: 10,
         bottom: 15,
@@ -71,7 +63,8 @@ export class CatalogConfigService {
       numRows: 4,
       textPadding: 7,
       fontSize: 9,
-      textColor: "#333333"
+      textColor: "#333333",
+      fontFamily: "Arial, Helvetica, sans-serif"
     }
   }
 }

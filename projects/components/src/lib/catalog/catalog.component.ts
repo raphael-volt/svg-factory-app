@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { SymbolService } from "../services/symbol.service";
 import { SymbolController } from "../core/symbol-controller";
-import { CatalogConfigService, ICatalogConfig } from "../services/catalog-config.service";
-import { FormBuilder, FormControl, AbstractControl, Validators, ValidationErrors, ValidatorFn, FormGroup } from "@angular/forms";
+import { CatalogConfigService } from "../services/catalog-config.service";
+import { FormBuilder, AbstractControl, Validators, ValidationErrors, ValidatorFn, FormGroup } from "@angular/forms";
 import { Subscription } from "rxjs";
-import { PrintSvgService } from "../services/print-svg.service";
 import * as jsPDF from 'jspdf'
+
+import { RowItemCollection, SvgModelService, SVGConfig } from "../services/svg-model.service";
 
 @Component({
   selector: 'app-catalog',
@@ -15,17 +16,17 @@ import * as jsPDF from 'jspdf'
 export class CatalogComponent extends SymbolController implements OnInit {
 
   private subscriptions: Subscription[] = []
-  config: ICatalogConfig
-  private pdf: jsPDF
+  config: SVGConfig
   data: Uint8Array
   canSave: boolean = false
+
   formGroup: FormGroup
   styleGroup: FormGroup
-  marginGroup: FormGroup
+  paddingsGroup: FormGroup
 
   constructor(
+    private modelService: SvgModelService,
     symbolService: SymbolService,
-    private printService: PrintSvgService,
     private formBuilder: FormBuilder,
     private configService: CatalogConfigService) {
     super(symbolService)
@@ -82,7 +83,7 @@ export class CatalogComponent extends SymbolController implements OnInit {
           fill: ['fill', [colorValidator()]],
           strokeWidth: ['strokeWidth'],
         }),
-        margin: this.formBuilder.group({
+        paddings: this.formBuilder.group({
           top: ['top', [Validators.required]],
           right: ['right', [Validators.required]],
           bottom: ['bottom', [Validators.required]],
@@ -91,7 +92,7 @@ export class CatalogComponent extends SymbolController implements OnInit {
       }
     )
     this.formGroup = group
-    this.marginGroup = group.get("margin") as FormGroup
+    this.paddingsGroup = group.get("paddings") as FormGroup
     this.styleGroup = group.controls.style as FormGroup
 
     let sub: Subscription = group.statusChanges.subscribe(status => {
@@ -145,26 +146,19 @@ export class CatalogComponent extends SymbolController implements OnInit {
   saveConfig() {
     this.configService.saveSubscribe()
   }
+  collections: RowItemCollection[]
   download() {
-    this.pdf.save("catalog.pdf")
+    this.modelService.savePDF(this.collections, this.config)
   }
+  downloadSVG() {
+    this.modelService.saveSvg(this.collections[0].svgDesc.svg)
+  }
+
 
   private createPages() {
-    const pdf: jsPDF = this.printService.makeCatalog(this.symbols, this.config)
-    type outputMode = 'arraybuffer'|'blob'|'bloburi'|'bloburl'|'datauristring'|'dataurlstring'|'dataurlnewwindow'|'datauri'|'dataurl'
-    const output = (m:outputMode) => {
-      return pdf.output(m)
-    }
-    const b = <Blob>output("blob")
-    const fileReader: FileReader = new FileReader();
-    fileReader.onload = () => {
-      this.data = new Uint8Array(<any>fileReader.result)
-    };
-    fileReader.readAsArrayBuffer(b);
-    this.pdf = pdf
-  }
-
-  pdfLoaded(event: string) {
+    this.collections = this.modelService.createCollection(
+      this.symbols, this.config
+    )
   }
 }
 const cssColors = [

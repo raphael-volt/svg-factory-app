@@ -2,7 +2,6 @@ import { Component, ElementRef, ViewChild } from '@angular/core';
 import { SymbolService } from "../services/symbol.service";
 import { SymbolController } from "../core/symbol-controller";
 import { SvgGeomService } from "../services/svg-geom.service";
-import { PrintSvgService } from "../services/print-svg.service";
 import { PathData } from "svg-geom";
 import { SelectHelper } from '../core/select-helper';
 
@@ -29,8 +28,7 @@ export class ImportComponent extends SymbolController {
   
   constructor(
     symbolService: SymbolService,
-    private svgService: SvgGeomService,
-    private printService: PrintSvgService) {
+    private svgService: SvgGeomService) {
     super(symbolService)
   }
 
