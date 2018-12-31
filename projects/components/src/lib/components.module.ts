@@ -3,7 +3,7 @@ import { CommonModule } from "@angular/common";
 import { HttpClientModule } from "@angular/common/http";
 import { AppMaterialModule } from "./services/app-material.module";
 import { SVGGeomModule } from "svg-geom";
-
+import { TspdfModule } from "tspdf";
 import { ApiService } from "./services/api.service";
 import { SvgGeomService } from "./services/svg-geom.service";
 import { SymbolService } from "./services/symbol.service";
@@ -36,6 +36,7 @@ import { SvgNamePipe } from './pipes/svg-name.pipe';
   ],
   imports: [
     SVGGeomModule,
+    TspdfModule,
     AppMaterialModule,
     HttpClientModule,
     CommonModule

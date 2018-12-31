@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
-import { PDFDocument, PDFWrapper, } from "./tspdf.model";
+import { PDFDocument, PDFWrapper, PDFDocumentOptions } from "./tspdf.model";
 import { Observable, Observer, of } from "rxjs";
 import { map } from "rxjs/operators";
-import { PDFDocumentOptions } from 'dist/tspdf/tspdf'
 
 export type Sizes = [number, number]
 export type LayoutNames =

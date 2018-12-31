@@ -2,14 +2,50 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "ng serve",
-      "type": "chrome",
+      "name": "Firefox Launch",
+      "type": "firefox",
       "request": "launch",
-      "url": "http://localhost:4200/#",
-      "webRoot": "${workspaceFolder}"
+      "reAttach": true,
+      "url": "http://localhost:4200",
+      "webRoot": "${workspaceFolder}",
+      "skipFiles": [
+        "${workspaceFolder}/dist/**"
+      ],
+      "pathMappings": [
+        {
+          "url": "webpack:///src/",
+          "path": "${webRoot}/src/"
+        },
+        {
+          "url": "webpack:///projects/",
+          "path": "${webRoot}/projects/"
+        }
+      ]
     },
     {
-      "name": "ng test",
+      "name": "Launch Chrome [FAIL]",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:4200",
+      "webRoot": "${workspaceFolder}",
+      "skipFiles": [
+        "${workspaceFolder}/node_modules/**",
+        "${workspaceFolder}/dist/**"
+      ],
+      "sourceMapPathOverrides": {
+        "webpack:///./*": "${webRoot}/*",
+        "webpack:///src/*": "${webRoot}/*",
+        "webpack:///*": "*",
+        "webpack:///./~/*": "${webRoot}/node_modules/*",
+        "meteor://💻app/*": "${webRoot}/*"
+      },
+      "pathMapping": {
+        "webpack:///src/": "${webRoot}/src",
+        "webpack:///projects/": "${webRoot}/projects"
+      }
+    },
+    {
+      "name": "Chrome launch test [FAIL]",
       "type": "chrome",
       "request": "launch",
       "url": "http://localhost:9876/debug.html",
@@ -17,7 +53,7 @@
       "sourceMaps": true
     },
     {
-      "name": "ng e2e",
+      "name": "Chrome launch e2e [UNKNOW]",
       "type": "node",
       "request": "launch",
       "program": "${workspaceFolder}/node_modules/protractor/bin/protractor",
