@@ -24,6 +24,9 @@
       ],
       "components": [
         "projects/components/src/public_api"
+      ],
+      "tspdf": [
+        "projects/tspdf/src/public_api"
       ]
     }
   }

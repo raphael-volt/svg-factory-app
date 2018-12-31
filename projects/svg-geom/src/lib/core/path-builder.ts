@@ -37,12 +37,6 @@ const parse = (data: string, result: IPathData = null): IPathData => {
     }
 
     const addLineTo = (x: number, y: number) => {
-        if (_currentPath[0].type != PathCommandTypes.MOVE_TO) {
-            _currentPath.unshift(new PathCommand(
-                PathCommandTypes.MOVE_TO,
-                PathCommandNames.M,
-                0, 0))
-        }
         _currentPath.push(new PathCommand(
             PathCommandTypes.LINE_TO,
             PathCommandNames.L,
@@ -51,12 +45,6 @@ const parse = (data: string, result: IPathData = null): IPathData => {
     }
 
     const addCubicCurveTo = (ax: number, ay: number, bx: number, by: number, x: number, y: number) => {
-        if (_currentPath[0].type != PathCommandTypes.MOVE_TO) {
-            _currentPath.unshift(new PathCommand(
-                PathCommandTypes.MOVE_TO,
-                PathCommandNames.M,
-                0, 0))
-        }
         _currentPath.push(new PathCommand(
             PathCommandTypes.CUBIC_CURVE_TO,
             PathCommandNames.C,
@@ -138,12 +126,7 @@ const parse = (data: string, result: IPathData = null): IPathData => {
     }
 
     const closePath = () => {
-        const last = _currentPath[_currentPath.length - 1]
-        const first = _currentPath[0]
-        if (!SGMath.equals(last.vertex[0], first.vertex[0]) || !SGMath.equals(last.vertex[1], first.vertex[1])) {
-            addLineTo(first.vertex[0], first.vertex[1])
-        }
-        bounds.addPoint(first.vertex[0], first.vertex[1])
+        _currentPath.push(new PathCommand(PathCommandTypes.CLOSE))
         currentX = NaN
         currentY = NaN
         lastCurveControlX = NaN
@@ -269,16 +252,19 @@ const validateBBox = (data: string): IRect => {
 const serialize = (commands: PathCommand[][], digits: number = 3, matrix: SGMatrix = null): string => {
     let str: string[] = []
     let s: string
-    const z: string = PathCommandNames[PathCommandNames.z]
+    const z: string = PathCommandNames[PathCommandNames.Z]
     let values: any[]
     for (let l of commands) {
         for (let c of l) {
+            if(c.type == PathCommandTypes.CLOSE) {
+                str.push(z)
+                continue
+            }
             values = getSvgCommandValues(c, digits, matrix)
             for (s of values) {
                 str.push(s)
             }
         }
-        str.push(z)
     }
     return str.join("")
 }
@@ -288,6 +274,8 @@ const transformPathData = (target: IPathData, matrix: SGMatrix) => {
     var pen: Coord
     for (let l of target.commands) {
         for (let c of l) {
+            if(c.type == PathCommandTypes.CLOSE)
+                continue
             matrix.transformCoord(c.vertex)
             switch (c.type) {
                 case PathCommandTypes.LINE_TO:
@@ -328,13 +316,19 @@ const draw = (context: IDrawable, cmds: PathCommand[][], matrix: SGMatrix) => {
     let v: Coord
     let a: Coord
     let b: Coord
-
+    let first: Coord
     for (let l of cmds) {
         for (let c of l) {
+            if(c.type == PathCommandTypes.CLOSE) {
+                context.lineTo(first[0], first[1])
+                first = null
+                continue
+            }
             v = <Coord>c.vertex.slice()
             matrix.transformCoord(v)
             switch (c.type) {
                 case PathCommandTypes.MOVE_TO:
+                    first = v
                     context.moveTo(v[0], v[1])
                     break;
                 case PathCommandTypes.LINE_TO:

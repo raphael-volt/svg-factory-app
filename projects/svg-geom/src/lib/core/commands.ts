@@ -4,13 +4,14 @@ export enum PathCommandNames {
     M,
     L,
     C,
-    z,
+    Z,
     NONE
 }
 export enum PathCommandTypes {
     MOVE_TO,
     LINE_TO,
     CUBIC_CURVE_TO,
+    CLOSE,
     NONE
 }
 

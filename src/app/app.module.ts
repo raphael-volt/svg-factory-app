@@ -4,7 +4,7 @@ import { CommonModule } from "@angular/common";
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { ComponentsModule, AppMaterialModule } from "components";
-
+import { TspdfModule } from "tspdf";
 import { AppComponent } from './app.component';
 import { RoutingModule } from "./core/routing.module";
 
@@ -19,7 +19,8 @@ import { RoutingModule } from "./core/routing.module";
     BrowserAnimationsModule,
     ComponentsModule,
     AppMaterialModule,
-    RoutingModule
+    RoutingModule,
+    TspdfModule
   ],
   exports: [
     AppMaterialModule

@@ -30,7 +30,7 @@ export class CatalogConfigService {
             config.textColor = defaultConf.textColor
           if (config.fontFamily == undefined)
             config.fontFamily = defaultConf.fontFamily
-          config.fontFamily = "Roboto"
+          
           this.data = config
           return config
         })
@@ -46,7 +46,7 @@ export class CatalogConfigService {
 
   getDefaultConfig(): SVGConfig {
     return {
-      format: "a4",
+      format: "A4",
       orientation: "l",
       paddings: {
         top: 10,

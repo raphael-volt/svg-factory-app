@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
+
+import { FormBuilder, AbstractControl, Validators, ValidationErrors, ValidatorFn, FormGroup } from "@angular/forms";
+import { Subscription } from "rxjs";
+
 import { SymbolService } from "../services/symbol.service";
 import { SymbolController } from "../core/symbol-controller";
 import { CatalogConfigService } from "../services/catalog-config.service";
-import { FormBuilder, AbstractControl, Validators, ValidationErrors, ValidatorFn, FormGroup } from "@angular/forms";
-import { Subscription } from "rxjs";
-import * as jsPDF from 'jspdf'
+import { TspdfService } from "tspdf";
 
 import { RowItemCollection, SvgModelService, SVGConfig } from "../services/svg-model.service";
 
@@ -24,7 +26,9 @@ export class CatalogComponent extends SymbolController implements OnInit {
   styleGroup: FormGroup
   paddingsGroup: FormGroup
 
+  currentFont: string
   constructor(
+    private pdfService: TspdfService,
     private modelService: SvgModelService,
     symbolService: SymbolService,
     private formBuilder: FormBuilder,
@@ -38,12 +42,20 @@ export class CatalogComponent extends SymbolController implements OnInit {
     }
   }
   ngOnInit() {
+
     super.ngOnInit()
+
+    this.setupFonts()
+      .then(fonts => {
+        this.setupForm()
+      })
+  }
+  private setupForm() {
     let configSet: boolean = false
     const formatValidator = (): ValidatorFn => {
       return (control: AbstractControl): { [key: string]: any } | null => {
         const v = control.value
-        return (v == "a4" || v == "a3") ? null : { 'format invalide': { value: control.value } };
+        return (v == "A4" || v == "A3") ? null : { 'format invalide': { value: control.value } };
       }
     }
     const orientationValidator = (): ValidatorFn => {
@@ -77,6 +89,7 @@ export class CatalogComponent extends SymbolController implements OnInit {
         numRows: ['numRows', [Validators.required]],
         textPadding: ['textPadding', [Validators.required]],
         fontSize: ['fontSize', [Validators.required]],
+        fontFamily: ['fontFamily', [Validators.required]],
         textColor: ['textColor', [Validators.required, colorValidator(false)]],
         style: this.formBuilder.group({
           stroke: ['stroke', [colorValidator()]],
@@ -108,7 +121,8 @@ export class CatalogComponent extends SymbolController implements OnInit {
         configSet = true
         group.patchValue(config, { emitEvent: true, onlySelf: true });
         group.updateValueAndValidity()
-        
+        if (this.fontList.indexOf(config.fontFamily) != -1)
+          this.currentFont = config.fontFamily
         this.canSave = group.valid
         this.createPages()
         sub = group.valueChanges.subscribe(event => {
@@ -159,6 +173,27 @@ export class CatalogComponent extends SymbolController implements OnInit {
     this.collections = this.modelService.createCollection(
       this.symbols, this.config
     )
+  }
+
+  fontList: string[] = []
+  private setupFonts() {
+    return new Promise((res, rej) => {
+      const srv = this.pdfService
+      if (srv.embededFontsLoaded) {
+        this.fontList = srv.fontList
+        res(this.fontList)
+      }
+      else {
+        const s = srv.loadEmbededFonts().subscribe(
+          fonts => {
+            this.fontList = srv.fontList
+            s.unsubscribe()
+            res(this.fontList)
+          }
+        )
+      }
+
+    })
   }
 }
 const cssColors = [

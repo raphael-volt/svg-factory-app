@@ -1,26 +1,14 @@
 import { Injectable } from '@angular/core';
 import { SGMatrix, SGRect, Coord, PathData } from "svg-geom";
 import { SVGSymbol } from "../core/symbol";
-import JsPDF from 'js/fix/jspdf.debug'
-import { RobotoName, Robotodata } from "./roboto";
+
+import { Observable, Observer } from 'rxjs';
+import {
+  TspdfService, PDFWrapper, PDFDocument, PDFDocumentOptions,
+  LayoutOrientation, getLayoutSizes, Sizes, LayoutNames, IFont
+} from "tspdf";
+
 const Roboto = 'Roboto-Regular.ttf'
-
-const createPdf = (orientation: "p" | "l", format: "a4" | "a3", unit: string = "px"): JsPDF => {
-  return new JsPDF(orientation, unit, format)
-}
-const addSvg = (svgElement: SVGElement, pdf: JsPDF) => {
-  try {
-    const f = window['svg2pdf']
-    return f(svgElement, pdf, {
-      xOffset: 0,
-      yOffset: 0,
-      scale: 1
-    });
-  } catch (error) {
-
-  }
-  return undefined
-}
 
 @Injectable({
   providedIn: 'root'
@@ -28,12 +16,15 @@ const addSvg = (svgElement: SVGElement, pdf: JsPDF) => {
 export class SvgModelService {
 
   private textDrawer: SVGTextElement
-  constructor() { }
+  constructor(
+    private pdfService: TspdfService
+  ) { }
+
   createCollection(symbols: SVGSymbol[], config: SVGConfig): RowItemCollection[] {
-    const pdf: JsPDF = createPdf(config.orientation, config.format)
-    config.fontFamily = "Roboto"
-    const textStyle: SVGTextStyleDesc = new SVGTextStyleDesc("text", config.fontFamily, config.textColor, config.fontSize)
-    const pathStyle: SVGPathStyleDesc = new SVGPathStyleDesc("path", config.style.fill, config.style.stroke, config.style.strokeWidth)
+    let font = this.getFont(config.fontFamily)
+    let url: string = font ? font.url : undefined
+    const textStyle: SVGTextStyleDesc = new SVGTextStyleDesc("s1", config.fontFamily, config.textColor, config.fontSize, url)
+    const pathStyle: SVGPathStyleDesc = new SVGPathStyleDesc("p1", config.style.fill, config.style.stroke, config.style.strokeWidth)
     let desc: SVGDesc = new SVGDesc(300, 300, textStyle, pathStyle)
     let svg = desc.createSvg()
     svg.style.position = "absolute"
@@ -51,7 +42,7 @@ export class SvgModelService {
   }
 
   private defaultLabelFunction: (item: SVGSymbol) => string = (item: SVGSymbol): string => {
-    return "bo-" + item.id
+    return "N° " + item.id
   }
   private createRows(
     symbols: SVGSymbol[],
@@ -200,18 +191,49 @@ export class SvgModelService {
     result.height = result.row[1] - th
     return result
   }
+
+  private getFont(name: string): IFont | undefined {
+    const srv = this.pdfService
+    let font = srv.getFont(name)
+    if (font == undefined) {
+      const fonts = srv.fontList
+      if (fonts.length) {
+        font = srv.getFont(fonts[0])
+      }
+    }
+    return font
+  }
   savePDF(collections: RowItemCollection[], config: SVGConfig, filename: string = "catalog.pdf") {
-    const pdf: JsPDF = createPdf(config.orientation, config.format)
-    let context = pdf.context2d
-    //console.log(context)
+
     let strokeColor: any = checkStyleValue(config.style.stroke)
     let fillColor: any = checkStyleValue(config.style.fill)
     let strokeWidth: any = checkStyleValue(config.style.strokeWidth)
     let textColor: any = checkStyleValue(config.textColor)
     let fontName: any = checkStyleValue(config.fontFamily)
     let fontSize: any = checkStyleValue(config.fontSize)
+
+    const srv = this.pdfService
+    const pdf: PDFWrapper = new PDFWrapper(
+      {
+        margins: {
+          top: 0,
+          bottom: 0,
+          right: 0,
+          left: 0
+        },
+        size: config.sizes,
+      })
+    const doc = pdf.document
+    let font = this.getFont(fontName)
+    fontName = (font == undefined) ? undefined : font.name
     if (fontSize == undefined)
       fontSize = 10
+    if (textColor == undefined)
+      textColor = "#333333"
+    if (font) {
+      doc.registerFont(fontName, <any>font.data)
+      doc.font(fontName).fillColor(textColor).fontSize(fontSize)
+    }
 
     if (strokeWidth != undefined) {
       strokeWidth = Number(strokeWidth) * px2mm
@@ -227,41 +249,38 @@ export class SvgModelService {
     let count: number = 0
     const drawer: PathData = new PathData()
 
-    const lineHeight: number = pdf.getLineHeight()
+    const lineHeight: number = doc.currentLineHeight(true)
     let b: SGRect
     let addPage: boolean = false
-    pdf.addFileToVFS(RobotoName, Robotodata)
-    pdf.addFont("Roboto-Regular.ttf", "Roboto", "normal")
-    pdf.setFont(fontName)
-    pdf.setFontSize(fontSize)
-    pdf["setTextColor"](textColor)
+
 
     for (const collection of collections) {
-      if (addPage)
-        pdf.addPage(config.format, config.orientation)
-
+      if (addPage) {
+        doc.addPage()
+      }
       addPage = true
       for (let row of collection.rows) {
         for (let i of row) {
-          if (fillColor != undefined)
-            context.fillStyle = fillColor
-          if (strokeColor != undefined)
-            context.strokeStyle = strokeColor
-          if (strokeWidth != undefined)
-            context.lineWidth = strokeWidth
           b = i.bounds
           m.identity().scale(i.scale, i.scale).translate(b.x, b.y)
-          context.beginPath()
+          doc.moveTo(0, 0)
           drawer.svgData = i.symbol.data
-          drawer.draw(context, m)
+          drawer.transform(m)
+          doc.path(drawer.svgData)
 
+          if (strokeWidth != undefined)
+            doc.lineWidth(strokeWidth)
           if (fillColor != undefined)
-            context.fill()
+            doc.fill(fillColor)
           if (strokeColor != undefined)
-            context.stroke()
-          pdf.text(i.name,
-            b.x + b.width / 2,
-            b.y + b.height + textPadding + lineHeight / 2, null, null, "center")
+            doc.stroke(strokeColor)
+
+          const ox = doc.widthOfString(i.name) / 2
+          doc.text(i.name,
+            b.x + b.width / 2 - ox,
+            b.y + b.height + textPadding + lineHeight / 2)
+            .fillColor(textColor)
+            .fontSize(fontSize)
         }
       }
     }
@@ -308,7 +327,7 @@ export type SVGConfigPadding = {
   left: number
 }
 export type SVGConfig = {
-  format: "a4" | "a3"
+  format: LayoutNames
   sizes?: Coord
   orientation: "l" | "p",
   style: { strokeWidth?: number, stroke?: string, fill?: string }
@@ -366,11 +385,16 @@ const createText = (text: string) => {
   return document.createTextNode(text)
 }
 const getFormatSizes = (config: SVGConfig): Coord => {
-  const pdf: JsPDF = createPdf(config.orientation, config.format)
-  return [
-    pdf.internal.pageSize.getWidth(),
-    pdf.internal.pageSize.getHeight()
-  ]
+  let l = getLayoutSizes(<LayoutNames>config.format)
+  if (!l) {
+    l = getLayoutSizes("A4")
+  }
+  // default portrait
+  if (config.orientation == "l") {
+    l.reverse()
+  }
+  config.sizes = l
+  return l
 }
 const checkStyleValue = (value: any): any => {
   if (value == undefined || value == null)
@@ -409,7 +433,8 @@ export class SVGTextStyleDesc extends SVGStyleDesc {
     name: string,
     public fontFamily?: string,
     public color?: string,
-    public fontSize?: string | number
+    public fontSize?: string | number,
+    public src?: string
   ) {
     super(name)
   }
@@ -418,12 +443,14 @@ export class SVGTextStyleDesc extends SVGStyleDesc {
     let color: any = checkStyleValue(this.color)
     let size: any = checkStyleValue(this.fontSize)
     const l: string[] = []
-    /* 
-    @font-face {
-        font-family: "Sample font";
-        src: url("data:application/font-woff;charset=utf-8;base64,...");
+    let fontFace: string = ""
+    if (this.src && font) {
+      fontFace = `@font-face {
+\tfont-family: "${font}";
+\tsrc: url("${this.src}");
+}\n`
     }
-    */
+    
     if (font != undefined) {
       l.push("font-family:" + font)
     }
@@ -431,9 +458,9 @@ export class SVGTextStyleDesc extends SVGStyleDesc {
       l.push("color:" + color)
     }
     if (size != undefined) {
-      l.push("font-size:" + size + "px")
+      l.push("font-size:" + size + "pt")
     }
-    return l.join(";")
+    return `${fontFace}.${this.name} {${l.join("; ")}`
   }
 }
 
@@ -465,7 +492,8 @@ export class SVGPathStyleDesc extends SVGStyleDesc {
     l.push("stroke-width:" + strokeWidth)
     l.push("fill:" + fillColor)
     l.push("stroke:" + strokeColor)
-    return l.join(";")
+    l.push()
+    return `.${this.name} { ${l.join("; ")}}`
   }
 }
 export class SVGSymbolDesc {
@@ -474,7 +502,7 @@ export class SVGSymbolDesc {
   constructor(
     public data?: SVGSymbol
   ) {
-    this.id = "#" + SVGSymbolDesc.ID++
+    this.id = "SVGSymbol_" + SVGSymbolDesc.ID++
   }
   createSymbol(className: string): SVGSymbolElement {
     const symbol = <SVGSymbolElement>createElement("symbol")
@@ -562,23 +590,9 @@ export class SVGDesc extends SVGViewBoxDesc {
     const style = this.styleNode
     let rows = [text, path].map(
       style => {
-        return `.${style.name}{${style.toCss()}}`
+        return style.toCss()
       }
     )
-    /*
-    /* 
-@font-face {
-    font-family: "Sample font";
-    src: url("data:application/font-woff;charset=utf-8;base64,...");
-}
-
-*/
-
-    rows.unshift(
-      "@font-face {",
-      "font-family: 'Roboto';",
-      `src: url("data:application/font-ttf;charset=utf-8;base64,${Robotodata}");`,
-      '}')
     setText(this.styleNode, rows.join("\r\n"))
   }
   addSymbol(symbol: SVGSymbol): SVGSymbolDesc {
@@ -605,4 +619,5 @@ export class SVGDesc extends SVGViewBoxDesc {
     setMatrix(element, matrix)
   }
 }
+
 export { clearChildNode }
