@@ -461,5 +461,5 @@ export {
     PDFKitReference, PDFAnnotation,
     PDFColor, PDFFont, PDFImage, PDFText, PDFVector,
     ReadableStream, EventEmitter, PDFDocumentOptions,
-    PDFWrapper
+    PDFWrapper, TextOptions
 }
