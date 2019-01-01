@@ -9,10 +9,10 @@ import {
 import { MatTabsModule } from '@angular/material/tabs';
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 
-import { faCogs, faCoffee, faList, faThList, faBook, faBookOpen, faBookDead, faFileImport } from "@fortawesome/free-solid-svg-icons";
+import { faCogs, faCoffee, faList, faThList, faBook, faBookOpen, faBookDead, faFileImport, faPrint } from "@fortawesome/free-solid-svg-icons";
 import { library } from "@fortawesome//fontawesome-svg-core";
 
-library.add(faCogs, faCoffee, faList, faThList, faBook, faBookOpen, faBookDead, faFileImport)
+library.add(faCogs, faCoffee, faList, faThList, faBook, faBookOpen, faBookDead, faFileImport, faPrint)
 
 @NgModule({
     imports: [

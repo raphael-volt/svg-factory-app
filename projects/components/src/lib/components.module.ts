@@ -22,6 +22,7 @@ import { CatalogConfigService } from "./services/catalog-config.service";
 import { SvgChildDirective } from './directives/svg-child.directive';
 
 import { SvgNamePipe } from './pipes/svg-name.pipe';
+import { PrintSymbolsComponent } from './print-symbols/print-symbols.component';
 
 @NgModule({
   declarations: [
@@ -32,7 +33,7 @@ import { SvgNamePipe } from './pipes/svg-name.pipe';
     SvgNamePipe, 
     SvgEditorComponent, 
     AutoRepeatDirective, 
-    ConfigComponent, SvgChildDirective
+    ConfigComponent, SvgChildDirective, PrintSymbolsComponent
   ],
   imports: [
     SVGGeomModule,

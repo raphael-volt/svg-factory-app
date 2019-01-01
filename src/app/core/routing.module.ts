@@ -7,7 +7,8 @@ import {
     ListComponent,
     ImportComponent,
     CatalogComponent,
-    ConfigComponent
+    ConfigComponent,
+    PrintSymbolsComponent
 } from "components";
 
 import { RouterModule, Routes } from '@angular/router'
@@ -108,6 +109,11 @@ const routes: Routes = [
                 path: 'config', component: ConfigComponent, canDeactivate: [AppGuard],
                 label: 'Config',
                 icon: 'cogs'
+            },
+            <IAppRoute>{
+                path: 'print', component: PrintSymbolsComponent, canDeactivate: [AppGuard],
+                label: 'Imprimer',
+                icon: 'print'
             },
             {
                 path: '',
