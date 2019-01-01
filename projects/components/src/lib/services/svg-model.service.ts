@@ -5,10 +5,8 @@ import { SVGSymbol } from "../core/symbol";
 import { Observable, Observer } from 'rxjs';
 import {
   TspdfService, PDFWrapper, PDFDocument, PDFDocumentOptions,
-  LayoutOrientation, getLayoutSizes, Sizes, LayoutNames, IFont
+  LayoutOrientation, getLayoutSizes, Sizes, LayoutNames, IFont, TextOptions
 } from "tspdf";
-
-const Roboto = 'Roboto-Regular.ttf'
 
 @Injectable({
   providedIn: 'root'
@@ -64,6 +62,7 @@ export class SvgModelService {
     let y: number = paddings.top
     const ig: number = config.itemGap
     const tp: number = config.textPadding
+    const fs: number = <number>(textStyle.fontSize)
     let svgDesc: SVGDesc
     let symbolDesc: SVGSymbolDesc
 
@@ -119,7 +118,10 @@ export class SvgModelService {
       }
     }
 
-    let bb: DOMRect
+    let bb: any = this.getTextBBox("Xy")
+    // y-axis: 0.65 px more than pdf with 9px font
+    // should use font metrix
+    const lh = fs
     for (collection of collections) {
       svgDesc = collection.svgDesc
       for (row of collection.rows) {
@@ -132,8 +134,7 @@ export class SvgModelService {
           item.pathElement = svgDesc.addPath(symbolDesc, m)
           bb = this.getTextBBox(item.name)
           m.identity()
-            .translate(-bb.width / 2, tp + bb.height)
-            .translate(r.x + r.width / 2, r.y + r.height)
+            .translate(r.x + r.width / 2, r.y + r.height + tp + lh)
           item.textElement = svgDesc.addText(item.name, m)
         }
       }
@@ -142,7 +143,7 @@ export class SvgModelService {
   }
 
 
-  private getTextBBox(text: string): DOMRect {
+  private getTextBBox(text: string): DOMRect | SVGRect | ClientRect {
     const textDrawer = this.textDrawer
     setText(textDrawer, text)
     return textDrawer.getBBox()
@@ -212,6 +213,31 @@ export class SvgModelService {
     let fontName: any = checkStyleValue(config.fontFamily)
     let fontSize: any = checkStyleValue(config.fontSize)
 
+    if (fontSize == undefined)
+      fontSize = 10
+    if (textColor == undefined)
+      textColor = "#333333"
+    let fill: boolean = false
+    let stroke: boolean = false
+    if (fillColor !== undefined) {
+      fill = true
+    }
+    if (strokeColor !== undefined) {
+      stroke = true
+    }
+    if (stroke) {
+      if (strokeWidth == undefined)
+        strokeWidth = 1
+    }
+    if (!fill && !stroke) {
+      fill = true
+      fillColor = "#000000"
+    }
+
+    const textOptions: TextOptions = {
+      fill: true,
+      align: "left"
+    }
     const srv = this.pdfService
     const pdf: PDFWrapper = new PDFWrapper(
       {
@@ -230,26 +256,11 @@ export class SvgModelService {
       fontSize = 10
     if (textColor == undefined)
       textColor = "#333333"
-    if (font) {
-      doc.registerFont(fontName, <any>font.data)
-      doc.font(fontName).fillColor(textColor).fontSize(fontSize)
-    }
+    doc.registerFont(fontName, <any>font.data)
 
-    if (strokeWidth != undefined) {
-      strokeWidth = Number(strokeWidth) * px2mm
-    }
-    if (strokeWidth == 0) {
-      strokeColor = undefined
-      strokeWidth = undefined
-    }
     let m: SGMatrix = new SGMatrix()
     const textPadding: number = config.textPadding
-    if (strokeColor == undefined && fillColor == undefined)
-      fillColor = "#000000"
-    let count: number = 0
     const drawer: PathData = new PathData()
-
-    const lineHeight: number = doc.currentLineHeight(true)
     let b: SGRect
     let addPage: boolean = false
 
@@ -259,28 +270,45 @@ export class SvgModelService {
         doc.addPage()
       }
       addPage = true
+      // draw symbols
+
       for (let row of collection.rows) {
         for (let i of row) {
+          doc.moveTo(0, 0)
           b = i.bounds
           m.identity().scale(i.scale, i.scale).translate(b.x, b.y)
-          doc.moveTo(0, 0)
           drawer.svgData = i.symbol.data
           drawer.transform(m)
-          doc.path(drawer.svgData)
-
-          if (strokeWidth != undefined)
-            doc.lineWidth(strokeWidth)
-          if (fillColor != undefined)
-            doc.fill(fillColor)
-          if (strokeColor != undefined)
-            doc.stroke(strokeColor)
-
-          const ox = doc.widthOfString(i.name) / 2
-          doc.text(i.name,
-            b.x + b.width / 2 - ox,
-            b.y + b.height + textPadding + lineHeight / 2)
-            .fillColor(textColor)
-            .fontSize(fontSize)
+          if (fill && stroke) {
+            doc.path(drawer.svgData)
+              .lineWidth(strokeWidth)
+              .fillAndStroke(fillColor, strokeColor)
+          }
+          else {
+            if (fill) {
+              doc.path(drawer.svgData)
+                .lineWidth(strokeWidth)
+                .fill(fillColor)
+            }
+            else {
+              doc.path(drawer.svgData)
+                .lineWidth(strokeWidth)
+                .stroke(strokeColor)
+            }
+          }
+        }
+      }
+      // append tests
+      for (let row of collection.rows) {
+        for (let i of row) {
+          doc.moveTo(0, 0)
+          b = i.bounds
+          const w = doc.font(fontName).fontSize(fontSize).widthOfString(i.name)
+          doc.font(fontName).fontSize(fontSize).fillColor(textColor).text(
+            i.name,
+            b.x + (b.width - w) / 2,
+            b.y + b.height + textPadding,
+            textOptions)
         }
       }
     }
@@ -423,7 +451,7 @@ export abstract class SVGStyleDesc {
   constructor(
     public name: string
   ) { }
-  toCss(): string {
+  toCss(): string[] {
     return null
   }
 }
@@ -443,24 +471,27 @@ export class SVGTextStyleDesc extends SVGStyleDesc {
     let color: any = checkStyleValue(this.color)
     let size: any = checkStyleValue(this.fontSize)
     const l: string[] = []
-    let fontFace: string = ""
     if (this.src && font) {
-      fontFace = `@font-face {
-\tfont-family: "${font}";
-\tsrc: url("${this.src}");
-}\n`
+      l.push("@font-face {")
+      l.push(`font-family: "${font}";`)
+      l.push(`src: url("${this.src}")`)
+      l.push("}")
     }
-    
+
+    l.push("." + this.name + " {")
     if (font != undefined) {
-      l.push("font-family:" + font)
+      l.push(`font-family:"${font}";`)
     }
     if (color != undefined) {
-      l.push("color:" + color)
+      l.push("color:" + color + ";")
     }
     if (size != undefined) {
-      l.push("font-size:" + size + "pt")
+      l.push("font-size:" + size + "pt;")
     }
-    return `${fontFace}.${this.name} {${l.join("; ")}`
+    // start | middle | end | inherit
+    // 	auto | baseline | before-edge | text-before-edge | middle | central | after-edge | text-after-edge | ideographic | alphabetic | hanging | mathematical |
+    l.push('text-anchor:middle}')
+    return l
   }
 }
 
@@ -481,19 +512,22 @@ export class SVGPathStyleDesc extends SVGStyleDesc {
 
     if (strokeColor == undefined)
       strokeColor = "none"
-    if (strokeWidth != undefined)
-      strokeWidth = strokeWidth + "px"
+
     if (fillColor == undefined)
       fillColor = "none"
 
-    if (fillColor == "none" && strokeColor == "none") {
+    if (fillColor == "none")
       fillColor = "#000000"
-    }
-    l.push("stroke-width:" + strokeWidth)
-    l.push("fill:" + fillColor)
-    l.push("stroke:" + strokeColor)
-    l.push()
-    return `.${this.name} { ${l.join("; ")}}`
+    if (strokeWidth == undefined)
+      strokeWidth = "none"
+    else
+      strokeWidth += "pt"
+    l.push("." + this.name + " {")
+    l.push("stroke-width:" + strokeWidth + ";")
+    l.push("fill:" + fillColor + ";")
+    l.push("stroke:" + strokeColor + ";")
+    l.push("}")
+    return l
   }
 }
 export class SVGSymbolDesc {
@@ -572,7 +606,7 @@ export class SVGDesc extends SVGViewBoxDesc {
     this.styleNode = style
     this.svg = svg
     this.updateStyles()
-    svg.append(style)
+    svg.appendChild(style)
 
     let rect = <SVGRectElement>createElement("rect")
     setAttribute(rect, "x", 0)
@@ -588,12 +622,12 @@ export class SVGDesc extends SVGViewBoxDesc {
     const text: SVGStyleDesc = this.textStyle
     const path: SVGStyleDesc = this.pathStyle
     const style = this.styleNode
-    let rows = [text, path].map(
-      style => {
-        return style.toCss()
+    for (const o of [text, path]) {
+      const l = o.toCss()
+      for (const s of l) {
+        appendText(style, s)
       }
-    )
-    setText(this.styleNode, rows.join("\r\n"))
+    }
   }
   addSymbol(symbol: SVGSymbol): SVGSymbolDesc {
     const desc = new SVGSymbolDesc(symbol)
