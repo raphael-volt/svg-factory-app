@@ -1,5 +1,6 @@
-import { SGMath, SGString, SGRect, SGMatrix, Coord, IDrawable, IRect } from "./geom";
-import { PathCommand, PathCommandNames, PathCommandTypes, PathBounds, IPathData } from "./commands";
+import { SGString, SGRect, SGMatrix, Coord, IDrawable, IRect, SGPoint } from "./geom";
+import { PathCommand, PathCommandNames, PathCommandTypes } from "./commands";
+import { IPathData } from "./path-data";
 
 const getSVGnumber = (value: number, digits: number, ignoreComma: boolean = false): string => {
     const str: string = value.toFixed(digits)
@@ -24,8 +25,12 @@ const getSvgCommandValues = (command: PathCommand, digits: number = 3, matrix: S
     return output
 }
 
+/**
+ * Compute path commands only
+ * @param data string
+ * @param result IPathData
+ */
 const parse = (data: string, result: IPathData = null): IPathData => {
-
     const addMoveTo = (x: number, y: number) => {
         _currentPath = []
         commands.push(_currentPath)
@@ -33,7 +38,6 @@ const parse = (data: string, result: IPathData = null): IPathData => {
             PathCommandTypes.MOVE_TO,
             PathCommandNames.M,
             x, y))
-        bounds.addPoint(x, y)
     }
 
     const addLineTo = (x: number, y: number) => {
@@ -41,15 +45,14 @@ const parse = (data: string, result: IPathData = null): IPathData => {
             PathCommandTypes.LINE_TO,
             PathCommandNames.L,
             x, y))
-        bounds.addPoint(x, y)
     }
 
     const addCubicCurveTo = (ax: number, ay: number, bx: number, by: number, x: number, y: number) => {
         _currentPath.push(new PathCommand(
             PathCommandTypes.CUBIC_CURVE_TO,
             PathCommandNames.C,
-            ax, ay, bx, by, x, y))
-        bounds.addCurve(currentX, currentY, ax, ay, bx, by, x, y)
+            ax, ay, bx, by, x, y)
+        )
     }
 
     const moveTo = (x: number, y: number, isAbs: boolean) => {
@@ -139,7 +142,6 @@ const parse = (data: string, result: IPathData = null): IPathData => {
     }
 
     const commands: PathCommand[][] = []
-    const bounds: PathBounds = new PathBounds()
     var currentX: number
     var currentY: number
     var lastCurveControlX: number
@@ -154,7 +156,6 @@ const parse = (data: string, result: IPathData = null): IPathData => {
     }
 
     let comStr: string
-    let lineAbs: boolean
     let isAbs: boolean
     let n: number = svgSegs.length
     let firstMove: boolean = true
@@ -166,7 +167,6 @@ const parse = (data: string, result: IPathData = null): IPathData => {
             case "M":
                 isAbs = true
             case "m":
-                lineAbs = isAbs
                 if (firstMove) {
                     isAbs = true
                     firstMove = false
@@ -211,42 +211,17 @@ const parse = (data: string, result: IPathData = null): IPathData => {
         }
     }
     result.commands = commands
-    const bbox: SGRect = new SGRect()
-    bbox.copyFrom(validateBBox(data))
-    result.bounds = bbox
-    /*
-    const logRect: SGRect = new SGRect()
-    let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg")
-    svg.style.position = "absolute" 
-    document.body.appendChild(svg)
-    let path = document.createElementNS("http://www.w3.org/2000/svg", "path")
-    path.setAttribute("d", data)
-    svg.appendChild(path)
-    let bb = path.getBBox({fill:true, stroke:false, clipped: false, markers: false})
-    document.body.removeChild(svg)
-    let b: PathBounds = new PathBounds()
-    b.parseCommands(result.commands)
-    console.log("--------------------------------------------")
-    console.log("bounds", result.bounds.toString())
-    logRect.copyFrom(bb)
-    console.log("bbox  ", logRect.toString())
-    logRect.copyFrom(b)
-    console.log("parse ", logRect.toString())
-    result.bounds = new SGRect(bb.x, bb.y, bb.width, bb.height)
-    */
     return result
 }
 
-const validateBBox = (data: string): IRect => {
-    let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg")
-    svg.style.position = "absolute" 
-    document.body.appendChild(svg)
-    let path = document.createElementNS("http://www.w3.org/2000/svg", "path")
-    path.setAttribute("d", data)
-    svg.appendChild(path)
-    let bb = path.getBBox({fill:true, stroke:false, clipped: false, markers: false})
-    document.body.removeChild(svg)
-    return bb
+const validatePathLength = (data: IPathData[]): IPathData[] => {
+    const result: IPathData[] = []
+    for (const p of data) {
+        let path: SVGPathElement = document.createElementNS("http://www.w3.org/2000/svg", "path")
+        path.setAttribute("d", p.data)
+        p.pathLength = path.getTotalLength()
+    }
+    return result
 }
 
 const serialize = (commands: PathCommand[][], digits: number = 3, matrix: SGMatrix = null): string => {
@@ -256,7 +231,7 @@ const serialize = (commands: PathCommand[][], digits: number = 3, matrix: SGMatr
     let values: any[]
     for (let l of commands) {
         for (let c of l) {
-            if(c.type == PathCommandTypes.CLOSE) {
+            if (c.type == PathCommandTypes.CLOSE) {
                 str.push(z)
                 continue
             }
@@ -270,48 +245,20 @@ const serialize = (commands: PathCommand[][], digits: number = 3, matrix: SGMatr
 }
 
 const transformPathData = (target: IPathData, matrix: SGMatrix) => {
-    const bounds: PathBounds = new PathBounds()
-    var pen: Coord
     for (let l of target.commands) {
         for (let c of l) {
-            if(c.type == PathCommandTypes.CLOSE)
+            if (PathCommandTypes.CLOSE == c.type)
                 continue
             matrix.transformCoord(c.vertex)
-            switch (c.type) {
-                case PathCommandTypes.LINE_TO:
-                case PathCommandTypes.MOVE_TO:
-                    pen = c.vertex
-                    bounds.addPoint(pen[0], pen[1])
-                    break;
-                case PathCommandTypes.CUBIC_CURVE_TO:
-                    matrix.transformCoord(c.anchorA)
-                    matrix.transformCoord(c.anchorB)
-                    bounds.addCurve(
-                        pen[0], pen[1],
-                        c.anchorA[0], c.anchorA[1],
-                        c.anchorB[0], c.anchorB[1],
-                        c.vertex[0], c.vertex[1])
-                    pen = c.vertex
-                    bounds.addPoint(pen[0], pen[1])
-                    break
-                default:
-                    break;
-            }
-        }
-    }
-    target.bounds.setValues(bounds.x, bounds.y, bounds.width, bounds.height)
-}
-const transformCommands = (commands: PathCommand[][], matrix: SGMatrix) => {
-    for (let l of commands) {
-        for (let c of l) {
-            matrix.transformCoord(c.vertex)
-            if (c.type == PathCommandTypes.CUBIC_CURVE_TO) {
+            if (PathCommandTypes.CUBIC_CURVE_TO == c.type) {
                 matrix.transformCoord(c.anchorA)
                 matrix.transformCoord(c.anchorB)
             }
         }
     }
+    target.pathLength *= matrix.scaleX
 }
+
 const draw = (context: IDrawable, cmds: PathCommand[][], matrix: SGMatrix) => {
     let v: Coord
     let a: Coord
@@ -319,7 +266,7 @@ const draw = (context: IDrawable, cmds: PathCommand[][], matrix: SGMatrix) => {
     let first: Coord
     for (let l of cmds) {
         for (let c of l) {
-            if(c.type == PathCommandTypes.CLOSE) {
+            if (c.type == PathCommandTypes.CLOSE) {
                 context.lineTo(first[0], first[1])
                 first = null
                 continue
@@ -346,4 +293,4 @@ const draw = (context: IDrawable, cmds: PathCommand[][], matrix: SGMatrix) => {
         }
     }
 }
-export { parse, serialize, transformCommands, transformPathData, draw }
+export { parse, serialize, transformPathData, draw, validatePathLength }

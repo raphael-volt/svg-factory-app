@@ -15,6 +15,16 @@ export enum PathCommandTypes {
     NONE
 }
 
+export interface IBounds {
+    min: {
+        x: number
+        y: number
+    }
+    max: {
+        x: number
+        y: number
+    }
+}
 export class PathCommand {
 
     static readonly COMA: string = ","
@@ -121,141 +131,95 @@ export class PathCommand {
             return str
         return PathCommand.COMA + str
     }
+
+    getBBox(prev: Coord): [Coord, Coord] {
+        return getBoundsOfCurve(
+            prev[0], prev[1],
+            this.anchorA[0], this.anchorA[1],
+            this.anchorB[0], this.anchorB[1],
+            this.vertex[0], this.vertex[1]
+        )
+    }
 }
 
-export class PathBounds {
-    private x1: number = NaN
-    private y2: number = NaN
-    private x2: number = NaN
-    private y1: number = NaN
+/**
+     * Calculate bounding box of a beziercurve
+     * @param {Number} x0 starting point
+     * @param {Number} y0
+     * @param {Number} x1 first control point
+     * @param {Number} y1
+     * @param {Number} x2 secondo control point
+     * @param {Number} y2
+     * @param {Number} x3 end of beizer
+     * @param {Number} y3
+     */
+// taken from http://jsbin.com/ivomiq/56/edit  no credits available for that.
+const getBoundsOfCurve = (x0: number, y0: number, x1: number, y1: number, x2: number, y2: number, x3: number, y3: number):[Coord, Coord] => {
+    let sqrt = Math.sqrt,
+        min = Math.min, max = Math.max,
+        abs = Math.abs, tvalues = [],
+        bounds = [[], []],
+        a, b, c, t, t1, t2, b2ac, sqrtb2ac;
 
-    private clear() {
-        this.x1 = NaN
-        this.x2 = NaN
-        this.y1 = NaN
-        this.y2 = NaN
-    }
+    b = 6 * x0 - 12 * x1 + 6 * x2;
+    a = -3 * x0 + 9 * x1 - 9 * x2 + 3 * x3;
+    c = 3 * x1 - 3 * x0;
 
-    get width(): number {
-        return this.x2 - this.x1
-    }
-    get height(): number {
-        return this.y2 - this.y1
-    }
-    get x(): number {
-        return this.x1
-    }
-    get y(): number {
-        return this.y1
-    }
-    
-    parseCommands(commands: PathCommand[][]) {
-        this.clear()
-        var pen: Coord
-        for(let p of commands) {
-            for(let cmd of p) {
-                switch (cmd.type) {
-                    case PathCommandTypes.LINE_TO: 
-                    case PathCommandTypes.MOVE_TO:
-                        pen = cmd.vertex
-                        this.addPoint(pen[0], pen[1])
-                        break;
-                    case PathCommandTypes.CUBIC_CURVE_TO:
-                    this.addPoint(pen[0], pen[1])
-                        this.addCurve(
-                            pen[0], pen[1], 
-                            cmd.anchorA[0], cmd.anchorA[1], 
-                            cmd.anchorB[0], cmd.anchorB[1], 
-                            cmd.vertex[0], cmd.vertex[1])
-                        pen = cmd.vertex
-                        
-                        break
-                }
-            }
-        }
-    }
-
-    private addX(x: number) {
-        this.addPoint(x, NaN);
-    }
-
-    private addY(y: number) {
-        this.addPoint(NaN, y);
-    }
-
-    addPoint(x: number, y: number) {
-        if (!isNaN(x)) {
-            if (isNaN(this.x1) || isNaN(this.x2)) {
-                this.x1 = x;
-                this.x2 = x;
-            }
-            if (x < this.x1) this.x1 = x;
-            if (x > this.x2) this.x2 = x;
+    for (let i = 0; i < 2; ++i) {
+        if (i > 0) {
+            b = 6 * y0 - 12 * y1 + 6 * y2;
+            a = -3 * y0 + 9 * y1 - 9 * y2 + 3 * y3;
+            c = 3 * y1 - 3 * y0;
         }
 
-        if (!isNaN(y)) {
-            if (isNaN(this.y1) || isNaN(this.y2)) {
-                this.y1 = y;
-                this.y2 = y;
-            }
-            if (y < this.y1) this.y1 = y;
-            if (y > this.y2) this.y2 = y;
-        }
-    }
-
-    addCurve(p0x: number, p0y: number, p1x: number, p1y: number, p2x: number, p2y: number, p3x: number, p3y: number) {
-        // from http://blog.hackers-cafe.net/2009/06/how-to-calculate-bezier-curves-bounding.html
-        var i: number
-        var p0: Coord = [p0x, p0y]
-        var p1: Coord = [p1x, p1y]
-        var p2: Coord = [p2x, p2y]
-        var p3: Coord = [p3x, p3y];
-
-        this.addPoint(p0[0], p0[1])
-        this.addPoint(p3[0], p3[1])
-
-        const f = (t: number): number => {
-            return Math.pow(1 - t, 3) * p0[i]
-                + 3 * Math.pow(1 - t, 2) * t * p1[i]
-                + 3 * (1 - t) * Math.pow(t, 2) * p2[i]
-                + Math.pow(t, 3) * p3[i];
-        }
-        for (i = 0; i <= 1; i++) {
-
-
-            var b = 6 * p0[i] - 12 * p1[i] + 6 * p2[i];
-            var a = -3 * p0[i] + 9 * p1[i] - 9 * p2[i] + 3 * p3[i];
-            var c = 3 * p1[i] - 3 * p0[i];
-
-            if (a == 0) {
-                if (b == 0) continue;
-                var t = -c / b;
-                if (0 < t && t < 1) {
-                    if (i == 0) this.addX(f(t));
-                    if (i == 1) this.addY(f(t));
-                }
+        if (abs(a) < 1e-12) {
+            if (abs(b) < 1e-12) {
                 continue;
             }
-
-            var b2ac = Math.pow(b, 2) - 4 * c * a;
-            if (b2ac < 0) continue;
-            var t1 = (-b + Math.sqrt(b2ac)) / (2 * a);
-            if (0 < t1 && t1 < 1) {
-                if (i == 0) this.addX(f(t1));
-                if (i == 1) this.addY(f(t1));
+            t = -c / b;
+            if (0 < t && t < 1) {
+                tvalues.push(t);
             }
-            var t2 = (-b - Math.sqrt(b2ac)) / (2 * a);
-            if (0 < t2 && t2 < 1) {
-                if (i == 0) this.addX(f(t2));
-                if (i == 1) this.addY(f(t2));
-            }
+            continue;
+        }
+        b2ac = b * b - 4 * c * a;
+        if (b2ac < 0) {
+            continue;
+        }
+        sqrtb2ac = sqrt(b2ac);
+        t1 = (-b + sqrtb2ac) / (2 * a);
+        if (0 < t1 && t1 < 1) {
+            tvalues.push(t1);
+        }
+        t2 = (-b - sqrtb2ac) / (2 * a);
+        if (0 < t2 && t2 < 1) {
+            tvalues.push(t2);
         }
     }
 
-}
+    let x, y, j = tvalues.length, jlen = j, mt;
+    while (j--) {
+        t = tvalues[j];
+        mt = 1 - t;
+        x = (mt * mt * mt * x0) + (3 * mt * mt * t * x1) + (3 * mt * t * t * x2) + (t * t * t * x3);
+        bounds[0][j] = x;
 
+        y = (mt * mt * mt * y0) + (3 * mt * mt * t * y1) + (3 * mt * t * t * y2) + (t * t * t * y3);
+        bounds[1][j] = y;
+    }
 
-export interface IPathData {
-    commands?: PathCommand[][]
-    bounds?: SGRect
+    bounds[0][jlen] = x0;
+    bounds[1][jlen] = y0;
+    bounds[0][jlen + 1] = x3;
+    bounds[1][jlen + 1] = y3;
+    return [
+        [
+            min.apply(null, bounds[0]),
+            min.apply(null, bounds[1])
+        ],
+        [
+            max.apply(null, bounds[0]),
+            max.apply(null, bounds[1])
+        ]
+    ]
 }
