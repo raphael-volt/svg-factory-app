@@ -1,11 +1,31 @@
 export class SelectHelper<T> {
 
+    private _collection: T[]
+    public get collection(): T[] {
+        return this._collection
+    }
+    public set collection(value: T[]) {
+        this._collection = value
+        this.validateSelection()
+    }
     public multiple: boolean = true
 
-    public selectedItems: T[] = []
+    private _selectedItems: T[] = []
+    public get selectedItems(): T[] {
+        return this._selectedItems
+    }
+    public set selectedItems(value: T[]) {
+        if (!value)
+            value = []
+        this._selectedItems = value
+    }
 
     constructor(
-        public collection: T[] = []) { }
+        collection: T[] = [],
+        selected: T[] = []) {
+        this._collection = collection
+        this._selectedItems = selected
+    }
 
     public checkEvent = (event: MouseEvent, item: T): T[] => {
 
@@ -15,49 +35,76 @@ export class SelectHelper<T> {
     public check(item: T, ctrlKey: boolean, shiftKey: boolean): T[] {
 
         const selected: boolean = this.isSelected(item)
+        const selectedItems = this.selectedItems
+        const collection = this.collection
+
         if (!ctrlKey && !shiftKey) {
-            this.selectedItems = [item]
-            return this.selectedItems
+            this.setSelectedItems([item])
+            return selectedItems
         }
         if (ctrlKey && !shiftKey) {
             if (selected) {
-                this.selectedItems.splice(this.selectedItems.indexOf(item), 1)
+                this.unselect(item)
             }
             else
-                this.selectedItems.push(item)
-            return this.selectedItems
+                this.select(item)
+            return selectedItems
         }
         if (shiftKey) {
             if (!this.hasSelection) {
-                this.selectedItems = [item]
-                return this.selectedItems
+                this.setSelectedItems([item])
+                return selectedItems
             }
-            let li: number = this.selectedItems.length - 1
-            const last = this.selectedItems[li]
+            let li: number = selectedItems.length - 1
+            const last = selectedItems[li]
             if (last == item)
-                return this.selectedItems
-            li = this.collection.indexOf(last)
-            const ci: number = this.collection.indexOf(item)
-            if (!ctrlKey)
-                this.selectedItems = [last]
-            if (li < ci) {
-                for (li = li + 1; li <= ci; li++) {
-                    if (this.selectedItems.indexOf(this.collection[li]) == -1) {
-                        this.selectedItems.push(this.collection[li])
-                    }
-                }
-            }
-            else {
-                // li > ci
-                for (let i = li; i >= ci; i--) {
-                    if (this.selectedItems.indexOf(this.collection[i]) == -1) {
-                        this.selectedItems.push(this.collection[i])
-                    }
-                }
-            }
+                return selectedItems
+            li = collection.indexOf(last)
+            const ci: number = collection.indexOf(item)
+            const l: T[] = li < ci ?
+                collection.slice(li, ci + 1) :
+                collection.slice(ci, li).reverse()
+            if (ctrlKey)
+                this.append(l)
+            else
+                this.setSelectedItems(l)
         }
         return this.selectedItems
     }
+
+    private setSelectedItems(value: T[]) {
+        const l = this.selectedItems
+        const args = [0, l.length].concat(<any>value)
+        l.splice.apply(l, args)
+        return l
+    }
+
+    private append(items: T[]) {
+        const l = this.selectedItems
+        items = items.filter(item => {
+            return l.indexOf(item) < 0
+        })
+        l.push.apply(l, items)
+    }
+    private select(item: T) {
+        const l = this.selectedItems
+        if (l.indexOf(item) < 0) {
+            l.push(item)
+            return true
+        }
+        return false
+    }
+    private unselect(item: T) {
+        const l = this.selectedItems
+        const i = l.indexOf(item)
+        if (i > -1) {
+            l.splice(i, 1)
+            return true
+        }
+        return false
+    }
+
+
 
     isSelected(item: T): boolean {
         return this.selectedItems.indexOf(item) > -1
@@ -67,12 +114,26 @@ export class SelectHelper<T> {
     }
 
     public selectAll() {
-        this.selectedItems = this.collection.slice()
+        this.setSelectedItems(this.collection)
     }
 
     public clear() {
-        this.selectedItems = []
+        this.setSelectedItems([])
     }
 
-
+    private validateSelection() {
+        let removed: T[] = []
+        let i: number
+        const coll = this.collection
+        const sel = this.selectedItems
+        for (const item of sel) {
+            i = coll.indexOf(item)
+            if (i == -1)
+                removed.push(item)
+        }
+        while (removed.length) {
+            i = sel.indexOf(removed.shift())
+            sel.splice(i, 1)
+        }
+    }
 }
