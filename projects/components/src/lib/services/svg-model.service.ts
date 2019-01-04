@@ -5,7 +5,7 @@ import { SVGSymbol } from "../core/symbol";
 import { Observable, Observer } from 'rxjs';
 import {
   TspdfService, PDFWrapper, PDFDocument, PDFDocumentOptions,
-  LayoutOrientation, getLayoutSizes, Sizes, LayoutNames, IFont, TextOptions
+  LayoutOrientation, getLayoutSizes, Sizes, LayoutNames, IFont
 } from "tspdf";
 
 @Injectable({
@@ -234,10 +234,6 @@ export class SvgModelService {
       fillColor = "#000000"
     }
 
-    const textOptions: TextOptions = {
-      fill: true,
-      align: "left"
-    }
     const srv = this.pdfService
     const pdf: PDFWrapper = new PDFWrapper(
       {
@@ -277,7 +273,7 @@ export class SvgModelService {
           doc.moveTo(0, 0)
           b = i.bounds
           m.identity().scale(i.scale, i.scale).translate(b.x, b.y)
-          drawer.svgData = i.symbol.data
+          drawer.data = i.symbol.data
           drawer.transform(m)
           doc.path(drawer.data)
 
@@ -291,7 +287,7 @@ export class SvgModelService {
           const ox = doc.widthOfString(i.name) / 2
           doc.text(i.name,
             b.x + b.width / 2 - ox,
-            b.y + b.height + textPadding + lineHeight / 2)
+            b.y + b.height + textPadding)
             .fillColor(textColor)
             .fontSize(fontSize)          
         }
