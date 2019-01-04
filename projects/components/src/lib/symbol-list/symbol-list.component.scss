@@ -1,0 +1,10 @@
+@import "../../styles.scss";
+
+.symbol-list-item {
+  @include symbol-list-item(5px, 5px);
+  .svg-box {
+    width: 200px;
+    height: 200px;
+    user-select: none;
+  }
+}
