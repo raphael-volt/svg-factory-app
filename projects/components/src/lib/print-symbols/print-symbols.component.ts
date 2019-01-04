@@ -11,5 +11,8 @@ export class PrintSymbolsComponent implements OnInit {
 
   ngOnInit() {
   }
+  selectionChanged($event) {
+    console.log($event)
+  }
 
 }
