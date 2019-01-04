@@ -264,9 +264,9 @@ export class SvgModelService {
           b = i.bounds
           m.identity().scale(i.scale, i.scale).translate(b.x, b.y)
           doc.moveTo(0, 0)
-          drawer.svgData = i.symbol.data
+          drawer.data = i.symbol.data
           drawer.transform(m)
-          doc.path(drawer.svgData)
+          doc.path(drawer.data)
 
           if (strokeWidth != undefined)
             doc.lineWidth(strokeWidth)
