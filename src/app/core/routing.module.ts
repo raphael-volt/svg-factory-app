@@ -34,7 +34,7 @@ export class AppGuard implements CanActivate, CanDeactivate<ConfigComponent> {
         if (component.connected)
             return true
 
-        return component.connectedChange.asObservable()
+        return component.connectedChange
     }
     canActivate(
         route: ActivatedRouteSnapshot,
@@ -79,7 +79,8 @@ export class AppGuard implements CanActivate, CanDeactivate<ConfigComponent> {
                                         }
                                     )
                             }
-                        })
+                        }
+                    )
             }
         )
     }
@@ -111,7 +112,7 @@ const routes: Routes = [
                 icon: 'cogs'
             },
             <IAppRoute>{
-                path: 'print', component: PrintSymbolsComponent, canDeactivate: [AppGuard],
+                path: 'print', component: PrintSymbolsComponent,
                 label: 'Imprimer',
                 icon: 'print'
             },
