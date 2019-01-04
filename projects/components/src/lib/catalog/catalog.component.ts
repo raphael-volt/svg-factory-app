@@ -4,7 +4,7 @@ import { FormBuilder, AbstractControl, Validators, ValidationErrors, ValidatorFn
 import { Subscription } from "rxjs";
 
 import { SymbolService } from "../services/symbol.service";
-import { SymbolController } from "../core/symbol-controller";
+import { SymbolListComponent } from "../symbol-list/symbol-list.component";
 import { CatalogConfigService } from "../services/catalog-config.service";
 import { TspdfService } from "tspdf";
 
@@ -15,7 +15,7 @@ import { RowItemCollection, SvgModelService, SVGConfig } from "../services/svg-m
   templateUrl: './catalog.component.html',
   styleUrls: ['./catalog.component.scss']
 })
-export class CatalogComponent extends SymbolController implements OnInit {
+export class CatalogComponent extends SymbolListComponent implements OnInit {
 
   private subscriptions: Subscription[] = []
   config: SVGConfig
