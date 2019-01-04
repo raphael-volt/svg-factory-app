@@ -497,6 +497,7 @@ export class SGMatrix {
         const y: number = coord[1]
         coord[0] = this.transformX(x, y)
         coord[1] = this.transformY(x, y)
+        return coord
     }
 
     transformPoint(point: SGPoint): SGPoint {
@@ -577,6 +578,8 @@ export class SGMatrix {
         rect.height = v.y.max - v.y.min
     }
 }
-
+const cloneCord = (c: Coord): Coord => {
+    return [c[0], c[1]]
+}
 const SVG_NS: string = "http://www.w3.org/2000/svg"
-export { SVG_NS }
+export { SVG_NS, cloneCord }

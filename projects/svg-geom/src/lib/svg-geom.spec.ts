@@ -1,6 +1,8 @@
 import { SGMath, SGMatrix, SGRect } from "./core/geom";
 import { SvgboxPipe } from "./svgbox.pipe";
 import { PathData } from "./core/path-data";
+import { getCommandsTransformBounds } from "./core/path-builder";
+import { SvgGeomService } from "./svg-geom.service";
 const P: number = .001
 const D = `M236.3,1240c-0.1-0.6-0.3-1.3-0.4-2c2.3-2.6,7.5-5.8,11.4-5.9c0.5,2.4,1.7,5.2,7,3.7c-0.4-0.8-0.7-1.8-1.1-2.8
 c1-1.5,2.8-3.2,4.7-3.9c0.9,3.1,1.9,6,3.1,8.6c-1.6,1-3.7,1.9-6,1c-0.4-1.3-0.6-2.3-0.7-2.9c-2.6,0.9-3.6,4.2-3.2,6.5
@@ -160,9 +162,9 @@ describe('svg-geom', () => {
             expect(p.data).toEqual(p2.data)
         })
     })
-    describe("Path Length", ()=>{
-        it("should calculate path total length", ()=>{
-            const pathElmt:SVGPathElement = document.createElementNS("http://www.w3.org/2000/svg", "path") as SVGPathElement
+    describe("Path Length", () => {
+        it("should calculate path total length", () => {
+            const pathElmt: SVGPathElement = document.createElementNS("http://www.w3.org/2000/svg", "path") as SVGPathElement
             pathElmt.setAttribute("d", D)
             const ipl = pathElmt.getTotalLength()
             const p = new PathData(D)
@@ -171,17 +173,17 @@ describe('svg-geom', () => {
             p.transform(m)
             pathElmt.setAttribute("d", p.data)
             const ipl2 = pathElmt.getTotalLength()
-            expect(SGMath.equals(pathElmt.getTotalLength(), ipl/2, P)).toBeTruthy()
+            expect(SGMath.equals(pathElmt.getTotalLength(), ipl / 2, P)).toBeTruthy()
         })
     })
-    describe('BBox', ()=> {
-        it("bbox should near equals [0.08 0 151.23 156.52]", ()=>{
+    describe('BBox', () => {
+        it("bbox should near equals [0.08 0 151.23 156.52]", () => {
             const BX = 0.08
             const BY = 0
             const BW = 151.23
             const BH = 156.52
             let p: PathData = new PathData(D2)
-            let b = p.getBounds()
+            let b = p.bounds
             const E = 0.1
             expect(SGMath.equals(BX, b.x, E)).toBeTruthy()
             expect(SGMath.equals(BY, b.y, E)).toBeTruthy()
@@ -189,11 +191,59 @@ describe('svg-geom', () => {
             expect(SGMath.equals(BH, b.height, E)).toBeTruthy()
 
             p = new PathData(D3)
-            b = p.getBounds()
+            b = p.bounds
             expect(SGMath.equals(BX, b.x, E)).toBeTruthy()
             expect(SGMath.equals(BY, b.y, E)).toBeTruthy()
             expect(SGMath.equals(BW, b.width, E)).toBeTruthy()
             expect(SGMath.equals(BH, b.height, E)).toBeTruthy()
+        })
+        it('should transform', () => {
+            const E = 0.1
+            
+            let p: PathData = new PathData(D2)
+            let ib = p.bounds.clone()
+            let m = new SGMatrix()
+            let b = p.transform(m.scale(1, -1))
+            expect(SGMath.equals(ib.width, b.width, E)).toBeTruthy()
+            expect(SGMath.equals(ib.height, b.height, E)).toBeTruthy()
+            expect(SGMath.equals(- ib.height, b.y, E)).toBeTruthy()
+            expect(SGMath.equals(0, b.x, E)).toBeTruthy()
+
+            p.data = D2
+            b = p.transform(
+                m.rotate(Math.PI / 2)
+            )
+            expect(SGMath.equals(ib.height, b.width, E)).toBeTruthy()
+            expect(SGMath.equals(ib.width, b.height, E)).toBeTruthy()
+            expect(SGMath.equals(0, b.y, E)).toBeTruthy()
+            expect(SGMath.equals(0, b.x, E)).toBeTruthy()
+
+            p.data = D2
+            m.translate(-ib.width / 2, -ib.height / 2)
+                .scale(1, -1)
+                .rotate(Math.PI / 2)
+            let tb = p.getTransformBounds(m)
+            let sx = 200 / tb.width
+            let sy = 200 / tb.height
+            let s = sx > sy ? sy : sx
+            m.scale(s, s)
+            let tx = - s * tb.x
+            let ty = - s * tb.y
+            m.translate(tx, ty)
+            b = p.transform(m)
+            console.log(b)
+            expect(SGMath.equals(0, b.x, E)).toBeTruthy()
+            expect(SGMath.equals(0, b.y, E)).toBeTruthy()
+            expect(b.width).toBeLessThanOrEqual(200)
+            expect(b.height).toBeLessThanOrEqual(200)
+            let srv: SvgGeomService = new SvgGeomService()
+            p.data = D2
+            let sb = srv.setTransform(p, Math.PI/2, 1, -1)
+            expect(sb.x).toEqual(b.x)
+            expect(sb.y).toEqual(b.y)
+            expect(sb.width).toEqual(b.width)
+            expect(sb.height).toEqual(b.height)
+
         })
     })
 })
