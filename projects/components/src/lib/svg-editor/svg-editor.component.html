@@ -16,10 +16,15 @@
           <button autoRepeat (click)="rotate(0.1)" mat-raised-button>+ 0.1</button>
           <button autoRepeat (click)="rotate(-0.1)" mat-raised-button>- 0.1</button>
         </div>
+        <h3>Miroir</h3>
+        <div class="row">
+          <button (click)="miror('v')" mat-raised-button>V</button>
+          <button (click)="miror('h')" mat-raised-button>H</button>
+        </div>
       </div>
     </div>
-    <div class="svg-box">
-        <svg-renderer *ngIf="current" [path]="current.data" [rotateBox]="true"></svg-renderer>
+    <div class="svg-container">
+        <svg-transform *ngIf="pathData" [matrix]="matrix" [pathData]="pathData"></svg-transform>
     </div>
   </div>
   <div class="dialog-tool-bar">

@@ -1,8 +1,5 @@
-import { Component, AfterViewInit } from '@angular/core';
-import { SymbolService } from "../services/symbol.service";
-import { SymbolController } from "../core/symbol-controller";
+import { Component } from '@angular/core';
 import { SVGSymbol } from '../core/symbol';
-import { SelectHelper } from "../core/select-helper";
 import { MatDialog } from "@angular/material";
 import { SvgEditorComponent } from "../svg-editor/svg-editor.component";
 @Component({
@@ -10,43 +7,23 @@ import { SvgEditorComponent } from "../svg-editor/svg-editor.component";
   templateUrl: './list.component.html',
   styleUrls: ['./list.component.scss']
 })
-export class ListComponent extends SymbolController implements AfterViewInit {
+export class ListComponent {
 
-  private selectHelper: SelectHelper<SVGSymbol> = new SelectHelper()
-
-  get hasSelection() {
-    return this.selectHelper.hasSelection
+  hasSelection: boolean = false
+  private selectedItems: SVGSymbol[]
+  selectionChanged(items: SVGSymbol[]) {
+    this.selectedItems = items
+    this.hasSelection = (items && items.length > 0)
   }
-
   constructor(
-    symbolService: SymbolService,
-    private dialog: MatDialog) {
-    super(symbolService)
+    private dialog: MatDialog) {    
   }
-
-  setSymbols(symbols) {
-    super.setSymbols(symbols)
-    this.selectHelper.collection = this.symbols
-  }
-  
-  isSelected(s: SVGSymbol) {
-    return this.selectHelper.isSelected(s)
-  }
-
-  symbolClick(event: MouseEvent, s: SVGSymbol) {
-    this.selectHelper.checkEvent(event, s)
-  }
-
   edit() {
     const ref = this.dialog.open(SvgEditorComponent, {
       disableClose: true,
       width: "80%",
       height: "80%"
     })
-    ref.componentInstance.symbols = this.selectHelper.selectedItems
-  }
-
-  ngAfterViewInit() {
-    
+    ref.componentInstance.symbols = this.selectedItems
   }
 }
