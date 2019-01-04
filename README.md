@@ -66,3 +66,16 @@ Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protrac
 ## Further help
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+
+## Git memo
+
+Push a local branch to a remote and track it too :
+```bash
+git push -u origin feature_branch_name
+# OUTPUT
+remote: Create a pull request for 'feature_branch_name' on GitHub by visiting:
+remote:      https://github.com/$USER/$REPO/pull/new/feat/feature_branch_name
+remote:
+To https://github.com/$USER/$REPO/
+ * [new branch]      feature_branch_name -> feature_branch_name
+```

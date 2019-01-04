@@ -5,7 +5,6 @@ import { AppMaterialModule } from "./services/app-material.module";
 import { SVGGeomModule } from "svg-geom";
 import { TspdfModule } from "tspdf";
 import { ApiService } from "./services/api.service";
-import { SvgGeomService } from "./services/svg-geom.service";
 import { SymbolService } from "./services/symbol.service";
 import { SvgEditorService } from "./svg-editor/svg-editor.service";
 import { SvgModelService } from "./services/svg-model.service";
@@ -23,6 +22,7 @@ import { SvgChildDirective } from './directives/svg-child.directive';
 
 import { SvgNamePipe } from './pipes/svg-name.pipe';
 import { PrintSymbolsComponent } from './print-symbols/print-symbols.component';
+import { SymbolListComponent, SymbolListBaseComponent } from './symbol-list/symbol-list.component';
 
 @NgModule({
   declarations: [
@@ -33,7 +33,7 @@ import { PrintSymbolsComponent } from './print-symbols/print-symbols.component';
     SvgNamePipe, 
     SvgEditorComponent, 
     AutoRepeatDirective, 
-    ConfigComponent, SvgChildDirective, PrintSymbolsComponent
+    ConfigComponent, SvgChildDirective, PrintSymbolsComponent, SymbolListComponent, SymbolListBaseComponent
   ],
   imports: [
     SVGGeomModule,
@@ -47,7 +47,7 @@ import { PrintSymbolsComponent } from './print-symbols/print-symbols.component';
     AutoRepeatDirective
   ],
   providers: [
-    SvgGeomService, SymbolService, CatalogConfigService, 
+    SymbolService, CatalogConfigService, 
     ApiService, SvgEditorService, SvgModelService
   ],
   entryComponents: [

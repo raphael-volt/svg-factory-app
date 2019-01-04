@@ -28,7 +28,8 @@
             ],
             "styles": [
               "src/theme.scss",
-              "src/styles.scss"
+              "src/styles.scss",
+              "projects/components/src/styles.scss"
             ],
             "scripts": [
               "js/blob-stream.js",

@@ -64,17 +64,7 @@ div {
   align-content: flex-start;
   align-items: stretch;
 }
-.dialog-tool-bar {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  align-content: flex-start;
-  align-items: flex-start;
-}
-.dialog-tool-bar > button {
-  margin-left: 8px;
-}
+
 .h-box > .h-item {
   order: 0;
   flex: 0 1 auto;
@@ -83,9 +73,23 @@ div {
 
 .h-box > .h-item.f-w {
   outline-color: dodgerblue;
+}
+.h-box > .h-item.f-w, .v-box > .v-item.f-h {
   order: 0;
   flex: 1 1 auto;
   align-self: auto;
   margin-right: 0px;
   overflow: auto;
+}
+.dialog-tool-bar {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-content: flex-start;
+  align-items: flex-start;
+}
+
+.dialog-tool-bar > button {
+  margin-left: 8px;
 }
