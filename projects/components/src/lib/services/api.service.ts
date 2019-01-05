@@ -1,5 +1,5 @@
-import { Injectable, EventEmitter } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse } from "@angular/common/http";
+import { Injectable, isDevMode } from '@angular/core';
+import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { map, catchError } from "rxjs/operators";
 import { Observable, Observer } from "rxjs";
 import { LocalStorage } from "@ngx-pwa/local-storage";
@@ -66,10 +66,20 @@ export class ApiService {
           obs.next(this._logedIn)
           obs.complete()
         }
+        if(isDevMode) {
+
+        }
         this.storage.getItem<IUser>("user").subscribe(
           (user: IUser) => {
             if (!user) {
-              return done()
+              if(isDevMode) {
+                user = {
+                  api: "http://localhost:4280",
+                  login: "user",
+                  password: "password"
+                }
+              }
+              else return done()
             }
             this.login(user)
               .subscribe(done, done)
