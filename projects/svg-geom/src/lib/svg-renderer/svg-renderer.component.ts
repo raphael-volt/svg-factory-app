@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { PathStyle } from "../core/geom";
-import { IPathData } from "../core/path-data";
+import { IPathData } from "../core/path-builder";
 const defaultPathStyle = (): PathStyle => {
   return {
     fill: "black",

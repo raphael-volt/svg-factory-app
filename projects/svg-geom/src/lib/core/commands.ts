@@ -88,11 +88,12 @@ export class PathCommand {
     }
 
     protected initialize(_data: number[]) {
-        if (_data == null || !_data.length)
+        const t = this.type
+        if (t == PathCommandTypes.CLOSE || _data == null || !_data.length)
             return
         let vi: number = 0
         let valid: boolean = false
-        switch (this.type) {
+        switch (t) {
             case PathCommandTypes.LINE_TO:
             case PathCommandTypes.MOVE_TO:
                 valid = (_data.length == PathCommand._LENGTH_2)
@@ -104,7 +105,6 @@ export class PathCommand {
                     valid = true
                 }
                 break
-
             default:
                 break
 
@@ -142,17 +142,7 @@ export class PathCommand {
     }
 }
 
-/**
-     * Calculate bounding box of a beziercurve
-     * @param {Number} x0 starting point
-     * @param {Number} y0
-     * @param {Number} x1 first control point
-     * @param {Number} y1
-     * @param {Number} x2 secondo control point
-     * @param {Number} y2
-     * @param {Number} x3 end of beizer
-     * @param {Number} y3
-     */
+
 // taken from http://jsbin.com/ivomiq/56/edit  no credits available for that.
 const getBoundsOfCurve = (x0: number, y0: number, x1: number, y1: number, x2: number, y2: number, x3: number, y3: number):[Coord, Coord] => {
     let sqrt = Math.sqrt,
@@ -222,4 +212,14 @@ const getBoundsOfCurve = (x0: number, y0: number, x1: number, y1: number, x2: nu
             max.apply(null, bounds[1])
         ]
     ]
+}
+
+export const cloneCommandsCollections = (commands: PathCommand[][]) => {
+    const res = []
+
+    return commands.map(commands => {
+        return commands.map(command=>{
+            return command.clone()
+        })
+    })
 }

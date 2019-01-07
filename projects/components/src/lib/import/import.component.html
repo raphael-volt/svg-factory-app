@@ -7,7 +7,7 @@
             <button [disabled]="!hasSelection" mat-raised-button color="warn" (click)="insertSelected()">{{importMessage}}</button>
         </mat-toolbar>
         <div *ngIf="symbols" class="v-item f-h">
-            <svg-symbol-list-base [showSymbolName]="false" [selectedItems]="selectedItems" [symbols]="symbols"
+            <svg-symbol-list-base [showSymbolName]="true" [selectedItems]="selectedItems" [symbols]="symbols"
                 (selectedItemsChange)="selectionChanged($event)"></svg-symbol-list-base>
         </div>
     </div>

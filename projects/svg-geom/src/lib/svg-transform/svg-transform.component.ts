@@ -1,6 +1,6 @@
 import { Component, ElementRef, AfterViewInit, Input, ViewChild } from '@angular/core';
 import { SGMatrix, SGRect, BasicTransform } from "../core/geom";
-import { PathData } from "../core/path-data";
+import { PathData } from "../core/path-builder";
 
 @Component({
   selector: 'svg-transform',

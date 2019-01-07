@@ -1,0 +1,34 @@
+<div class="h-box config-editor" *ngFor="let ps of items">
+    <div (click)="removeConfig(ps)" class="fa-round-box big remove warn" matRipple matRippleCentered>
+        <fa-icon icon="times-circle"></fa-icon>
+    </div>
+    <div class="svg-box">
+        <svg-renderer [pathData]="ps.symbol"></svg-renderer>
+    </div>
+    <div (click)="addEditor(ps)" class="ctrl-box fa-round-box big on accent" matRipple matRippleCentered>
+        <fa-icon icon="plus-circle"></fa-icon>
+    </div>
+    <div class="ctrl-box content raised pad-16 br-4" *ngFor="let i of ps.configs" [onClassLater]="i">
+        <div [class.deletable]="ps.configs.length > 1" class="fa-round-box medium remove warn delete-config" matRipple
+            matRippleCentered>
+            <fa-icon (click)="removeEditor(ps, i)" icon="times-circle"></fa-icon>
+        </div>
+        <mat-form-field>
+            <mat-select placeholder="Taille en mm" [(ngModel)]="i.size">
+                <mat-option *ngFor="let size of sizesProvider; let i = index" [value]="i">
+                    {{size}} mm
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+        <mat-form-field>
+            <mat-select placeholder="Copies" [(ngModel)]="i.copie">
+                <mat-option *ngFor="let n of copiesProvider" [value]="n">
+                    {{n}}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+        <mat-slide-toggle [(ngModel)]="i.mirror">
+            Mirroir
+        </mat-slide-toggle>
+    </div>
+</div>

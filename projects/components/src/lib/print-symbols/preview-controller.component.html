@@ -1,0 +1,8 @@
+<div>
+    <svg [svgLayout]="layout">
+        <g *ngFor="let page of pages">
+            <rect fill="none" stroke="#333333" strokeWidth=".5" [attr.x]="page.x" [attr.y]="page.y" [attr.width]="pageLayout[0]" [attr.height]="pageLayout[1]" />
+            <path fill="none" stroke="#333333" strokeWidth=".5" *ngFor="let p of page.pathList" [attr.d]="p.d" [attr.transform]="p.t" />
+        </g>
+    </svg>
+</div>

@@ -1,6 +1,7 @@
-import { SGString, SGRect, SGMatrix, Coord, IDrawable, cloneCord as cloneCoord } from "./geom";
-import { PathCommand, PathCommandNames, PathCommandTypes } from "./commands";
-import { IPathData } from "./path-data";
+import { SGString, SGRect, SGMatrix, Coord, IDrawable, cloneCoord } from "./geom";
+import { PathCommand, PathCommandNames, PathCommandTypes, cloneCommandsCollections } from "./commands";
+
+
 
 const getSVGnumber = (value: number, digits: number, ignoreComma: boolean = false): string => {
     const str: string = value.toFixed(digits)
@@ -142,7 +143,7 @@ const parse = (data: string, result: IPathData): IPathData => {
 
 
     if (!result) {
-        result = null
+        result = new PathData()
     }
 
     const commands: PathCommand[][] = []
@@ -462,6 +463,58 @@ const draw = (context: IDrawable, cmds: PathCommand[][], matrix: SGMatrix) => {
             }
         }
     }
+}
+
+export interface IPathData {
+    commands?: PathCommand[][]
+    bounds?: SGRect
+    pathLength?: number
+    data?: string
+}
+
+export class PathData implements IPathData {
+    commands: PathCommand[][]
+    get bounds(): SGRect {
+        return this._bounds
+    }
+    digits: number = 3
+    pathLength: number
+    private _bounds: SGRect = new SGRect()
+    constructor(data: string = null) {
+        this.data = data
+    }
+
+    public get data(): string {
+        return serialize(this.commands, this.digits)
+    }
+
+    public set data(value: string) {
+        parse(value, this)
+    }
+
+    transform(matrix: SGMatrix): SGRect {
+        return transformPathData(this, matrix)
+    }
+
+    getTransformBounds(matrix: SGMatrix): SGRect {
+        return getCommandsTransformBounds(this.commands, matrix)
+    }
+
+    serialize(matrix: SGMatrix): string {
+        return serialize(this.commands, this.digits, matrix)
+    }
+
+    draw(context: IDrawable, matrix: SGMatrix) {
+        draw(context, this.commands, matrix)
+    }
+    clone() : PathData {
+        const clone: PathData = new PathData()
+        clone.commands = cloneCommandsCollections(this.commands)
+        clone.bounds.copyFrom(this.bounds)
+        return clone
+    }
+
+
 }
 export { parse, serialize, transformPathData, draw, validatePathLength, 
 getCommandsBounds, getCommandsTransformBounds }

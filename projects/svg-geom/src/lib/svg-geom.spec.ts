@@ -1,6 +1,6 @@
-import { SGMath, SGMatrix, SGRect } from "./core/geom";
+import { SGMath, SGMatrix, SGRect, Coord } from "./core/geom";
 import { SvgboxPipe } from "./svgbox.pipe";
-import { PathData } from "./core/path-data";
+import { PathData, PathBounds } from "./core/path-builder";
 import { getCommandsTransformBounds } from "./core/path-builder";
 import { SvgGeomService } from "./svg-geom.service";
 const P: number = .001
@@ -57,7 +57,127 @@ C68.4,96.3,56.7,106.7,45.8,112.8z M78.5,90.8L78.5,90.8c4.2,1.8,8.4,2.9,12.5,3.2l
 C72.9,119.5,72.9,98,78.5,90.8z M98.6,93.8L98.6,93.8c4.9-0.6,9.7-2.1,14.1-4.4c5.5,8.6,5.3,22.8,2.3,32.6
 C107,115.6,98.9,104,98.6,93.8z`
 
+const logMatrix = (m: SGMatrix) => {
+    console.log(`Matrix{
+     a:${m.a}
+     b:${m.b}
+     c:${m.c}
+     d:${m.d}
+    tx:${m.tx}
+    ty:${m.ty}
+}
+`)
+}
 describe('svg-geom', () => {
+    describe('SGMatrix', () => {
+        beforeEach(function () {
+            jasmine.addCustomEqualityTester(function floatEquality(a, b) {
+                if (a == b)
+                    return true
+                if (a === +a && b === +b && (a !== (a | 0) || b !== (b | 0))) { // if float
+                    return Math.abs(a - b) < .001;
+                }
+            });
+        });
+        it('should scale with translate', () => {
+            // rect 50 50 100 200
+
+            const rectPoints: Coord[] = [
+                [50, 50],
+                [150, 50],
+                [150, 250],
+                [50, 250]
+            ]
+            let rect = new SGRect(50, 50, 100, 200)
+            const getPoints = (): Coord[] => {
+                return rectPoints.map(c => <Coord>c.slice())
+            }
+            let points = getPoints()
+            let m: SGMatrix = new SGMatrix(.5, 0, 0, .5, -25, -25)
+            let p: Coord
+            for (p of points)
+                m.transformCoord(p)
+            // top left
+            expect(points[0][0]).toEqual(0)
+            expect(points[0][1]).toEqual(0)
+            // top right
+            expect(points[1][0]).toEqual(50)
+            expect(points[1][1]).toEqual(0)
+            // bottom right
+            expect(points[2][0]).toEqual(50)
+            expect(points[2][1]).toEqual(100)
+            // bottom left
+            expect(points[3][0]).toEqual(0)
+            expect(points[3][1]).toEqual(100)
+            points = getPoints()
+            m.identity()
+            m.translate(-50, -50).scale(.5, .5)
+            for (p of points)
+                m.transformCoord(p)
+            // top left
+            expect(points[0][0]).toEqual(0)
+            expect(points[0][1]).toEqual(0)
+            // top right
+            expect(points[1][0]).toEqual(50)
+            expect(points[1][1]).toEqual(0)
+            // bottom right
+            expect(points[2][0]).toEqual(50)
+            expect(points[2][1]).toEqual(100)
+            // bottom left
+            expect(points[3][0]).toEqual(0)
+            expect(points[3][1]).toEqual(100)
+
+        })
+        /**
+         * @todo: find the algo for SGMatrix.setValues() 
+         */
+        it('should scale(-s, s) and translate to rect(0, 0, s*w, s*h)', () => {
+            let rect = new SGRect(100, 100, 1000, 2000)
+            let points: Coord[] = [
+                [rect.x, rect.y],
+                [rect.right, rect.y],
+                [rect.right, rect.bottom],
+                [rect.x, rect.bottom]
+            ]
+            const s = .2
+            const sx = -s
+            const sy = s
+            let m = new SGMatrix()
+            m.translate(-rect.x - rect.width / 2, -rect.y - rect.height / 2)
+            m.scale(sx, sy)
+                .translate(rect.width / 2 * s, rect.height / 2 * s)
+            let pb: PathBounds = new PathBounds()
+            for (let p of points) {
+                p = [p[0], p[1]]
+                m.transformCoord(p)
+                pb.add(p)
+            }
+            let tr = pb.rect
+            expect(tr.x).toEqual(0)
+            expect(tr.y).toEqual(0)
+            expect(tr.width).toEqual(rect.width * sy)
+            expect(tr.height).toEqual(rect.height * sy)
+            let m2 = new SGMatrix(
+                sx, 0, 0, sy,
+                (rect.x + rect.width) * -sx,
+                -(rect.y + rect.height / 2) * sy + rect.height / 2 * Math.abs(sy)
+            )
+            for (const p of ["a", "b", "c", "d", "tx", "ty"]) {
+                expect(m[p]).toEqual(m2[p])
+            }
+
+            let tx = Math.abs(sx) * rect.width / 2
+            let ty = Math.abs(sy) * rect.height / 2
+            let m3 = new SGMatrix()
+            m3.translate(-rect.x - rect.width / 2, -rect.y)
+                .scale(sx, sy)
+                .translate(-rect.width / 2 * sx, 0)
+            for (const p of ["a", "b", "c", "d", "tx", "ty"]) {
+                expect(m[p]).toEqual(m3[p])
+            }
+            
+        })
+    })
     describe('SvgboxPipe', () => {
         describe('should transform', () => {
             it('string', () => {
@@ -199,7 +319,7 @@ describe('svg-geom', () => {
         })
         it('should transform', () => {
             const E = 0.1
-            
+
             let p: PathData = new PathData(D2)
             let ib = p.bounds.clone()
             let m = new SGMatrix()
@@ -231,14 +351,13 @@ describe('svg-geom', () => {
             let ty = - s * tb.y
             m.translate(tx, ty)
             b = p.transform(m)
-            console.log(b)
             expect(SGMath.equals(0, b.x, E)).toBeTruthy()
             expect(SGMath.equals(0, b.y, E)).toBeTruthy()
             expect(b.width).toBeLessThanOrEqual(200)
             expect(b.height).toBeLessThanOrEqual(200)
             let srv: SvgGeomService = new SvgGeomService()
             p.data = D2
-            let sb = srv.setTransform(p, Math.PI/2, 1, -1)
+            let sb = srv.setTransform(p, Math.PI / 2, 1, -1)
             expect(sb.x).toEqual(b.x)
             expect(sb.y).toEqual(b.y)
             expect(sb.width).toEqual(b.width)

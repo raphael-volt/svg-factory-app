@@ -2,7 +2,7 @@ import { Directive, Input, ElementRef, OnDestroy, DoCheck, KeyValueDiffers, KeyV
 
 
 import { PathStyle, SGMatrix, SGRect } from "./core/geom"
-import { PathData, IPathData } from "./core/path-data";
+import { PathData, IPathData } from "./core/path-builder";
 
 type IRect = { width?: number, height?: number, x?: number, y?: number, scale?: number }
 const hyp = (width: number, height: number) => {

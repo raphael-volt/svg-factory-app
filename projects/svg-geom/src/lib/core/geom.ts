@@ -577,9 +577,10 @@ export class SGMatrix {
         rect.width = v.x.max - v.x.min
         rect.height = v.y.max - v.y.min
     }
+    
 }
-const cloneCord = (c: Coord): Coord => {
+const cloneCoord = (c: Coord): Coord => {
     return [c[0], c[1]]
 }
 const SVG_NS: string = "http://www.w3.org/2000/svg"
-export { SVG_NS, cloneCord }
+export { SVG_NS, cloneCoord }

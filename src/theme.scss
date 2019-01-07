@@ -1,4 +1,5 @@
-@import "~@angular/material/theming";
+@import "../node_modules/@angular/material/theming";
+// @import "~@angular/material/theming";
 // Plus imports for other components in your app.
 
 // Include the common styles for Angular Material. We include this here so that you only
@@ -78,7 +79,28 @@ $app-theme: mat-light-theme($app-primary, $app-accent, $app-warn);
   pdf-viewer div.canvasWrapper {
     border: $header-border;
   }
-  
+
+  .fa-round-box {
+    @include mat-elevation-transition;
+    @include mat-elevation(3);
+    display: inline-block;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    background-color: mat-color($background, card);
+    border-radius: 50%;
+    line-height: 0;
+    &.small {
+      font-size: 12px;
+    }
+    &.medium {
+      font-size: 16px;
+    }
+    &.big {
+      font-size: 22px;
+    }
+  }
+
   .content,
   &.content {
     background-color: mat-color($background, card);
@@ -141,4 +163,7 @@ $app-theme: mat-light-theme($app-primary, $app-accent, $app-warn);
 }
 .light {
   @include color-theme($app-theme);
+}
+.light print-symbols .mat-horizontal-stepper-header-container {
+  display: inline-flex;
 }

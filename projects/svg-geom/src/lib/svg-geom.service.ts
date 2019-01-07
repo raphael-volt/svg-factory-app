@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import { SGMatrix, SGRect } from "./core/geom";
-import { PathData } from "./core/path-data";
+import { PathData, IPathData } from "./core/path-builder";
 import { validatePathLength } from "./core/path-builder";
-import { IPathData } from './core/path-data';
 @Injectable({
   providedIn: 'root'
 })
