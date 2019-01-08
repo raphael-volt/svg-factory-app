@@ -4,6 +4,8 @@ import { HttpClientModule } from "@angular/common/http";
 import { AppMaterialModule } from "./services/app-material.module";
 import { SVGGeomModule } from "svg-geom";
 import { TspdfModule } from "tspdf";
+import { SvgDisplayModule } from "./svg-display/svg-display.module";
+
 import { ApiService } from "./services/api.service";
 import { SymbolService } from "./services/symbol.service";
 import { SvgEditorService } from "./svg-editor/svg-editor.service";
@@ -21,8 +23,10 @@ import { CatalogConfigService } from "./services/catalog-config.service";
 import { SvgChildDirective } from './directives/svg-child.directive';
 
 import { SvgNamePipe } from './pipes/svg-name.pipe';
-import { PrintSymbolsComponent } from './print-symbols/print-symbols.component';
+import { PrintSymbolsComponent, ConfigControllerComponent, OnClassLaterDirective } from './print-symbols/print-symbols.component';
+import { PreviewControllerComponent } from "./print-symbols/preview-controller.component";
 import { SymbolListComponent, SymbolListBaseComponent } from './symbol-list/symbol-list.component';
+import { SvgLayoutDirective } from './print-symbols/svg-layout.directive';
 
 @NgModule({
   declarations: [
@@ -33,14 +37,19 @@ import { SymbolListComponent, SymbolListBaseComponent } from './symbol-list/symb
     SvgNamePipe, 
     SvgEditorComponent, 
     AutoRepeatDirective, 
-    ConfigComponent, SvgChildDirective, PrintSymbolsComponent, SymbolListComponent, SymbolListBaseComponent
+    ConfigControllerComponent,
+    ConfigComponent, 
+    SvgChildDirective, 
+    PrintSymbolsComponent, SymbolListComponent, SymbolListBaseComponent, 
+    PreviewControllerComponent, OnClassLaterDirective, SvgLayoutDirective
   ],
   imports: [
     SVGGeomModule,
     TspdfModule,
     AppMaterialModule,
     HttpClientModule,
-    CommonModule
+    CommonModule,
+    SvgDisplayModule
   ],
   exports: [
     AppMaterialModule,
