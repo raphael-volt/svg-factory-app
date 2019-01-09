@@ -1,3 +1,4 @@
+import { EventEmitter } from "@angular/core";
 import { SVGSymbol } from "../core/symbol";
 import { SGRect, PathData, SGMatrix } from 'svg-geom';
 
@@ -12,17 +13,10 @@ export class PrintableSymbol {
 }
 
 export class PrintableSymbolConfig {
-  private static _ID: number = 1
-  private _id: number
-  get id() {
-    return this._id
-  }
   constructor(
     public size: number = 0,
     public mirror: boolean = true,
-    public copie: number = 1) {
-    this._id = PrintableSymbolConfig._ID++
-  }
+    public copie: number = 1) { }
 }
 
 const symbolsSizesProvider = []
@@ -50,3 +44,4 @@ export type PathTransform = { m: SGMatrix, p: PathData, tx: number, ty: number }
 createConfigProviders()
 
 export { symbolsSizesProvider, numCopiesProvider }
+

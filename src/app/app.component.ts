@@ -7,6 +7,7 @@ import { appRoutes } from "./core/routing.module";
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
+  
   title = 'symbols-app';
 
   navLinks = appRoutes

@@ -1,3 +1,3 @@
-<svg>
+<svg [svgLayout]="layout">
   <path *ngFor="let t of transforms" transformPath [tx]="t.tx" [ty]="t.ty" [matrix]="t.m" [pathData]="m.p"/>
 </svg>
