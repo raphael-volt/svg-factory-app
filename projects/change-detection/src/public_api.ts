@@ -2,4 +2,4 @@
  * Public API Surface of change-detection
  */
 
-export * from './lib/change-detection';
+export * from './lib/change-detector';
