@@ -62,8 +62,6 @@ export class PropertyChangeEvent extends ChangeEvent {
     }
 }
 
-export interface Revocable<T> { revoke: () => void, proxy: Partial<T> }
-
 const isNullOrUndefined = (value: any): boolean => {
     return (value == null) || value == undefined
 }
