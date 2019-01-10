@@ -56,7 +56,56 @@ interface TestObject {
         }
     }
 }
+import { Watcher, ChangeReport, Validator } from "./example";
+
+describe('Watcher', () => {
+    it('should detect changes', () => {
+        let watcher: Watcher = new Watcher()
+        let src = getTestObject()
+        let c: ChangeReport = null
+        let proxy: Partial<TestObject> = watcher.create(src, (change: ChangeReport) => {
+            c = change
+            return true
+        })
+        proxy.name = 'foo'
+        expect(src.name).toEqual('foo')
+        expect(c).not.toBeNull()
+        expect(c.target === src)
+        c = null
+        let data = proxy.data
+        data.type = 12
+        expect(data.type).toEqual(12)
+        expect(c).not.toBeNull()
+        expect(c.target === data)
+        c = null
+        let i = src.children.length
+        proxy.children.push({
+            label: "pushed",
+            id: 100
+        })
+        expect(proxy.children.length).toEqual(i + 1)
+        expect(src.children.length).toEqual(i + 1)
+        expect(src.children[i].label).toEqual("pushed")
+        expect(src.children[i]).toEqual(proxy.children[i])
+        expect(c).not.toBeNull()
+        c = null
+        i = src.children.length
+        proxy.children.splice(0, 2)
+        expect(proxy.children.length).toEqual(i - 2)
+        expect(src.children.length).toEqual(proxy.children.length)
+        expect(c).not.toBeNull()
+
+        c = null
+        let item = proxy.data.description.items[0]
+        item.type = "foo"
+        expect(c).not.toBeNull()
+        expect(src.data.description.items[0].type).toEqual("foo")
+        
+
+    })
+})
 describe('ProxyNotifier', () => {
+
     it('should create proxy', () => {
         let notifier: ProxyNotifier<TestObject> = new ProxyNotifier()
         let event: PropertyChange = null

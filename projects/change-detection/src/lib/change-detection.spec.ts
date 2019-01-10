@@ -1,6 +1,7 @@
 
 import { ChangeDetector, PropertyChange, IProxy, RootProxy } from './change-detection';
 import { Subject } from "rxjs";
+
 interface TestObject {
   name?: string
   id?: number
@@ -38,7 +39,7 @@ const getTestObject = (): TestObject => {
       }
     ],
     data: {
-      type:5,
+      type: 5,
       description: {
         title: "description-title",
         items: [

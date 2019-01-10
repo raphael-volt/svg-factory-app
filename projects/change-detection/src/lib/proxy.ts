@@ -1,5 +1,4 @@
 import { Subject } from "rxjs"
-
 type Accessor = string | number
 
 export class PropertyChange {
@@ -105,6 +104,19 @@ class GenericProxyFactory {
         return proxy
     }
 
+    getPath(path, prop) {
+        if (path.length !== 0) return `${path}.${prop}`;
+        else return prop;
+    }
+
+    private proxyMap: { [k: string]: GenericProxy<any> } = {}
+    getProxtFromPath(path: string): GenericProxy<any> | undefined {
+        return this.proxyMap[path]
+    }
+    createFromPath(source:any, path: string, lastInPath: string) {
+
+    }
+
     getProxy(source: any): GenericProxy<any> {
         const provider = this.proxyProvider
         for (const p of provider) {
@@ -179,6 +191,13 @@ class ProxyHandler<T> {
             return true;
         const value: any = target[key]
         if (isProxyfiable(value)) {
+            try {
+                if(value instanceof Proxy) {
+
+                }
+            } catch (error) {
+                
+            }
             if (!value.isBindingProxy) {
                 const proxy = this.factory.checkProxy(value)
                 target[key] = proxy.proxy
