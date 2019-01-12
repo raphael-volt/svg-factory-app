@@ -1,4 +1,6 @@
-import { Directive, Input, DoCheck, IterableDiffers, IterableDiffer, OnChanges, SimpleChanges, IterableChangeRecord } from '@angular/core';
+import { Directive, Input, DoCheck, OnChanges, OnDestroy, IterableChangeRecord } from '@angular/core';
+import { DepthDifferService, DepthDiffer, CollectionChangeEvent } from "change-detection";
+import { Subscription } from "rxjs";
 import { SVG_NS, Coord } from "svg-geom";
 @Directive({
   selector: '[svgLayout]',
@@ -9,21 +11,31 @@ import { SVG_NS, Coord } from "svg-geom";
     '[attr.height]': 'height'
   }
 })
-export class SvgLayoutDirective implements DoCheck, OnChanges {
+export class SvgLayoutDirective implements DoCheck, OnChanges, OnDestroy {
 
   @Input()
   svgLayout: Coord
+
   svgNs: string = SVG_NS
   viewBox: string = "0 0 0 0"
   width: string = "0"
   height: string = "0"
 
+  private subscription: Subscription
   private current: Coord
-  private differ: IterableDiffer<any>
-  constructor(private differs: IterableDiffers) {
-
+  private differ: DepthDiffer<Coord>
+  constructor(service: DepthDifferService) {
+    this.differ = service.create()
+    this.subscription = this.differ.events.subscribe(
+      event => {
+        this.validateProperties()
+      }
+    )
   }
-
+  ngOnDestroy() {
+    if (this.subscription)
+      this.subscription.unsubscribe()
+  }
   private validateProperties() {
     const l = this.svgLayout
     if (!l)
@@ -45,18 +57,13 @@ export class SvgLayoutDirective implements DoCheck, OnChanges {
     if (hc)
       this.height = `${l[1]}px`
   }
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes.svgLayout && changes.svgLayout !== undefined) {
-      this.differ = this.differs.find(this.svgLayout).create()
+  ngOnChanges(changes) {
+    if (changes.svgLayout) {
+      this.differ.source = this.svgLayout
     }
   }
-  c = 0
+  
   ngDoCheck() {
-    if(! this.differ)
-      return
-    let diff = this.differ.diff(this.svgLayout)
-    if (diff) {
-      this.validateProperties()
-    }
+    this.differ.doCheck()
   }
 }

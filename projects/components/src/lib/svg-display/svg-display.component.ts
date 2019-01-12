@@ -1,7 +1,8 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { PathTransform } from "./svg-display";
 import { SvgDisplayService } from "./svg-display.service";
-import { Coord } from "svg-geom";
+import { Coord, SGRect } from "svg-geom";
+
 @Component({
   selector: 'svg-display',
   templateUrl: './svg-display.component.html',
@@ -10,13 +11,13 @@ import { Coord } from "svg-geom";
 export class SvgDisplayComponent implements OnInit {
 
   @Input()
-  
   layout: Coord
 
-  constructor(private service: SvgDisplayService) { }
+  constructor(public service: SvgDisplayService) { }
 
   transforms: PathTransform[]
 
+  pages: SGRect[]
   ngOnInit() {
   }
 

@@ -42,6 +42,29 @@ export type Transform = { m: SGMatrix, b: SGRect, p: PathData };
 export type PathTransform = { m: SGMatrix, p: PathData, tx: number, ty: number };
 
 createConfigProviders()
-
+export interface SVGStyle {
+  [selector: string]: { [name: string]: string }
+}
+export const defaultSelector: {
+  readonly path: string,
+  readonly rect: string
+} = {
+  path: "path",
+  rect: "rect"
+}
+export const defaultSVGStyle = (): SVGStyle => {
+  const result: SVGStyle = {}
+  result[defaultSelector.path] = {
+    "stroke": "#333",
+    "stroke-width": "0.5pt",
+    "fill": "none"
+  }
+  result[defaultSelector.rect] = {
+    "stroke": "#333",
+    "stroke-width": "1pt",
+    "fill": "#FFF"
+  }
+  return result
+}
 export { symbolsSizesProvider, numCopiesProvider }
 
