@@ -1,12 +1,13 @@
 import { Subject } from "rxjs";
 export interface Revocable<T> { revoke: () => void, proxy: Partial<T> }
-export type ChangeEventType = "collectionChange" | "propertyChange"
-
-export type CollectionChangeEventKind = {
-    remove?: any[]
-    add?: any[]
-    move?: any[]
-}
+import {
+    isNullOrUndefined, isObjectValue, isArrayValue, hasProperty
+} from "./utils";
+import {
+    ChangeEvent,
+    PropertyChangeEvent, ChangeEventKind,
+    CollectionChangeEvent, CollectionChangeEventKind
+} from "./events";
 const arrayDiff = (old: any[], current: any[]): CollectionChangeEventKind => {
 
     let kind: CollectionChangeEventKind = {
@@ -28,62 +29,12 @@ const arrayDiff = (old: any[], current: any[]): CollectionChangeEventKind => {
     })
     return kind
 }
-export type PropertyChangeEventKind = {
-    name: string
-    oldValue: any
-    value: any
-}
-export type ChangeEventKind = CollectionChangeEventKind | PropertyChangeEventKind
-
-export abstract class ChangeEvent {
-
-    constructor(
-        public readonly type: ChangeEventType,
-        public readonly target: any,
-        public kind: ChangeEventKind
-    ) {
-
-    }
-}
-
-export class CollectionChangeEvent extends ChangeEvent {
-    constructor(
-        target: any[],
-        kind: CollectionChangeEventKind) {
-        super("collectionChange", target, kind)
-    }
-}
-
-export class PropertyChangeEvent extends ChangeEvent {
-    constructor(
-        target: any,
-        kind: PropertyChangeEventKind) {
-        super("propertyChange", target, kind)
-    }
-}
-
-const isNullOrUndefined = (value: any): boolean => {
-    return (value == null) || value == undefined
-}
-
-const isObjectValue = (value: any): value is Object => {
-    return (typeof value == "object")
-}
-
-const isArrayValue = (value: any): value is Array<any> => {
-    return Array.isArray(value)
-}
-
-const hasProperty = (target: any, property: string): boolean => {
-    return (<Object>target).hasOwnProperty(property)
-}
-
 const isProxyfiable = (value: any): boolean => (!isNullOrUndefined(value)) && (isArrayValue(value) || isObjectValue(value))
 
 class ProxyFactory {
     private revocables: { [path: string]: Revocable<any> } = {}
     constructor(
-        private change: Subject<ChangeEvent>) { }
+        private change: Subject<ChangeEvent<ChangeEventKind>>) { }
 
     revoke() {
         const revocables = this.revocables
@@ -111,7 +62,7 @@ class ProxyFactory {
         revocable.revoke()
         delete this.revocables[path]
     }
-    next(event: ChangeEvent) {
+    next(event: ChangeEvent<ChangeEventKind>) {
         this.change.next(event)
     }
 }
@@ -166,13 +117,13 @@ class ChangeHandler {
         target[prop] = value
         if (this._arrayCallFlag)
             return true
-        if(isArrayValue(target)) {
+        if (isArrayValue(target)) {
             let kind: CollectionChangeEventKind = {
-                add:[value],
-                remove:[],
-                move:[]
+                add: [value],
+                remove: [],
+                move: []
             }
-            if(oldValue != undefined) {
+            if (oldValue != undefined) {
                 kind.remove.push(oldValue)
             }
             this.factory.next(new CollectionChangeEvent(target, kind))
@@ -190,11 +141,11 @@ class ChangeHandler {
         if (isProxyfiable(target[prop])) {
             this.factory.deleteRevocable(this.getPath(prop))
         }
-        if(isArrayValue(target)) {
+        if (isArrayValue(target)) {
             let kind: CollectionChangeEventKind = {
-                add:[],
-                remove:[target[prop]],
-                move:[]
+                add: [],
+                remove: [target[prop]],
+                move: []
             }
             this.factory.next(new CollectionChangeEvent(target, kind))
         }
@@ -203,9 +154,9 @@ class ChangeHandler {
     }
 }
 
-export class ChangeDetector<T> {
+export class DepthProxy<T> {
 
-    public readonly change: Subject<ChangeEvent> = new Subject()
+    public readonly change: Subject<ChangeEvent<ChangeEventKind>> = new Subject()
 
     private _source: T
     get source(): T {
@@ -232,5 +183,4 @@ export class ChangeDetector<T> {
         this._factory.revoke()
         this._proxy = null
     }
-
 }
