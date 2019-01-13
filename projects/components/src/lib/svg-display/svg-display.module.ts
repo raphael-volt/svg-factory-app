@@ -1,7 +1,8 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DepthDifferModule } from "change-detection";
-
+import { SVGGeomModule } from "svg-geom";
+import { TspdfModule } from "tspdf";
 import { SvgDisplayService } from "./svg-display.service";
 import { SvgDisplayComponent } from "./svg-display.component";
 import { TransformPathDirective } from "./transform-path.directive";
@@ -15,7 +16,9 @@ import { SVGRectDirective } from "./svg-rect.directive";
   ],
   imports: [
     CommonModule,
-    DepthDifferModule
+    DepthDifferModule,
+    SVGGeomModule,
+    TspdfModule
   ],
   providers: [
     SvgDisplayService
