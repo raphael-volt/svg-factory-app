@@ -16,4 +16,3 @@ export * from './lib/config/config.component'
 export * from './lib/pipes/svg-name.pipe'
 
 export * from './lib/directives/auto-repeat.directive'
-export * from './lib/svg-display/public_api'

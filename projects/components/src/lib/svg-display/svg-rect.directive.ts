@@ -1,6 +1,7 @@
 import {
-    Directive, Input, OnInit, ElementRef, OnChanges, OnDestroy, DoCheck
+    Directive, Input, ElementRef, OnChanges, OnDestroy, DoCheck
 } from "@angular/core";
+import { SVGClassDirectiveBase } from "./svg-display";
 import { DepthDiffer, DepthDifferService, PropertyChangeEvent } from "change-detection";
 import { Subscription } from "rxjs";
 type RectAccessors = "x" | "y" | "width" | "height"
@@ -19,16 +20,15 @@ const isRect = (value: any): value is Rect => {
 @Directive({
     selector: "[svgRect]"
 })
-export class SVGRectDirective implements DoCheck, OnChanges, OnDestroy {
+export class SVGRectDirective extends SVGClassDirectiveBase implements DoCheck, OnChanges, OnDestroy {
     @Input()
     svgRect: Rect
 
     private subscription: Subscription
     private differ: DepthDiffer<Rect>
 
-    private svgElement: SVGRectElement
     constructor(rectRef: ElementRef, service: DepthDifferService) {
-        this.svgElement = rectRef.nativeElement
+        super(rectRef.nativeElement)
         this.differ = service.create()
         this.subscription = this.differ.events.subscribe(event => {
             if (event instanceof PropertyChangeEvent) {
@@ -39,7 +39,11 @@ export class SVGRectDirective implements DoCheck, OnChanges, OnDestroy {
     }
     ngOnChanges(changes) {
         if(changes.svgRect) {
-            this.differ.source = this.svgRect
+            const r = this.svgRect
+            this.differ.source = r
+            if(r)
+                for(const k of ["x", "y", "width", "height"])
+                    this.setAttribute(k, r[k])
         }
     }
     ngOnDestroy() {
@@ -51,6 +55,6 @@ export class SVGRectDirective implements DoCheck, OnChanges, OnDestroy {
     }
 
     private setAttribute(name: string, value: number) {
-        this.svgElement.setAttribute(name, String(value))
+        this.element.setAttribute(name, String(value))
     }
 }

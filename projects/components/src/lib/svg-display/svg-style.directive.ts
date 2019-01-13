@@ -30,6 +30,7 @@ export class SvgStyleDirective implements OnInit, DoCheck, OnChanges, OnDestroy 
     ngOnChanges(changes) {
         if (changes.svgStyle) {
             this.differ.source = this.svgStyle
+            this.updateStyle()
         }
     }
     ngOnInit() {

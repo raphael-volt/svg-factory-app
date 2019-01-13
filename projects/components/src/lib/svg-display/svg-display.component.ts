@@ -1,23 +1,15 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { PathTransform } from "./svg-display";
+import { Component } from '@angular/core';
 import { SvgDisplayService } from "./svg-display.service";
-import { Coord, SGRect } from "svg-geom";
 
 @Component({
   selector: 'svg-display',
   templateUrl: './svg-display.component.html',
   styleUrls: ['./svg-display.component.css']
 })
-export class SvgDisplayComponent implements OnInit {
-
-  @Input()
-  layout: Coord
+export class SvgDisplayComponent {
 
   constructor(public service: SvgDisplayService) { }
 
-  transforms: PathTransform[]
-
-  pages: SGRect[]
   ngOnInit() {
   }
 

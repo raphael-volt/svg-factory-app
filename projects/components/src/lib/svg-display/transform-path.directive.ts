@@ -1,10 +1,10 @@
 import { Directive, Input, OnChanges, SimpleChanges, ElementRef } from '@angular/core';
 import { SGMatrix, PathData } from 'svg-geom';
-
+import { SVGClassDirectiveBase } from "./svg-display";
 @Directive({
   selector: '[transformPath]'
 })
-export class TransformPathDirective implements OnChanges {
+export class TransformPathDirective extends SVGClassDirectiveBase implements OnChanges {
 
   @Input()
   matrix: SGMatrix
@@ -15,13 +15,12 @@ export class TransformPathDirective implements OnChanges {
   @Input()
   ty: number
 
-  private _host: SVGPathElement
   constructor(ref: ElementRef) {
-    this._host = ref.nativeElement
+    super(ref.nativeElement)
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    const e = this._host
+    const e = this.element
     const p = this.pathData
     if (changes.pathData) {
       if (!Boolean(p))

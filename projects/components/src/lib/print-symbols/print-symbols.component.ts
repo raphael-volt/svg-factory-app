@@ -1,14 +1,21 @@
 import {
   Component, Directive, OnInit, ViewChild, Input,
-  AfterViewChecked, AfterViewInit, Output, EventEmitter,
+  AfterViewInit, Output, EventEmitter,
   ElementRef,
   OnChanges,
-  SimpleChanges
+  SimpleChanges,
+  DoCheck,
+  OnDestroy
 } from '@angular/core';
+import { Subscription } from "rxjs";
 import { FormControl, AbstractControl } from '@angular/forms';
 import { SVGSymbol } from "../core/symbol";
 import { MatStepper, MatStep } from "@angular/material";
-import { PrintableSymbol, PrintableSymbolConfig, symbolsSizesProvider, numCopiesProvider } from "./printable";
+import {
+  PrintableSymbol, PrintableSymbolConfig, symbolsSizesProvider, numCopiesProvider
+} from "../svg-display/svg-display";
+import { SvgDisplayService } from "../svg-display/svg-display.service";
+import { DepthDiffer, DepthDifferService } from "change-detection";
 import { callLater } from "../core/call-later";
 
 interface StepperEvent {
@@ -22,20 +29,32 @@ interface StepperEvent {
   templateUrl: './print-symbols.component.html',
   styleUrls: ['./print-symbols.component.scss']
 })
-export class PrintSymbolsComponent implements OnInit, AfterViewChecked, AfterViewInit {
+export class PrintSymbolsComponent implements OnDestroy, OnInit, AfterViewInit, DoCheck {
 
-  selectionCtrl: AbstractControl;
-
+  selectionCtrl: AbstractControl
   selectedSymbols: SVGSymbol[] = []
   configItems: PrintableSymbol[] = []
-
   hasSelection: boolean = false
 
-  constructor() { }
-  templateIndex(index) {
-    console.log(index)
-    return ""
+  private differ: DepthDiffer<PrintableSymbol[]>
+  private subscription:Subscription
+
+  constructor(
+    private displayService: SvgDisplayService,
+    differs: DepthDifferService
+  ) {
+    this.differ = differs.create(this.configItems)
+    this.subscription = this.differ.events.subscribe(event => {
+      this.displayService.validate(this.configItems)
+    })
   }
+  ngDoCheck() {
+    this.differ.doCheck()
+  }
+  ngOnDestroy() {
+    this.subscription.unsubscribe()
+  }
+  
   @ViewChild(MatStepper)
   stepper: MatStepper
 
@@ -51,14 +70,12 @@ export class PrintSymbolsComponent implements OnInit, AfterViewChecked, AfterVie
     viewInit: false,
     viewChecked: false
   }
-  ngAfterViewChecked() {
-  }
+  
   ngAfterViewInit() {
     this.initConfig.viewInit = true
 
     if (!this.initConfig.viewChecked) {
       callLater(() => {
-        console.log("VIEW_INIT LATTER")
         this.initConfig.viewChecked = true
         this.selectionChanged(this.initConfig.selection)
         this.checkConfigItems()
@@ -70,7 +87,7 @@ export class PrintSymbolsComponent implements OnInit, AfterViewChecked, AfterVie
   }
   // debug only
   symbolsChange(symbols: SVGSymbol[]) {
-    this.initConfig.selection = symbols.slice(0, 6)
+    this.initConfig.selection = symbols.slice(0, 20)
   }
   private _selectionChangedFlag: boolean = false
   selectionChanged(items: SVGSymbol[]) {
@@ -119,14 +136,14 @@ export class PrintSymbolsComponent implements OnInit, AfterViewChecked, AfterVie
   }
   configRemoved(config: PrintableSymbol) {
     this.configItems.splice(this.configItems.indexOf(config), 1)
-    for(let i = 0; i< this.selectedSymbols.length; i++) {
+    for (let i = 0; i < this.selectedSymbols.length; i++) {
       const s = this.selectedSymbols[i]
-      if(s == config.symbol) {
+      if (s == config.symbol) {
         this.selectedSymbols.splice(i, 1)
         break;
       }
     }
-    if(! this.configItems.length) {
+    if (!this.configItems.length) {
       this.stepper.selectedIndex = 0
       this.hasSelection = false
     }
@@ -192,12 +209,12 @@ export class OnClassLaterDirective extends ViewInitializable implements OnChange
     super()
   }
   protected invalidateViewInit() {
-    if(this.onClassLater !== undefined)
+    if (this.onClassLater !== undefined)
       this.addClass()
   }
   ngOnChanges(changes: SimpleChanges) {
     if (changes.onClass && changes.onClass.currentValue !== undefined) {
-      if(this.viewInitialized) {
+      if (this.viewInitialized) {
         this.addClass()
       }
     }

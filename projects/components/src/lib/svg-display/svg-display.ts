@@ -1,7 +1,6 @@
-import { EventEmitter } from "@angular/core";
 import { SVGSymbol } from "../core/symbol";
 import { SGRect, PathData, SGMatrix, Coord } from 'svg-geom';
-import { Margins } from "tspdf";
+import { Margins, getLayoutSizes } from "tspdf";
 export class PrintableSymbol {
   constructor(
     public symbol: SVGSymbol,
@@ -66,6 +65,20 @@ export const defaultSVGStyle = (): SVGStyle => {
   }
   return result
 }
+const defaultLayout = getLayoutSizes('A4').reverse()
+export const defaultSVGPage = (): SVGPage => {
+  return {
+    bottom: 15,
+    gap: 8,
+    layout: defaultLayout.slice() as Coord,
+    margins: {
+      left: 10,
+      right: 10,
+      top: 10,
+      bottom: 10
+    }
+  }
+}
 export interface SVGPage {
   margins: Margins
   gap: number
@@ -74,3 +87,18 @@ export interface SVGPage {
 }
 export { symbolsSizesProvider, numCopiesProvider }
 
+import { Input } from "@angular/core";
+export class SVGClassDirectiveBase {
+
+  @Input()
+  public set svgClass(value: string) {
+    this.setClass(value)
+  }
+  constructor(protected element:Element) {}
+
+  private setClass(value: string) {
+    if(! value || this.element.classList.contains(value))
+      return
+    this.element.classList.add(value)
+  }
+} 

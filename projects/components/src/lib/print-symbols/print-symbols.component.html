@@ -23,7 +23,7 @@
                 <button mat-raised-button matStepperNext>Next</button>
             </div>
             <div>
-                <config-controller [items]="configItems" (configRemoved)="configRemoved($event)"></config-controller>
+                <config-controller [items]="configItems"></config-controller>
             </div>
         </mat-step>
         <mat-step label="Preview">
@@ -31,7 +31,7 @@
                 <button mat-raised-button matStepperPrevious>Back</button>
                 <button mat-raised-button (click)="reset()">Reset</button>
             </div>
-            <preview-controller [items]="configItems"></preview-controller>
+            <svg-display></svg-display>            
         </mat-step>
     </mat-horizontal-stepper>
 </div>

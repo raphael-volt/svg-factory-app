@@ -1,4 +1,5 @@
-<svg [svgLayout]="layout" [svgStyle]="service.style">
-  <rect [class]="service.rectSelector" *ngFor="let p of pages" [svgRect]="p"/>
-  <path [class]="service.pathSelector" *ngFor="let t of transforms" transformPath [tx]="t.tx" [ty]="t.ty" [matrix]="t.m" [pathData]="t.p"/>
+<svg [svgLayout]="service.layout">
+  <style [svgStyle]="service.style"></style>
+  <rect *ngFor="let p of service.pages" [svgRect]="p" [svgClass]="service.rectSelector" />
+  <path *ngFor="let t of service.pathTransforms" transformPath [svgClass]="service.pathSelector" [tx]="t.tx" [ty]="t.ty" [matrix]="t.m" [pathData]="t.p"/>
 </svg>

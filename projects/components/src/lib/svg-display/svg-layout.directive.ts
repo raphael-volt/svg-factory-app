@@ -1,5 +1,5 @@
-import { Directive, Input, DoCheck, OnChanges, OnDestroy, IterableChangeRecord } from '@angular/core';
-import { DepthDifferService, DepthDiffer, CollectionChangeEvent } from "change-detection";
+import { Directive, Input, DoCheck, OnChanges, OnDestroy } from '@angular/core';
+import { DepthDifferService, DepthDiffer } from "change-detection";
 import { Subscription } from "rxjs";
 import { SVG_NS, Coord } from "svg-geom";
 @Directive({
@@ -56,13 +56,19 @@ export class SvgLayoutDirective implements DoCheck, OnChanges, OnDestroy {
       this.width = `${l[0]}px`
     if (hc)
       this.height = `${l[1]}px`
+    /*
+    this.width = `${l[0]}px`
+    this.height = `${l[1]}px`
+    this.viewBox = `0 0 ${l[0]} ${l[1]}`
+ */
   }
   ngOnChanges(changes) {
     if (changes.svgLayout) {
       this.differ.source = this.svgLayout
+      this.validateProperties()
     }
   }
-  
+
   ngDoCheck() {
     this.differ.doCheck()
   }
