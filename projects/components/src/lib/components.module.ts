@@ -32,6 +32,8 @@ import { SvgStyleDirective } from "./svg-display/svg-style.directive";
 import { TransformPathDirective } from "./svg-display/transform-path.directive";
 import { SymbolListComponent, SymbolListBaseComponent } from './symbol-list/symbol-list.component';
 import { PageControllerComponent } from './common/page-controller/page-controller.component';
+import { StyleControllerComponent } from './common/style-controller/style-controller.component';
+import { ColorPicker, ColorPickerPreview } from './common/color-picker/color-picker.component';
 
 @NgModule({
   declarations: [
@@ -47,7 +49,8 @@ import { PageControllerComponent } from './common/page-controller/page-controlle
     SvgChildDirective,
     PrintSymbolsComponent, SymbolListComponent, SymbolListBaseComponent,
     OnClassLaterDirective,
-    SvgDisplayComponent, SvgLayoutDirective, SVGRectDirective, SvgStyleDirective, TransformPathDirective, PageControllerComponent
+    SvgDisplayComponent, SvgLayoutDirective, SVGRectDirective, SvgStyleDirective, TransformPathDirective, PageControllerComponent, StyleControllerComponent, 
+    ColorPicker, ColorPickerPreview
   ],
   imports: [
     SVGGeomModule,

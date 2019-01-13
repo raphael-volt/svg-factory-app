@@ -9,7 +9,7 @@ import { CatalogConfigService } from "../services/catalog-config.service";
 import { TspdfService } from "tspdf";
 
 import { RowItemCollection, SvgModelService, SVGConfig } from "../services/svg-model.service";
-import { colorValidator, formatValidator, orientationValidator } from "../core/validators";
+import { colorValidator, formatValidator, orientationValidator } from "common";
 @Component({
   selector: 'app-catalog',
   templateUrl: './catalog.component.html',

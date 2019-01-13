@@ -1,0 +1,21 @@
+.color-preview {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  line-height: 1em;
+  outline-color: #444;
+  outline-width: 2px;
+  outline-offset: -2px;
+  outline-style: solid;
+  cursor: pointer;
+}
+.color-preview.none {
+  background-color: #ffffff;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    red 0em,
+    red 0.15em,
+    transparent.15em,
+    transparent 0.65em
+  );
+}

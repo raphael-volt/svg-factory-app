@@ -1,6 +1,7 @@
 import { SVGSymbol } from "../core/symbol";
 import { SGRect, PathData, SGMatrix, Coord } from 'svg-geom';
 import { Margins, getLayoutSizes } from "tspdf";
+
 export class PrintableSymbol {
   constructor(
     public symbol: SVGSymbol,
@@ -44,6 +45,10 @@ createConfigProviders()
 export interface SVGStyle {
   [selector: string]: { [name: string]: string }
 }
+export const VALUE_NONE: string = "none"
+export const DEFAULT_COLOR: string = "#000000"
+
+
 export const defaultSelector: {
   readonly path: string,
   readonly rect: string
@@ -94,10 +99,10 @@ export class SVGClassDirectiveBase {
   public set svgClass(value: string) {
     this.setClass(value)
   }
-  constructor(protected element:Element) {}
+  constructor(protected element: Element) { }
 
   private setClass(value: string) {
-    if(! value || this.element.classList.contains(value))
+    if (!value || this.element.classList.contains(value))
       return
     this.element.classList.add(value)
   }

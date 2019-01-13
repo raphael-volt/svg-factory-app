@@ -1,0 +1,4 @@
+<div [formGroup]="parts" class="color-picker-container">
+  <span colorPreview [hexColor]="previewColor" (click)="showSelector()"></span>
+  <input class="color-picker-container-input-element" formControlName="color" size="10">
+</div>
