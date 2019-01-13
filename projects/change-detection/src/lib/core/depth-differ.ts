@@ -106,6 +106,8 @@ class DepthDifferBase<T> {
 
     protected diff() {
         const source: any = this._source
+        if(! source)
+            return
         if(this.isArray) {
             this.setIterableChanges(
                 this.iterableDiffer.diff(source)
