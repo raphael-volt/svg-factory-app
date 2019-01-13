@@ -1,7 +1,7 @@
 import { EventEmitter } from "@angular/core";
 import { SVGSymbol } from "../core/symbol";
-import { SGRect, PathData, SGMatrix } from 'svg-geom';
-
+import { SGRect, PathData, SGMatrix, Coord } from 'svg-geom';
+import { Margins } from "tspdf";
 export class PrintableSymbol {
   constructor(
     public symbol: SVGSymbol,
@@ -65,6 +65,12 @@ export const defaultSVGStyle = (): SVGStyle => {
     "fill": "#FFF"
   }
   return result
+}
+export interface SVGPage {
+  margins: Margins
+  gap: number
+  layout: Coord
+  bottom: number
 }
 export { symbolsSizesProvider, numCopiesProvider }
 
