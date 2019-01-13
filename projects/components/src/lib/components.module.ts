@@ -31,6 +31,7 @@ import { SVGRectDirective } from "./svg-display/svg-rect.directive";
 import { SvgStyleDirective } from "./svg-display/svg-style.directive";
 import { TransformPathDirective } from "./svg-display/transform-path.directive";
 import { SymbolListComponent, SymbolListBaseComponent } from './symbol-list/symbol-list.component';
+import { PageControllerComponent } from './common/page-controller/page-controller.component';
 
 @NgModule({
   declarations: [
@@ -46,7 +47,7 @@ import { SymbolListComponent, SymbolListBaseComponent } from './symbol-list/symb
     SvgChildDirective,
     PrintSymbolsComponent, SymbolListComponent, SymbolListBaseComponent,
     OnClassLaterDirective,
-    SvgDisplayComponent, SvgLayoutDirective, SVGRectDirective, SvgStyleDirective, TransformPathDirective
+    SvgDisplayComponent, SvgLayoutDirective, SVGRectDirective, SvgStyleDirective, TransformPathDirective, PageControllerComponent
   ],
   imports: [
     SVGGeomModule,

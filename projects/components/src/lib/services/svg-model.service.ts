@@ -466,6 +466,9 @@ export class SVGTextStyleDesc extends SVGStyleDesc {
     if (color != undefined) {
       l.push("color:" + color + ";")
     }
+    if (color != undefined) {
+      l.push("fill:" + color + ";")
+    }
     if (size != undefined) {
       l.push("font-size:" + size + "pt;")
     }
@@ -497,8 +500,6 @@ export class SVGPathStyleDesc extends SVGStyleDesc {
     if (fillColor == undefined)
       fillColor = "none"
 
-    if (fillColor == "none")
-      fillColor = "#000000"
     if (strokeWidth == undefined)
       strokeWidth = "none"
     else

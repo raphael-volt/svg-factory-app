@@ -5,6 +5,7 @@
   justify-content: flex-start;
   align-content: stretch;
   align-items: center;
+  margin: 8px;
   .svg-box {
     order: 0;
     flex: 0 0 auto;
@@ -49,4 +50,7 @@
 }
 .delete-config.deletable {
   visibility: visible;
+}
+.config-row {
+  margin: 8px;
 }

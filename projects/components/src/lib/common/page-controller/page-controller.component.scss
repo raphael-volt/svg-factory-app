@@ -1,0 +1,35 @@
+.form-item {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-content: flex-start;
+  align-items: flex-start;
+}
+.save-button {
+  width: 100%;
+  margin: 8px 0;
+}
+.form-item mat-radio-button {
+  margin: 8px;
+}
+.form-item-group {
+  margin-bottom: 8px;
+}
+.form-item-group:last-child {
+  margin-bottom: 0;
+}
+.form-item-group > label {
+  font-size: 1.4em;
+  margin: 0px;
+  margin-bottom: 8px;
+  display: inline-block;
+}
+.controls {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.pdf-preview {
+    margin: 16px;
+}

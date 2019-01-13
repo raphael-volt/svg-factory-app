@@ -36,25 +36,35 @@ export class PrintSymbolsComponent implements OnDestroy, OnInit, AfterViewInit, 
   configItems: PrintableSymbol[] = []
   hasSelection: boolean = false
 
-  private differ: DepthDiffer<PrintableSymbol[]>
-  private subscription:Subscription
+  private printablesDiffer: DepthDiffer<PrintableSymbol[]>
+  private printablesSubscription: Subscription
+
+  private pageDiffer: DepthDiffer<any>
+  private pageSubscription: Subscription
 
   constructor(
     private displayService: SvgDisplayService,
     differs: DepthDifferService
   ) {
-    this.differ = differs.create(this.configItems)
-    this.subscription = this.differ.events.subscribe(event => {
-      this.displayService.validate(this.configItems)
-    })
+    this.printablesDiffer = differs.create(this.configItems)
+    this.printablesSubscription = this.printablesDiffer.events.subscribe(this.changeHandler)
+    this.pageDiffer = differs.create(displayService.page)
+    this.pageSubscription = this.pageDiffer.events.subscribe(this.changeHandler)
   }
+
+  private changeHandler = event => {
+    this.displayService.validate(this.configItems)
+  }
+
   ngDoCheck() {
-    this.differ.doCheck()
+    this.printablesDiffer.doCheck()
+    this.pageDiffer.doCheck()
   }
   ngOnDestroy() {
-    this.subscription.unsubscribe()
+    this.printablesSubscription.unsubscribe()
+    this.pageSubscription.unsubscribe()
   }
-  
+
   @ViewChild(MatStepper)
   stepper: MatStepper
 
@@ -70,7 +80,7 @@ export class PrintSymbolsComponent implements OnDestroy, OnInit, AfterViewInit, 
     viewInit: false,
     viewChecked: false
   }
-  
+
   ngAfterViewInit() {
     this.initConfig.viewInit = true
 
@@ -157,6 +167,7 @@ export class PrintSymbolsComponent implements OnDestroy, OnInit, AfterViewInit, 
   styleUrls: ['./config-controller.component.scss']
 })
 export class ConfigControllerComponent implements AfterViewInit {
+  constructor(public service: SvgDisplayService) { }
   @Output()
   configRemoved: EventEmitter<PrintableSymbol> = new EventEmitter()
   sizesProvider = symbolsSizesProvider
@@ -181,6 +192,9 @@ export class ConfigControllerComponent implements AfterViewInit {
     callLater(() => {
       this.viewInitialized = true
     })
+  }
+  pageChange(page:any) {
+    
   }
 }
 

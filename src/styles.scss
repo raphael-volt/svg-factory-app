@@ -42,7 +42,11 @@ div {
   flex: 0 1 auto;
   align-self: auto;
 }
-
+.v-box.v-item.f-w { 
+  order: 0;
+  flex: 1 1 auto;
+  align-self: auto;
+}
 .v-box > .v-item.f-h {
   height: 100%;
   order: 0;

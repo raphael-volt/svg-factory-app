@@ -23,7 +23,7 @@
                 <button mat-raised-button matStepperNext>Next</button>
             </div>
             <div>
-                <config-controller [items]="configItems"></config-controller>
+                <config-controller [items]="configItems" (configRemoved)="configRemoved($event)"></config-controller>
             </div>
         </mat-step>
         <mat-step label="Preview">

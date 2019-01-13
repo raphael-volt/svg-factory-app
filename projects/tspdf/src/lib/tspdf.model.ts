@@ -1,3 +1,4 @@
+
 interface Buffer {
     write(string: string, offset?: number, length?: number, encoding?: string): number;
     toString(encoding?: string, start?: number, end?: number): string;
@@ -566,6 +567,19 @@ const getLayoutSizes = (name: LayoutNames): Sizes | undefined => {
   return <Sizes>(layoutSizes[name].slice())
 }
 
+const getLayoutName = (layout: [number, number]) => {
+    layout = layout.slice() as any
+    if(layout[0] > layout[1])
+        layout.reverse()
+    let l: [number, number]
+    for(const name in layoutSizes) {
+        l = layoutSizes[name]
+        if(l[0] == layout[0] && l[1] == layout[1])
+            return name
+    }
+    return null
+}
+
 const SIZE_RATIO = 297/getLayoutSizes('A4')[1]
 const px2mm = (px: number)=>{
   return px * SIZE_RATIO
@@ -579,6 +593,6 @@ export {
     PDFColor, PDFFont, PDFImage, PDFText, PDFVector,
     ReadableStream, EventEmitter, PDFDocumentOptions,
     PDFWrapper, TextOptions, Margins,
-    px2mm, mm2px, getLayoutSizes, LayoutNames, 
+    px2mm, mm2px, getLayoutSizes, getLayoutName, LayoutNames, 
     Sizes, ColorValue, RuleValue, LayoutOrientation
 }
