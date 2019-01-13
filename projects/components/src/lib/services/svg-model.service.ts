@@ -5,7 +5,7 @@ import { SVGSymbol } from "../core/symbol";
 import { Observable, Observer } from 'rxjs';
 import {
   TspdfService, PDFWrapper, PDFDocument, PDFDocumentOptions,
-  LayoutOrientation, getLayoutSizes, Sizes, LayoutNames, IFont, TextOptions
+  LayoutOrientation, getLayoutSizes, Sizes, LayoutNames, IFont
 } from "tspdf";
 
 @Injectable({
@@ -234,10 +234,6 @@ export class SvgModelService {
       fillColor = "#000000"
     }
 
-    const textOptions: TextOptions = {
-      fill: true,
-      align: "left"
-    }
     const srv = this.pdfService
     const pdf: PDFWrapper = new PDFWrapper(
       {
@@ -277,38 +273,23 @@ export class SvgModelService {
           doc.moveTo(0, 0)
           b = i.bounds
           m.identity().scale(i.scale, i.scale).translate(b.x, b.y)
-          drawer.svgData = i.symbol.data
+          drawer.data = i.symbol.data
           drawer.transform(m)
-          if (fill && stroke) {
-            doc.path(drawer.svgData)
-              .lineWidth(strokeWidth)
-              .fillAndStroke(fillColor, strokeColor)
-          }
-          else {
-            if (fill) {
-              doc.path(drawer.svgData)
-                .lineWidth(strokeWidth)
-                .fill(fillColor)
-            }
-            else {
-              doc.path(drawer.svgData)
-                .lineWidth(strokeWidth)
-                .stroke(strokeColor)
-            }
-          }
-        }
-      }
-      // append tests
-      for (let row of collection.rows) {
-        for (let i of row) {
-          doc.moveTo(0, 0)
-          b = i.bounds
-          const w = doc.font(fontName).fontSize(fontSize).widthOfString(i.name)
-          doc.font(fontName).fontSize(fontSize).fillColor(textColor).text(
-            i.name,
-            b.x + (b.width - w) / 2,
-            b.y + b.height + textPadding,
-            textOptions)
+          doc.path(drawer.data)
+
+          if (strokeWidth != undefined)
+            doc.lineWidth(strokeWidth)
+          if (fillColor != undefined)
+            doc.fill(fillColor)
+          if (strokeColor != undefined)
+            doc.stroke(strokeColor)
+
+          const ox = doc.widthOfString(i.name) / 2
+          doc.text(i.name,
+            b.x + b.width / 2 - ox,
+            b.y + b.height + textPadding)
+            .fillColor(textColor)
+            .fontSize(fontSize)          
         }
       }
     }
@@ -485,6 +466,9 @@ export class SVGTextStyleDesc extends SVGStyleDesc {
     if (color != undefined) {
       l.push("color:" + color + ";")
     }
+    if (color != undefined) {
+      l.push("fill:" + color + ";")
+    }
     if (size != undefined) {
       l.push("font-size:" + size + "pt;")
     }
@@ -516,8 +500,6 @@ export class SVGPathStyleDesc extends SVGStyleDesc {
     if (fillColor == undefined)
       fillColor = "none"
 
-    if (fillColor == "none")
-      fillColor = "#000000"
     if (strokeWidth == undefined)
       strokeWidth = "none"
     else

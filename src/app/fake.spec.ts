@@ -93,7 +93,6 @@ describe("Rectangles", () => {
         target.height *= s
         target.x = (screen.width - target.width) / 2
         target.y = (screen.height - target.height) / 2
-        console.log(target.toString())
         expect(target.x).toBeGreaterThan(0)
         expect(target.y).toBeGreaterThan(0)
     })

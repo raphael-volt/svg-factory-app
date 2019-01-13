@@ -7,7 +7,8 @@ import {
     ListComponent,
     ImportComponent,
     CatalogComponent,
-    ConfigComponent
+    ConfigComponent,
+    PrintSymbolsComponent
 } from "components";
 
 import { RouterModule, Routes } from '@angular/router'
@@ -33,7 +34,7 @@ export class AppGuard implements CanActivate, CanDeactivate<ConfigComponent> {
         if (component.connected)
             return true
 
-        return component.connectedChange.asObservable()
+        return component.connectedChange
     }
     canActivate(
         route: ActivatedRouteSnapshot,
@@ -78,7 +79,8 @@ export class AppGuard implements CanActivate, CanDeactivate<ConfigComponent> {
                                         }
                                     )
                             }
-                        })
+                        }
+                    )
             }
         )
     }
@@ -108,6 +110,11 @@ const routes: Routes = [
                 path: 'config', component: ConfigComponent, canDeactivate: [AppGuard],
                 label: 'Config',
                 icon: 'cogs'
+            },
+            <IAppRoute>{
+                path: 'print', component: PrintSymbolsComponent,
+                label: 'Imprimer',
+                icon: 'print'
             },
             {
                 path: '',

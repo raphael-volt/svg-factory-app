@@ -1,0 +1,56 @@
+.config-editor {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-content: stretch;
+  align-items: center;
+  margin: 8px;
+  .svg-box {
+    order: 0;
+    flex: 0 0 auto;
+    align-self: auto;
+    width: 200px;
+    height: 200px;
+    user-select: none;
+    position: relative;
+    > div {
+      cursor: pointer;
+      position: absolute;
+      top: 6px;
+      &.remove {
+        right: 6px;
+      }
+    }
+  }
+  .ctrl-box {
+    margin-right: 16px;
+    order: 0;
+    flex: 0 0 auto;
+    align-self: center;
+    display: inline-flex;
+    flex-direction: column;
+    overflow: hidden;
+    > * {
+      transform: translateX(-100%);
+      transition-property: transform;
+      transition-duration: 600ms;
+    }
+    > .remove {
+      flex: 0 0 auto;
+      align-self: flex-end;
+    }
+    &.on > * {
+      transform: translateX(0%);
+    }
+  }
+}
+.delete-config {
+  visibility: hidden;
+}
+.delete-config.deletable {
+  visibility: visible;
+}
+.config-row {
+  margin: 8px;
+}

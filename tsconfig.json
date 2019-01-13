@@ -27,6 +27,9 @@
       ],
       "tspdf": [
         "projects/tspdf/src/public_api"
+      ],
+      "change-detection": [
+        "projects/change-detection/src/public_api"
       ]
     }
   }

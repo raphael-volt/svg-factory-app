@@ -3,6 +3,14 @@ import { MatDialogRef } from "@angular/material";
 import { SVGSymbol } from "../core/symbol";
 import { SvgEditorService } from "./svg-editor.service";
 import { SymbolService } from "../services/symbol.service";
+import { IPathData, PathData, BasicTransform, SGMatrix, SvgGeomService } from "svg-geom";
+
+interface TransformData {
+  path: IPathData
+  matrix?: BasicTransform
+  symbol: SVGSymbol
+}
+
 @Component({
   selector: 'svg-editor',
   templateUrl: './svg-editor.component.html',
@@ -13,17 +21,20 @@ export class SvgEditorComponent implements OnInit, OnChanges {
   constructor(
     private dialogRef: MatDialogRef<SvgEditorComponent>,
     private editor: SvgEditorService,
-    private symbolService: SymbolService
+    private symbolService: SymbolService,
+    private geomService: SvgGeomService
   ) { }
   @Input()
   symbols: SVGSymbol[]
 
-  current: SVGSymbol
-
+  pathData: IPathData
+  matrix: BasicTransform
   private currentIndex: number
-  private clones: SVGSymbol[]
+  private currentData: TransformData
+  private transformCollection: TransformData[]
+
   ngOnInit() {
-    if(this.symbols)
+    if (this.symbols)
       this.init()
   }
 
@@ -34,7 +45,7 @@ export class SvgEditorComponent implements OnInit, OnChanges {
 
   private init() {
     this.currentIndex = 0
-    this.clones = []
+    this.transformCollection = []
     if (this.symbols && this.symbols.length) {
       this.next()
     }
@@ -42,8 +53,23 @@ export class SvgEditorComponent implements OnInit, OnChanges {
 
   next() {
     if (this.currentIndex < this.symbols.length) {
-      this.current = this.clone(this.symbols[this.currentIndex++])
-      this.clones.push(this.current)
+      const current = this.symbols[this.currentIndex]
+      const pathData = this.editor.symbolToPathData(current)
+      this.matrix = {
+        mirorX: false,
+        mirorY: false,
+        rotation: 0
+      }
+      const td: TransformData = {
+        path: pathData,
+        symbol: current,
+        matrix: this.matrix
+      }
+      this.transformCollection.push(td)
+      this.currentData = td
+      this.pathData = pathData
+
+      this.currentIndex++
     }
 
     else {
@@ -51,55 +77,85 @@ export class SvgEditorComponent implements OnInit, OnChanges {
     }
   }
 
+
   cancel() {
     this.dialogRef.close()
   }
 
   rotate(value: number) {
-    this.editor.rotate(this.current, value)
+    this.matrix.rotation += value * Math.PI / 180
+    this.matrixChange()
+  }
+  miror(axis: 'v' | 'h') {
+    const m = this.matrix
+    switch (axis) {
+      case 'v':
+        m.mirorX = !m.mirorX
+        break;
+      case 'h':
+        m.mirorY = !m.mirorY
+        break;
+
+      default:
+        return
+    }
+    this.matrixChange()
   }
 
-  private clone(src: SVGSymbol): SVGSymbol {
-    return {
-      id: src.id,
-      data: src.data,
-      width: src.width,
-      height: src.height
-    }
+  private matrixChange() {
+    this.matrix = Object.assign({}, this.matrix)
+    this.currentData.matrix = this.matrix
   }
 
-  private updateTargets() {
-    for (let i = 0; i < this.symbols.length; i++) {
-      const element: SVGSymbol = this.symbols[i];
-      const clone: SVGSymbol = this.clones[i];
-      element.data = clone.data
-      element.width = clone.width
-      element.height = clone.height
-    }
-    this.clones = null
+  private close(error: boolean | string = false) {
+    this.transformCollection = null
+    this.pathData = null
     this.symbols = null
-    this.current = null
-    this.cancel()
+    if (error !== false)
+      return this.dialogRef.close({ error: error })
+    this.dialogRef.close()
   }
 
   private save() {
-    const items: SVGSymbol[] = this.clones.slice()
+    const tCol = this.transformCollection.filter(td => {
+      if (!td.matrix.mirorX && !td.matrix.mirorY && td.matrix.rotation == 0)
+        return false
+      return true
+    })
+    const n = tCol.length
+    let i = 0
     const nextSave = () => {
-      if (items.length) {
-        const item = items.shift()
-        const sub = this.symbolService.update(item).subscribe(
+      if (i < n) {
+        const td = this.transformCollection[i++]
+        const item = td.symbol
+        const data = new PathData(td.path.data)
+        const b = this.geomService.setTransform(
+          data,
+          td.matrix.rotation,
+          td.matrix.mirorX ? -1 : 1,
+          td.matrix.mirorY ? -1 : 1)
+        const sym = {
+          id: item.id,
+          width: b.width,
+          height: b.height,
+          data: data.data,
+          pathLength: data.pathLength
+        }
+        const sub = this.symbolService.update(sym).subscribe(
           success => {
+            Object.assign(item, sym)
+            item.bounds = b
             sub.unsubscribe()
             nextSave()
           },
           error => {
             sub.unsubscribe()
-            alert("L'enregistrement a échoué.")
+            this.close("L'enregistrement a échoué id:" + sym.id)
           }
         )
       }
       else {
-        this.updateTargets()
+        this.close()
       }
     }
     nextSave()

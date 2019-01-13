@@ -28,7 +28,8 @@
             ],
             "styles": [
               "src/theme.scss",
-              "src/styles.scss"
+              "src/styles.scss",
+              "projects/components/src/styles.scss"
             ],
             "scripts": [
               "js/blob-stream.js",
@@ -237,6 +238,41 @@
             "tsConfig": [
               "projects/tspdf/tsconfig.lib.json",
               "projects/tspdf/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    },
+    "change-detection": {
+      "root": "projects/change-detection",
+      "sourceRoot": "projects/change-detection/src",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/change-detection/tsconfig.lib.json",
+            "project": "projects/change-detection/ng-package.json"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/change-detection/src/test.ts",
+            "tsConfig": "projects/change-detection/tsconfig.spec.json",
+            "karmaConfig": "projects/change-detection/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/change-detection/tsconfig.lib.json",
+              "projects/change-detection/tsconfig.spec.json"
             ],
             "exclude": [
               "**/node_modules/**"

@@ -1,8 +1,8 @@
 import { Injectable, EventEmitter } from '@angular/core';
 import { Observable, of, Subscription } from "rxjs";
 import { map } from 'rxjs/operators';
-import { ApiService, HTTPRequestOptions } from "./api.service";
-import { SVGSymbol } from "../core/symbol";
+import { ApiService } from "./api.service";
+import { SVGSymbol, setBounds, cloneSymbolForSave } from "../core/symbol";
 
 @Injectable({
   providedIn: 'root'
@@ -35,6 +35,8 @@ export class SymbolService {
     this._populating = true
     const sub: Subscription = this.http.get<SVGSymbol[]>().pipe(
       map(symbols => {
+        for(const s of symbols)
+          setBounds(s)
         this._populating = false
         this._symbols = symbols
         this.populated = true
@@ -43,6 +45,10 @@ export class SymbolService {
       })).subscribe(result => {
         sub.unsubscribe()
       })
+  }
+
+  cloneForSave(symbol: SVGSymbol): SVGSymbol {
+    return cloneSymbolForSave(symbol)
   }
 
   getList(): Observable<SVGSymbol[]> {
@@ -54,14 +60,16 @@ export class SymbolService {
   }
 
   update(symbol: SVGSymbol): Observable<boolean> {
-    return this.http.put(symbol).pipe(
+    const s = cloneSymbolForSave(symbol)
+    return this.http.put(s).pipe(
       map(response => {
         return true;
       }))
   }
 
   add(symbol: SVGSymbol): Observable<boolean> {
-    return this.http.post<SVGSymbol>(symbol).pipe(
+    const s = cloneSymbolForSave(symbol)
+    return this.http.post<SVGSymbol>(s).pipe(
       map(result => {
         symbol.id = result.id
         this._symbols.push(symbol)

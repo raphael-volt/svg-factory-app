@@ -20,6 +20,14 @@ module.exports = function (config) {
       reports: ['html', 'lcovonly', 'text-summary'],
       fixWebpackSourcePaths: true
     },
+    // you can define custom flags
+    // karma start --browsers Chrome,chromeDebbug
+    customLaunchers: {
+      ChromeDebbug: {
+        base: 'Chrome',
+        flags: ['--remote-debugging-port=9222']
+      }
+    },
     reporters: ['progress', 'kjhtml'],
     port: 9876,
     colors: true,

@@ -1,62 +1,8 @@
-import { Directive, Input, ElementRef, OnChanges, SimpleChanges, EventEmitter, OnDestroy } from '@angular/core';
-import { PathStyle, SGMath, SGMatrix, SGRect } from "./core/geom"
-import { PathData } from "./core/path-data";
-import { Subscription } from "rxjs";
-export interface PropertyChange<T, K extends keyof T> {
-  name: K
-  value: any
-}
+import { Directive, Input, ElementRef, OnDestroy, DoCheck, KeyValueDiffers, KeyValueDiffer } from '@angular/core';
 
-type BindablePathKeys = keyof BindablePath;
-export type IPropertyChange = PropertyChange<BindablePath, BindablePathKeys>
 
-export class BindablePath {
-
-  public propertyChanged: EventEmitter<IPropertyChange> = new EventEmitter()
-
-  private _path: string
-  public get path(): string {
-    return this._path
-  }
-  public set path(value: string) {
-    if (value != this._path) {
-      this._path = value
-      this.propertyChanged.emit({ name: "path", value: value })
-    }
-  }
-
-  private _width: number
-  public get width(): number {
-    return this._width
-  }
-  public set width(value: number) {
-    if (value != this._width) {
-      this._width = value
-      this.propertyChanged.emit({ name: "width", value: value })
-    }
-  }
-
-  private _height: number
-  public get height(): number {
-    return this._height
-  }
-  public set height(value: number) {
-    if (value != this._height) {
-      this._height = value
-      this.propertyChanged.emit({ name: "height", value: value })
-    }
-  }
-  private _name: string
-  public get name(): string {
-    return this._name
-  }
-  public set name(value: string) {
-    if (value != this._name) {
-      this._name = value
-      this.propertyChanged.emit({ name: "name", value: value })
-    }
-  }
-}
+import { PathStyle, SGMatrix, SGRect } from "./core/geom"
+import { PathData, IPathData } from "./core/path-builder";
 
 type IRect = { width?: number, height?: number, x?: number, y?: number, scale?: number }
 const hyp = (width: number, height: number) => {
@@ -78,11 +24,25 @@ const rotateRect = (screen: IRect, target: IRect): IRect => {
 @Directive({
   selector: 'canvas[svgDrawer]'
 })
-export class SvgDrawerDirective implements OnChanges, OnDestroy {
+export class SvgDrawerDirective implements OnDestroy, DoCheck {
+
+  private _pathData: IPathData
+  @Input()
+  public set pathData(value: IPathData) {
+    this._pathData = value
+    if (value) {
+      const d = this.path
+      d.data = value.data
+      this.invalidate()
+    }
+  }
+  public get pathData(): IPathData {
+    return this._pathData
+  }
 
   private _canvas: HTMLCanvasElement
   private _context: CanvasRenderingContext2D
-  private pathData: PathData = new PathData()
+  private path: PathData = new PathData()
 
   private _style: PathStyle
   @Input()
@@ -94,62 +54,30 @@ export class SvgDrawerDirective implements OnChanges, OnDestroy {
     return this._style
   }
 
-  private _pathSubscription: Subscription
-  private _path: BindablePath
-  @Input()
-  set path(value: BindablePath) {
-    if (value != this._path) {
-      if (this._pathSubscription) {
-        this._pathSubscription.unsubscribe()
-        this._pathSubscription = null
-      }
-      this._path = value
-      if (value) {
-        this._pathSubscription = value.propertyChanged.subscribe(
-          (change: IPropertyChange) => {
-            if (change.name == "height" || change.name == "width" || change.name == "path") {
-              if (change.name == "path")
-                this.pathData.svgData = change.value
-              this.invalidate()
-            }
-          }
-        )
-        this.pathData.svgData = value.path
-        this.invalidate()
+  private differ: KeyValueDiffer<string, any>;;
 
-      }
+
+  ngDoCheck() {
+    const change = this.differ.diff(this._pathData);
+    if (change) {
+      change.forEachChangedItem(item => {
+        if(item.key == "data") {
+          this.path.data = item.currentValue
+          this.invalidate()
+        }
+      });
     }
   }
-  get path(): BindablePath {
-    return this._path
-  }
 
-  private _rotateBox: boolean = false
-  @Input()
-  public set rotateBox(value: boolean) {
-    if (value === undefined)
-      value = false
-    if (this._rotateBox != value) {
-      this._rotateBox = value
-      this.invalidate()
-    }
-  }
-  public get rotateBox(): boolean {
-    return this._rotateBox
-  }
-
-  constructor(ref: ElementRef) {
+  constructor(ref: ElementRef, private differs: KeyValueDiffers) {
 
     this._canvas = ref.nativeElement
     this._context = this._canvas.getContext('2d')
     window.addEventListener("resize", this.resizeHandler)
+    this.differ = this.differs.find({}).create()
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-
-  }
   ngOnDestroy() {
-    this._pathSubscription.unsubscribe()
     window.removeEventListener("resize", this.resizeHandler)
   }
 
@@ -187,91 +115,23 @@ export class SvgDrawerDirective implements OnChanges, OnDestroy {
     }
   }
   private draw() {
-    if (!this._rotateBox)
-      return this._draw()
-    const data: PathData = this.pathData
+    const data: PathData = this.path
     if (!data.bounds)
       return
-    const screen = this._canvasSizes
-    const dataW: number = data.bounds.width
-    const dataH: number = data.bounds.height
-    const sw: number = screen.width
-    const sh: number = screen.height
-
-    let rect: SGRect = new SGRect()
-    const m: SGMatrix = new SGMatrix()
-    let h: number = hyp(dataW, dataH)
-
-    let sx: number = sw / h
-    let sy: number = sh / h
-    let s: number = sx
-    let sq: SGRect = new SGRect()
-    sq.height = sq.width = sw
-    if (sx > sy) {
-      s = sy
-      sq.height = sq.width = sh
-    }
-
-    sq.x = (sw - sq.width) / 2
-    sq.y = (sh - sq.height) / 2
-
-    rect.width = s * dataW
-    rect.height = s * dataH
-    rect.x = (sw - rect.width) / 2
-    rect.y = (sh - rect.height) / 2
-
-
-    const c = this._context
-    const style: PathStyle = this.pathStyle ? this.pathStyle : { fill: "#000000", stroke: "none", strokeWidth: 0 }
-    const fill: boolean = style.fill && style.fill != "none"
-    const stroke: boolean = style.stroke && style.stroke != "none"
-
-    if (fill)
-      c.fillStyle = style.fill
-    if (stroke) {
-      c.strokeStyle = style.fill
-      c.lineWidth = style.strokeWidth
-    }
-    s = rect.width / dataW
-    m.translate(-dataW / 2, -dataH / 2)
-      .scale(s, s)
-      .translate(rect.x + rect.width / 2, rect.y + rect.height / 2)
-    data.draw(c, m)
-    
-    if (fill)
-      c.fill()
-    if (stroke)
-      c.stroke()
-
-    this._drawed = true
-
-  }
-  private _draw() {
-    const data: PathData = this.pathData
-    if (!data.bounds)
-      return
-    const dataW: number = data.bounds.width
-    const dataH: number = data.bounds.height
-    const rotateBox: boolean = this._rotateBox
-    const destRect: IRect = rotateBox ? rotateRect(this._canvasSizes, { width: dataW, height: dataH }) : this._canvasSizes
-    const m: SGMatrix = new SGMatrix()
-    let sx: number
-    let sy: number
+    const bounds = data.bounds
+    const dataW: number = bounds.width
+    const dataH: number = bounds.height
+    const destRect: IRect = this._canvasSizes
     let s: number
-    let tx: number
-    let ty: number
-    if (rotateBox) {
-      s = destRect.scale
-      tx = destRect.x
-      ty = destRect.y
-    }
-    else {
-      sx = destRect.width / dataW
-      sy = destRect.height / dataH
-      s = sx > sy ? sy : sx
-      tx = (destRect.width - s * dataW) / 2
-      ty = (destRect.height - s * dataH) / 2
-    }
+    const tx: number = - (bounds.x + dataW / 2)
+    const ty: number = - (bounds.y + dataH / 2)
+    const sx = destRect.width / dataW
+    const sy = destRect.height / dataH
+    s = sx > sy ? sy : sx
+    const m: SGMatrix = new SGMatrix()
+    m.translate(tx, ty)
+      .scale(s, s)
+      .translate(destRect.width / 2, destRect.height / 2)
     const ctx = this._context
     const style: PathStyle = this.pathStyle ? this.pathStyle : { fill: "#000000", stroke: "none", strokeWidth: 0 }
     const fill: boolean = style.fill && style.fill != "none"
@@ -282,15 +142,20 @@ export class SvgDrawerDirective implements OnChanges, OnDestroy {
       ctx.strokeStyle = style.fill
       ctx.lineWidth = style.strokeWidth
     }
-    m.scale(s, s).translate(tx, ty)
     data.draw(ctx, m)
     if (fill)
       ctx.fill()
     if (stroke)
       ctx.stroke()
-    if (rotateBox) {
-      ctx.strokeStyle = "#FF0000"
-      ctx.strokeRect(destRect.x, destRect.y, destRect.width, destRect.height)
+
+    const points: any = [
+      [bounds.x, bounds.y],
+      [bounds.x + bounds.width, bounds.y],
+      [bounds.x + bounds.width, bounds.y + bounds.height],
+      [bounds.x, bounds.y + bounds.height]
+    ]
+    for (const p of points) {
+      m.transformCoord(p)
     }
     this._drawed = true
   }

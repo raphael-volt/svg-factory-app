@@ -7,11 +7,13 @@ import { ComponentsModule, AppMaterialModule } from "components";
 import { TspdfModule } from "tspdf";
 import { AppComponent } from './app.component';
 import { RoutingModule } from "./core/routing.module";
+import { FakeComponent } from './fake/fake/fake.component';
 
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    FakeComponent
   ],
   imports: [
     BrowserModule,

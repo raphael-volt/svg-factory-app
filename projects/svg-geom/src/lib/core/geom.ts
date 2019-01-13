@@ -1,3 +1,9 @@
+export interface BasicTransform {
+    mirorX?: boolean
+    mirorY?: boolean
+    rotation?: number
+}
+
 export interface PathStyle {
     stroke: string
     strokeWidth: number
@@ -91,6 +97,9 @@ export class SGPoint {
 export interface IRect { x: number, y: number, width: number, height: number }
 export class SGRect {
 
+    public static fromRect(value: IRect): SGRect {
+        return new SGRect(value.x, value.y, value.width, value.height)
+    }
     static getElementBounds(element: Element): SGRect {
         let rect: ClientRect = element.getBoundingClientRect()
         return new SGRect(
@@ -176,6 +185,7 @@ export class SGRect {
             return
         }
         this.setValues(target.x, target.y, target.width, target.height)
+        return this
     }
     contains(target: SGRect, precision: number = 0): boolean {
         return (
@@ -420,6 +430,60 @@ export class SGMatrix {
         return this
     }
 
+    get scaleX(): number {
+        const a = this.a
+        const b = this.b
+        return Math.sqrt((a * a) + (b * b))
+    }
+
+    set scaleX(value: number) {
+        const oldValue: number = this.scaleX
+        // avoid division by zero 
+        if (oldValue) {
+            const ratio: number = value / oldValue;
+            this.a *= ratio;
+            this.b *= ratio;
+        }
+        else {
+            const skewYRad: number = this.getSkewYRadians()
+            this.a = Math.cos(skewYRad) * value
+            this.b = Math.sin(skewYRad) * value
+        }
+    }
+
+    get scaleY(): number {
+        const c = this.c
+        const d = this.d
+        return Math.sqrt((c * c) + (d * d))
+    }
+
+    set scaleY(value: number) {
+        const oldValue: number = this.scaleY
+        // avoid division by zero 
+        if (oldValue) {
+            const ratio: number = value / oldValue;
+            this.c *= ratio;
+            this.d *= ratio;
+        }
+        else {
+            const skewXRad: number = this.getSkewXRadians()
+            this.c = -Math.sin(skewXRad) * value
+            this.d = Math.cos(skewXRad) * value
+        }
+    }
+
+    get rotation(): number {
+        return this.getSkewYRadians()
+    }
+
+    private getSkewXRadians(): number {
+        return Math.atan2(-this.c, this.d);
+    }
+
+    private getSkewYRadians(): number {
+        return Math.atan2(this.b, this.a);
+    }
+
     private transformX(x: number, y: number): number {
         return x * this.a + y * this.c + this.tx
     }
@@ -433,13 +497,15 @@ export class SGMatrix {
         const y: number = coord[1]
         coord[0] = this.transformX(x, y)
         coord[1] = this.transformY(x, y)
+        return coord
     }
 
-    transformPoint(point: SGPoint) {
+    transformPoint(point: SGPoint): SGPoint {
         const x: number = point.x
         const y: number = point.y
         point.x = this.transformX(x, y)
         point.y = this.transformY(x, y)
+        return point
     }
 
     transformValues(...points: number[]): number[] {
@@ -473,7 +539,48 @@ export class SGMatrix {
             this.transformX(x, y),
             this.transformY(x, y))
     }
-}
 
+    transformBounds(rect: IRect) {
+        const points: Coord[] = [
+            [rect.x, rect.y],
+            [rect.x + rect.width, rect.y],
+            [rect.x + rect.width, rect.y + rect.height],
+            [rect.x, rect.y + rect.height]
+        ]
+        const v = {
+            x: {
+                min: Number.MAX_VALUE,
+                max: Number.MIN_VALUE
+            },
+            y: {
+                min: Number.MAX_VALUE,
+                max: Number.MIN_VALUE
+            }
+        }
+        for (const p of points) {
+            this.transformCoord(p)
+            if (p[0] < v.x.min) {
+                v.x.min = p[0]
+            }
+            if (p[0] > v.x.max) {
+                v.x.max = p[0]
+            }
+            if (p[1] < v.y.min) {
+                v.y.min = p[1]
+            }
+            if (p[1] > v.y.max) {
+                v.y.max = p[1]
+            }
+        }
+        rect.x = v.x.min
+        rect.y = v.y.min
+        rect.width = v.x.max - v.x.min
+        rect.height = v.y.max - v.y.min
+    }
+    
+}
+const cloneCoord = (c: Coord): Coord => {
+    return [c[0], c[1]]
+}
 const SVG_NS: string = "http://www.w3.org/2000/svg"
-export { SVG_NS }
+export { SVG_NS, cloneCoord }

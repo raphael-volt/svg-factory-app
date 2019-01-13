@@ -4,18 +4,18 @@ import { FormBuilder, AbstractControl, Validators, ValidationErrors, ValidatorFn
 import { Subscription } from "rxjs";
 
 import { SymbolService } from "../services/symbol.service";
-import { SymbolController } from "../core/symbol-controller";
+import { SymbolListComponent } from "../symbol-list/symbol-list.component";
 import { CatalogConfigService } from "../services/catalog-config.service";
 import { TspdfService } from "tspdf";
 
 import { RowItemCollection, SvgModelService, SVGConfig } from "../services/svg-model.service";
-
+import { colorValidator, formatValidator, orientationValidator } from "../core/validators";
 @Component({
   selector: 'app-catalog',
   templateUrl: './catalog.component.html',
   styleUrls: ['./catalog.component.scss']
 })
-export class CatalogComponent extends SymbolController implements OnInit {
+export class CatalogComponent extends SymbolListComponent implements OnInit {
 
   private subscriptions: Subscription[] = []
   config: SVGConfig
@@ -52,33 +52,7 @@ export class CatalogComponent extends SymbolController implements OnInit {
   }
   private setupForm() {
     let configSet: boolean = false
-    const formatValidator = (): ValidatorFn => {
-      return (control: AbstractControl): { [key: string]: any } | null => {
-        const v = control.value
-        return (v == "A4" || v == "A3") ? null : { 'format invalide': { value: control.value } };
-      }
-    }
-    const orientationValidator = (): ValidatorFn => {
-      return (control: AbstractControl): { [key: string]: any } | null => {
-        const v = control.value
-        return (v == "l" || v == "p") ? null : { 'orientation invalide': { value: control.value } };
-      }
-    }
-
-    const colorValidator = (checkName: boolean = true): ValidatorFn => {
-      return (control: AbstractControl): { [key: string]: any } | null => {
-        const v = control.value
-        if (!v)
-          return null
-
-        if (checkName && cssColors.indexOf(v) > -1) {
-          return null
-        }
-        let re = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i
-        const b = re.test(v)
-        return b ? null : { 'couleur invalide': { value: v } }
-      }
-    }
+    
 
     const group = this.formBuilder.group(
       {
@@ -192,158 +166,6 @@ export class CatalogComponent extends SymbolController implements OnInit {
           }
         )
       }
-
     })
   }
 }
-const cssColors = [
-  "none",
-  "aliceblue",
-  "antiquewhite",
-  "aqua",
-  "aquamarine",
-  "azure",
-  "beige",
-  "bisque",
-  "black",
-  "blanchedalmond",
-  "blue",
-  "blueviolet",
-  "brown",
-  "burlywood",
-  "cadetblue",
-  "chartreuse",
-  "chocolate",
-  "coral",
-  "cornflowerblue",
-  "cornsilk",
-  "crimson",
-  "cyan",
-  "darkblue",
-  "darkcyan",
-  "darkgoldenrod",
-  "darkgray",
-  "darkgreen",
-  "darkgrey",
-  "darkkhaki",
-  "darkmagenta",
-  "darkolivegreen",
-  "darkorange",
-  "darkorchid",
-  "darkred",
-  "darksalmon",
-  "darkseagreen",
-  "darkslateblue",
-  "darkslategray",
-  "darkslategrey",
-  "darkturquoise",
-  "darkviolet",
-  "deeppink",
-  "deepskyblue",
-  "dimgray",
-  "dimgrey",
-  "dodgerblue",
-  "firebrick",
-  "floralwhite",
-  "forestgreen",
-  "fuchsia",
-  "gainsboro",
-  "ghostwhite",
-  "gold",
-  "goldenrod",
-  "gray",
-  "green",
-  "greenyellow",
-  "grey",
-  "honeydew",
-  "hotpink",
-  "indianred",
-  "indigo",
-  "ivory",
-  "khaki",
-  "lavender",
-  "lavenderblush",
-  "lawngreen",
-  "lemonchiffon",
-  "lightblue",
-  "lightcoral",
-  "lightcyan",
-  "lightgoldenrodyellow",
-  "lightgray",
-  "lightgreen",
-  "lightgrey",
-  "lightpink",
-  "lightsalmon",
-  "lightseagreen",
-  "lightskyblue",
-  "lightslategray",
-  "lightslategrey",
-  "lightsteelblue",
-  "lightyellow",
-  "lime",
-  "limegreen",
-  "linen",
-  "magenta",
-  "maroon",
-  "mediumaquamarine",
-  "mediumblue",
-  "mediumorchid",
-  "mediumpurple",
-  "mediumseagreen",
-  "mediumslateblue",
-  "mediumspringgreen",
-  "mediumturquoise",
-  "mediumvioletred",
-  "midnightblue",
-  "mintcream",
-  "mistyrose",
-  "moccasin",
-  "navajowhite",
-  "navy",
-  "oldlace",
-  "olive",
-  "olivedrab",
-  "orange",
-  "orangered",
-  "orchid",
-  "palegoldenrod",
-  "palegreen",
-  "paleturquoise",
-  "palevioletred",
-  "papayawhip",
-  "peachpuff",
-  "peru",
-  "pink",
-  "plum",
-  "powderblue",
-  "purple",
-  "rebeccapurple",
-  "red",
-  "rosybrown",
-  "royalblue",
-  "saddlebrown",
-  "salmon",
-  "sandybrown",
-  "seagreen",
-  "seashell",
-  "sienna",
-  "silver",
-  "skyblue",
-  "slateblue",
-  "slategray",
-  "slategrey",
-  "snow",
-  "springgreen",
-  "steelblue",
-  "tan",
-  "teal",
-  "thistle",
-  "tomato",
-  "turquoise",
-  "violet",
-  "wheat",
-  "white",
-  "whitesmoke",
-  "yellow",
-  "yellowgreen"
-]

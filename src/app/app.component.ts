@@ -1,17 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { appRoutes } from "./core/routing.module";
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent implements OnInit {
-  title = 'Motif App';
+export class AppComponent {
+  
+  title = 'symbols-app';
 
   navLinks = appRoutes
 
-  constructor() {}
-  ngOnInit() {
-    
-  }
+  constructor() { }
 }

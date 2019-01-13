@@ -6,6 +6,7 @@
     "@angular/core": "^7.1.0",
     "@angular/cdk": "^7.1.1",
     "@angular/material": "^7.1.1",
-    "tspdf": "^0.0.1"
+    "tspdf": "^0.0.1",
+    "change-detection": "^0.0.1"
   }
 }
