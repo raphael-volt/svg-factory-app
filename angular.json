@@ -141,41 +141,6 @@
         }
       }
     },
-    "svg-geom": {
-      "root": "projects/svg-geom",
-      "sourceRoot": "projects/svg-geom/src",
-      "projectType": "library",
-      "prefix": "",
-      "architect": {
-        "build": {
-          "builder": "@angular-devkit/build-ng-packagr:build",
-          "options": {
-            "tsConfig": "projects/svg-geom/tsconfig.lib.json",
-            "project": "projects/svg-geom/ng-package.json"
-          }
-        },
-        "test": {
-          "builder": "@angular-devkit/build-angular:karma",
-          "options": {
-            "main": "projects/svg-geom/src/test.ts",
-            "tsConfig": "projects/svg-geom/tsconfig.spec.json",
-            "karmaConfig": "projects/svg-geom/karma.conf.js"
-          }
-        },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": [
-              "projects/svg-geom/tsconfig.lib.json",
-              "projects/svg-geom/tsconfig.spec.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
-          }
-        }
-      }
-    },
     "components": {
       "root": "projects/components",
       "sourceRoot": "projects/components/src",
@@ -308,6 +273,181 @@
             "tsConfig": [
               "projects/common/tsconfig.lib.json",
               "projects/common/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    },
+    "@ng-svg/core": {
+      "root": "projects/ng-svg/core",
+      "sourceRoot": "projects/ng-svg/core/src",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/ng-svg/core/tsconfig.lib.json",
+            "project": "projects/ng-svg/core/ng-package.json"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/ng-svg/core/src/test.ts",
+            "tsConfig": "projects/ng-svg/core/tsconfig.spec.json",
+            "karmaConfig": "projects/ng-svg/core/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/ng-svg/core/tsconfig.lib.json",
+              "projects/ng-svg/core/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    },
+    "@ng-svg/components": {
+      "root": "projects/ng-svg/components",
+      "sourceRoot": "projects/ng-svg/components/src",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/ng-svg/components/tsconfig.lib.json",
+            "project": "projects/ng-svg/components/ng-package.json"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/ng-svg/components/src/test.ts",
+            "tsConfig": "projects/ng-svg/components/tsconfig.spec.json",
+            "karmaConfig": "projects/ng-svg/components/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/ng-svg/components/tsconfig.lib.json",
+              "projects/ng-svg/components/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    },
+    "@ng-svg/dom": {
+      "root": "projects/ng-svg/dom",
+      "sourceRoot": "projects/ng-svg/dom/src",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/ng-svg/dom/tsconfig.lib.json",
+            "project": "projects/ng-svg/dom/ng-package.json"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/ng-svg/dom/src/test.ts",
+            "tsConfig": "projects/ng-svg/dom/tsconfig.spec.json",
+            "karmaConfig": "projects/ng-svg/dom/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/ng-svg/dom/tsconfig.lib.json",
+              "projects/ng-svg/dom/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    },
+    "@ng-svg/math": {
+      "root": "projects/ng-svg/math",
+      "sourceRoot": "projects/ng-svg/math/src",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/ng-svg/math/tsconfig.lib.json",
+            "project": "projects/ng-svg/math/ng-package.json"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/ng-svg/math/src/test.ts",
+            "tsConfig": "projects/ng-svg/math/tsconfig.spec.json",
+            "karmaConfig": "projects/ng-svg/math/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/ng-svg/math/tsconfig.lib.json",
+              "projects/ng-svg/math/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    },
+    "@ng-svg/geom": {
+      "root": "projects/ng-svg/geom",
+      "sourceRoot": "projects/ng-svg/geom/src",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/ng-svg/geom/tsconfig.lib.json",
+            "project": "projects/ng-svg/geom/ng-package.json"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/ng-svg/geom/src/test.ts",
+            "tsConfig": "projects/ng-svg/geom/tsconfig.spec.json",
+            "karmaConfig": "projects/ng-svg/geom/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/ng-svg/geom/tsconfig.lib.json",
+              "projects/ng-svg/geom/tsconfig.spec.json"
             ],
             "exclude": [
               "**/node_modules/**"
