@@ -1,0 +1,15 @@
+.color-preview {
+    order: 0;
+    flex: 1 1 auto;
+    align-self: auto;
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    line-height: 1em;
+    outline-color: #444;
+    outline-width: 2px;
+    outline-offset: -2px;
+    outline-style: solid;
+    cursor: pointer;
+    margin: 2px;
+  }  

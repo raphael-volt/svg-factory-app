@@ -5,11 +5,11 @@ import { Subscription } from "rxjs";
 
 import { SymbolService } from "../services/symbol.service";
 import { SymbolListComponent } from "../symbol-list/symbol-list.component";
-import { CatalogConfigService } from "../services/catalog-config.service";
+import { ConfigService } from "../services/config.service";
 import { TspdfService } from "tspdf";
 
 import { RowItemCollection, SvgModelService, SVGConfig } from "../services/svg-model.service";
-import { colorValidator, formatValidator, orientationValidator } from "../core/validators";
+import { colorValidator, formatValidator, orientationValidator } from "common";
 @Component({
   selector: 'app-catalog',
   templateUrl: './catalog.component.html',
@@ -32,7 +32,7 @@ export class CatalogComponent extends SymbolListComponent implements OnInit {
     private modelService: SvgModelService,
     symbolService: SymbolService,
     private formBuilder: FormBuilder,
-    private configService: CatalogConfigService) {
+    private configService: ConfigService) {
     super(symbolService)
   }
   ngOnDestroy() {
@@ -64,7 +64,7 @@ export class CatalogComponent extends SymbolListComponent implements OnInit {
         textPadding: ['textPadding', [Validators.required]],
         fontSize: ['fontSize', [Validators.required]],
         fontFamily: ['fontFamily', [Validators.required]],
-        textColor: ['textColor', [Validators.required, colorValidator(false)]],
+        textColor: ['textColor', [Validators.required, colorValidator()]],
         style: this.formBuilder.group({
           stroke: ['stroke', [colorValidator()]],
           fill: ['fill', [colorValidator()]],
@@ -89,7 +89,7 @@ export class CatalogComponent extends SymbolListComponent implements OnInit {
     })
     this.subscriptions.push(sub)
 
-    sub = this.configService.getConfig().subscribe(
+    sub = this.configService.getCatalog().subscribe(
       config => {
         this.config = config
         configSet = true
@@ -132,14 +132,14 @@ export class CatalogComponent extends SymbolListComponent implements OnInit {
     super.setSymbols(symbols)
   }
   saveConfig() {
-    this.configService.saveSubscribe()
+    this.configService.saveCatalogSubscribe()
   }
   collections: RowItemCollection[]
-  download() {
+  downloadPDF() {
     this.modelService.savePDF(this.collections, this.config)
   }
   downloadSVG() {
-    this.modelService.saveSvg(this.collections[0].svgDesc.svg)
+    this.modelService.saveSvg(this.collections[0].svgDesc.svg)//[0].svgDesc.svg)
   }
 
 

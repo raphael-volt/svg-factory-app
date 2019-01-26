@@ -1,5 +1,5 @@
 import { Directive, ElementRef, OnChanges, SimpleChanges, Input } from '@angular/core';
-import { clearChildNode } from "../services/svg-model.service";
+import { clearChildNode } from "svg-geom";
 @Directive({
   selector: '[svgChild]'
 })

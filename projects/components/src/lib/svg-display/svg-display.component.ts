@@ -10,7 +10,8 @@ export class SvgDisplayComponent {
 
   constructor(public service: SvgDisplayService) { }
 
-  ngOnInit() {
+  styleChange(event:any) {
+    this.service.validate(null)
   }
 
 }

@@ -1,0 +1,37 @@
+.color-picker-root {
+  display: inline-flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-content: center;
+  align-items: center;
+}
+.color-picker-container {
+  order: 0;
+  flex: 1 1 auto;
+  align-self: auto;
+}
+.color-preview {
+  order: 0;
+  flex: 1 1 auto;
+  align-self: auto;
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  line-height: 1em;
+  outline-color: #444;
+  outline-width: 2px;
+  outline-offset: -2px;
+  outline-style: solid;
+  cursor: pointer;
+}
+.color-preview.invalid {
+  background-color: #ffffff;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    red 0em,
+    red 0.15em,
+    transparent.15em,
+    transparent 0.65em
+  );
+}

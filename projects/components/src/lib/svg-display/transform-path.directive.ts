@@ -2,7 +2,10 @@ import { Directive, Input, OnChanges, SimpleChanges, ElementRef } from '@angular
 import { SGMatrix, PathData } from 'svg-geom';
 import { SVGClassDirectiveBase } from "./svg-display";
 @Directive({
-  selector: '[transformPath]'
+  selector: '[transformPath]',
+  host: {
+    'attr.vector-effect': 'non-scaling-stroke'
+  }
 })
 export class TransformPathDirective extends SVGClassDirectiveBase implements OnChanges {
 
@@ -37,7 +40,7 @@ export class TransformPathDirective extends SVGClassDirectiveBase implements OnC
       let y: number = this.ty
       if ((x !== undefined && x !== null && !isNaN(x) && Number(x) === x)
         && (y !== undefined && y !== null && !isNaN(y) && Number(y) === y)) {
-          e.setAttribute('transform', `translate(${[x, y].join(',')})`)
+        e.setAttribute('transform', `translate(${[x, y].join(',')})`)
       }
     }
   }

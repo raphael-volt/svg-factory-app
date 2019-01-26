@@ -1,6 +1,6 @@
 import { Directive, ElementRef, Input, OnInit, DoCheck, OnChanges, OnDestroy } from "@angular/core";
 import { DepthDifferService, DepthDiffer } from "change-detection";
-import { SVGStyle } from "./svg-display";
+import { SVGPathStyle, SVGStyleCollection } from "svg-geom";
 import { Subscription } from "rxjs";
 @Directive({
     selector: '[svgStyle]'
@@ -8,11 +8,11 @@ import { Subscription } from "rxjs";
 export class SvgStyleDirective implements OnInit, DoCheck, OnChanges, OnDestroy {
 
     @Input()
-    svgStyle: SVGStyle
+    svgStyle: SVGStyleCollection
 
     private subscription: Subscription
     private styleElement: SVGStyleElement
-    private differ: DepthDiffer<SVGStyle>
+    private differ: DepthDiffer<SVGStyleCollection>
 
     constructor(
         styleRef: ElementRef,
@@ -41,15 +41,10 @@ export class SvgStyleDirective implements OnInit, DoCheck, OnChanges, OnDestroy 
 
     private updateStyle() {
         const style = this.svgStyle
+        style.getAttributeName
         const rows: string[] = []
-        let row: string[] = []
         for (const selector in style) {
-            row = []
-            for (const k in style[selector]) {
-                row.push(`${k}:${style[selector][k]}`)
-            }
-            row = [row.join("; ")]
-            rows.push(`.${selector} {${row.join("; ")}}`)
+            rows.push(style[selector].toCssSrting(`.${selector}`))
         }
         const node = this.styleElement
 

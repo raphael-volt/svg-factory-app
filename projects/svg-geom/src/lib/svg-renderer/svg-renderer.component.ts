@@ -1,13 +1,9 @@
 import { Component, Input } from '@angular/core';
-import { PathStyle } from "../core/geom";
+import { SVGPathStyle } from "../core/styles";
 import { IPathData } from "../core/path-builder";
-const defaultPathStyle = (): PathStyle => {
-  return {
-    fill: "black",
-    stroke: "none",
-    strokeWidth: 0
-  }
-}
+const defaultPathStyle = new SVGPathStyle({
+  fill: "#000000"
+})
 
 @Component({
   selector: 'svg-renderer',
@@ -20,10 +16,10 @@ export class SvgRendererComponent {
   pathData: IPathData
 
   @Input()
-  pathStyle: PathStyle
+  pathStyle: SVGPathStyle
   
   constructor() { 
-    this.pathStyle = defaultPathStyle()
+    this.pathStyle = defaultPathStyle
   }
 
 }

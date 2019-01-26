@@ -30,6 +30,9 @@
       ],
       "change-detection": [
         "projects/change-detection/src/public_api"
+      ],
+      "common": [
+        "projects/common/src/public_api"
       ]
     }
   }

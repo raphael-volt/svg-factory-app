@@ -1,14 +1,12 @@
+import { isCSSColor } from "common";
+
 export interface BasicTransform {
     mirorX?: boolean
     mirorY?: boolean
     rotation?: number
 }
 
-export interface PathStyle {
-    stroke: string
-    strokeWidth: number
-    fill: string
-}
+
 
 export interface IDrawable {
     moveTo(x: number, y: number)
@@ -422,10 +420,10 @@ export class SGMatrix {
 
     scale(x: number, y: number): SGMatrix {
         this.a *= x
-        this.d *= y
         this.c *= x
-        this.b *= y
         this.tx *= x
+        this.d *= y
+        this.b *= y
         this.ty *= y
         return this
     }
@@ -577,7 +575,7 @@ export class SGMatrix {
         rect.width = v.x.max - v.x.min
         rect.height = v.y.max - v.y.min
     }
-    
+
 }
 const cloneCoord = (c: Coord): Coord => {
     return [c[0], c[1]]

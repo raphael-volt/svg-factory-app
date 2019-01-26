@@ -1,7 +1,7 @@
 import { Directive, Input, ElementRef, OnDestroy, DoCheck, KeyValueDiffers, KeyValueDiffer } from '@angular/core';
 
-
-import { PathStyle, SGMatrix, SGRect } from "./core/geom"
+import { SVGPathStyle, getDefaultPathStyle } from "./core/styles";
+import { SGMatrix } from "./core/geom"
 import { PathData, IPathData } from "./core/path-builder";
 
 type IRect = { width?: number, height?: number, x?: number, y?: number, scale?: number }
@@ -44,9 +44,9 @@ export class SvgDrawerDirective implements OnDestroy, DoCheck {
   private _context: CanvasRenderingContext2D
   private path: PathData = new PathData()
 
-  private _style: PathStyle
+  private _style: SVGPathStyle
   @Input()
-  set pathStyle(value: PathStyle) {
+  set pathStyle(value: SVGPathStyle) {
     this._style = value
     this.invalidate()
   }
@@ -54,18 +54,24 @@ export class SvgDrawerDirective implements OnDestroy, DoCheck {
     return this._style
   }
 
-  private differ: KeyValueDiffer<string, any>;;
+  private pathDiffer: KeyValueDiffer<string, any>
+  private styleDiffer: KeyValueDiffer<string, any>
 
 
   ngDoCheck() {
-    const change = this.differ.diff(this._pathData);
+    let change = this.pathDiffer.diff(this._pathData);
     if (change) {
       change.forEachChangedItem(item => {
         if(item.key == "data") {
           this.path.data = item.currentValue
           this.invalidate()
+          return
         }
-      });
+      })
+    }
+    change = this.styleDiffer.diff(this.pathStyle)
+    if(change) {
+      this.invalidate()
     }
   }
 
@@ -74,7 +80,9 @@ export class SvgDrawerDirective implements OnDestroy, DoCheck {
     this._canvas = ref.nativeElement
     this._context = this._canvas.getContext('2d')
     window.addEventListener("resize", this.resizeHandler)
-    this.differ = this.differs.find({}).create()
+    this.pathDiffer = this.differs.find({}).create()
+    this.styleDiffer = this.differs.find({}).create()
+    
   }
 
   ngOnDestroy() {
@@ -133,13 +141,13 @@ export class SvgDrawerDirective implements OnDestroy, DoCheck {
       .scale(s, s)
       .translate(destRect.width / 2, destRect.height / 2)
     const ctx = this._context
-    const style: PathStyle = this.pathStyle ? this.pathStyle : { fill: "#000000", stroke: "none", strokeWidth: 0 }
+    const style: SVGPathStyle = this.pathStyle ? this.pathStyle : getDefaultPathStyle()
     const fill: boolean = style.fill && style.fill != "none"
     const stroke: boolean = style.stroke && style.stroke != "none"
     if (fill)
       ctx.fillStyle = style.fill
     if (stroke) {
-      ctx.strokeStyle = style.fill
+      ctx.strokeStyle = style.stroke
       ctx.lineWidth = style.strokeWidth
     }
     data.draw(ctx, m)
