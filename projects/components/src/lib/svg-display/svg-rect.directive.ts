@@ -18,7 +18,10 @@ const isRect = (value: any): value is Rect => {
     return false
 }
 @Directive({
-    selector: "[svgRect]"
+    selector: "[svgRect]",
+    host: {
+        'attr.vector-effect':'non-scaling-stroke'
+    }
 })
 export class SVGRectDirective extends SVGClassDirectiveBase implements DoCheck, OnChanges, OnDestroy {
     @Input()

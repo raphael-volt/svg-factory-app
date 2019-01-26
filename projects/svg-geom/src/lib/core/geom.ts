@@ -6,57 +6,7 @@ export interface BasicTransform {
     rotation?: number
 }
 
-type Record<K extends string> = {
-    [P in K]?: string | number;
-}
-type SVGPathStyleAttributes = "stroke" | "fill" | "stroke-width"
-export type SVGPathStyleProperties = "stroke" | "fill" | "strokeWidth"
 
-interface ISVGPathStyle<K extends SVGPathStyleProperties, U extends SVGPathStyleAttributes> extends Record<SVGPathStyleProperties> {
-    getAttributeName(key: K): U
-    getAttributeValue(key: K): string
-}
-export const VALUE_NONE: string = "none"
-export const DEFAULT_COLOR: string = "#000000"
-
-export class SVGPathStyle implements ISVGPathStyle<SVGPathStyleProperties, SVGPathStyleAttributes> {
-
-    margin: number=0
-
-    getAttributeName(key: SVGPathStyleProperties): SVGPathStyleAttributes {
-        switch (key) {
-            case "stroke":
-            case "fill":
-                return key
-            case "strokeWidth":
-                return "stroke-width"
-            default:
-                break;
-        }
-        return null
-    }
-    getAttributeValue(key: SVGPathStyleProperties): string {
-        let value: string | number | undefined = this[key]
-        if (value == undefined)
-            return VALUE_NONE
-        if (typeof value == "number")
-            return String(value)
-        switch (key) {
-            case "stroke":
-            case "fill":
-                if (!isCSSColor(<string>value))
-                    value = VALUE_NONE
-                break
-        }
-        return value
-    }
-}
-
-export interface PathStyle {
-    stroke: string
-    strokeWidth: number
-    fill: string
-}
 
 export interface IDrawable {
     moveTo(x: number, y: number)
@@ -470,10 +420,10 @@ export class SGMatrix {
 
     scale(x: number, y: number): SGMatrix {
         this.a *= x
-        this.d *= y
         this.c *= x
-        this.b *= y
         this.tx *= x
+        this.d *= y
+        this.b *= y
         this.ty *= y
         return this
     }

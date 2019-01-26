@@ -48,7 +48,10 @@ export class PrintSymbolsComponent implements OnDestroy, OnInit, AfterViewInit, 
   ) {
     this.printablesDiffer = differs.create(this.configItems)
     this.printablesSubscription = this.printablesDiffer.events.subscribe(this.changeHandler)
-    this.pageDiffer = differs.create(displayService.page)
+    this.pageDiffer = differs.create({
+      page:displayService.page,
+      style: displayService.styles
+    })
     this.pageSubscription = this.pageDiffer.events.subscribe(this.changeHandler)
   }
 

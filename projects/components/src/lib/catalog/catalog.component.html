@@ -2,14 +2,16 @@
   <div class="controls h-item f-h content pad-8">
     <form #form="ngForm" [formGroup]="formGroup">
       <div class="v-box">
-        <button color="accent" class="save-button" [disabled]="!canSave" mat-raised-button (click)="saveConfig()">Enregister
-          la configuration</button>
-        <button color="accent" class="save-button" [disabled]="!canSave" mat-raised-button (click)="download()">Télécharger
-          le catalogue</button>
-        <button color="accent" class="save-button" [disabled]="!canSave" mat-raised-button (click)="downloadSVG()">Télécharger
-          SVG</button>
+        <button color="accent" class="save-button" [disabled]="!canSave" mat-raised-button (click)="saveConfig()">
+          Enregister la configuration
+        </button>
+        <button color="accent" class="save-button" [disabled]="!canSave" mat-raised-button (click)="downloadPDF()">
+          Télécharger le catalogue
+        </button>
+        <button color="accent" class="save-button" [disabled]="!canSave" mat-raised-button (click)="downloadSVG()">
+          Télécharger SVG
+        </button>
       </div>
-
       <div class="form-item-group border content border br-4 pad-8">
         <label>Page</label>
         <div class="form-item">

@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import {
-  SVGStyle, defaultSVGStyle, defaultSelector,
   PrintableSymbol, PathTransform, Transform,
   symbolsSizesProvider, SVGPage, defaultSVGPage
 } from "./svg-display";
-import { PathData, SGMatrix, SGRect, Coord } from "svg-geom";
+import { PathData, SGMatrix, SGRect, Coord,
+  SVGPathStyle, SVGStyleCollection, defaultSVGStyleCollection, defaultSelector} from "svg-geom";
 import { Margins, px2mm, mm2px } from "tspdf";
+import { ConfigService } from "../services/config.service";
 @Injectable({
   providedIn: 'root'
 })
@@ -14,16 +15,31 @@ export class SvgDisplayService {
   pathSelector: string
   rectSelector: string
 
-  style: SVGStyle
+  rectStyle: SVGPathStyle
   layout: Coord
   page: SVGPage
-
-  constructor() {
-    this.style = defaultSVGStyle()
+  pathStyle: SVGPathStyle
+  styles: SVGStyleCollection
+  constructor(
+    configService: ConfigService
+  ) {
     this.pathSelector = defaultSelector.path
     this.rectSelector = defaultSelector.rect
     this.page = defaultSVGPage()
     this.layout = this.page.layout.slice() as Coord
+    this.styles = defaultSVGStyleCollection
+    this.pathStyle = this.styles[defaultSelector.path]
+
+    let sub = configService.getPrint().subscribe(
+      (config: SVGPathStyle) => {
+        this.pathStyle = config
+        this.styles[defaultSelector.path] = config
+        if(sub)
+          sub.unsubscribe()
+      }
+    )
+    if(this.pathStyle)
+      sub.unsubscribe()
   }
 
   validate(printables: PrintableSymbol[]) {
@@ -36,7 +52,7 @@ export class SvgDisplayService {
   private getTransforms(printables: PrintableSymbol[], page: SVGPage) {
     const margins: Margins = page.margins
     const layout: Coord = page.layout
-    const gap: number = page.gap
+    const gap: number = this.pathStyle.margin
     let transforms: Transform[] = this.createTransforms(printables)
     let pathTransforms: PathTransform[] = []
     const maxX: number = layout[0] - margins.right
@@ -99,48 +115,6 @@ export class SvgDisplayService {
       }
 
     }
-    /*
-    while (transforms.length) {
-      if (!pageRect) {
-        rowH = 0
-        x = margins.left
-        y = pages.length * (layout[1] + page.bottom)
-        pageRect = new SGRect(0, y, layout[0], layout[1])
-        pages.push(pageRect)
-        py = margins.top
-      }
-      tfm = transforms[0]
-      if (x + tfm.b.width <= maxX) {
-        if (py + tfm.b.height <= maxY) {
-          if (rowH < tfm.b.height)
-            rowH = tfm.b.height
-          transforms.shift()
-          createPathTransform(x, y + py, tfm)
-          x += tfm.b.width + gap
-        }
-        else
-          pageRect = null
-        continue
-      }
-      else {
-        if(py + rowH + gap <= maxY) {
-          py += rowH + gap
-          if (py + tfm.b.height <= maxY) {
-            py += rowH + gap
-            transforms.shift()
-            x = margins.left
-            rowH = tfm.b.height
-            createPathTransform(x, y + py, tfm)
-            x += tfm.b.width + gap
-          }
-          else
-            pageRect = null
-        }
-        else
-          pageRect = null
-      }
-    }
-    */
     this.pages = pages
     this.pathTransforms = pathTransforms
     this.layout[1] = pages.length * layout[1] + page.bottom * (pages.length - 1)

@@ -14,6 +14,8 @@ export const isCSSColor = (color: string, checkName: boolean = true): boolean =>
 const colorValidator = (checkName: boolean = true): ValidatorFn => {
     return (control: AbstractControl): { [key: string]: any } | null => {
         const v = control.value
+        if(!v)
+            return null
         return isCSSColor(v, checkName) ? null : { 'couleur invalide': { value: v } }
     }
 }
@@ -32,4 +34,12 @@ const orientationValidator = (): ValidatorFn => {
     }
 }
 
-export { colorValidator, orientationValidator, formatValidator }
+const numberValidator = (): ValidatorFn => {
+    return (control: AbstractControl): { [key: string]: any } | null => {
+        const v = control.value
+        let n = Number(v)
+        return ! isNaN(v) && v >= 0 ? null : { 'nombre invalide': { value: control.value } };
+    }
+}
+
+export { colorValidator, orientationValidator, formatValidator, numberValidator }

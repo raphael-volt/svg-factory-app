@@ -1,5 +1,5 @@
 import { SVGSymbol } from "../core/symbol";
-import { SGRect, PathData, SGMatrix, Coord } from 'svg-geom';
+import { SGRect, PathData, SGMatrix, Coord, SVGPathStyle } from 'svg-geom';
 import { Margins, getLayoutSizes } from "tspdf";
 
 export class PrintableSymbol {
@@ -42,34 +42,7 @@ export type Transform = { m: SGMatrix, b: SGRect, p: PathData };
 export type PathTransform = { m: SGMatrix, p: PathData, tx: number, ty: number };
 
 createConfigProviders()
-export interface SVGStyle {
-  [selector: string]: { [name: string]: string }
-}
-export const VALUE_NONE: string = "none"
-export const DEFAULT_COLOR: string = "#000000"
 
-
-export const defaultSelector: {
-  readonly path: string,
-  readonly rect: string
-} = {
-  path: "path",
-  rect: "rect"
-}
-export const defaultSVGStyle = (): SVGStyle => {
-  const result: SVGStyle = {}
-  result[defaultSelector.path] = {
-    "stroke": "#333",
-    "stroke-width": "0.5pt",
-    "fill": "none"
-  }
-  result[defaultSelector.rect] = {
-    "stroke": "#333",
-    "stroke-width": "1pt",
-    "fill": "#FFF"
-  }
-  return result
-}
 const defaultLayout = getLayoutSizes('A4').reverse()
 export const defaultSVGPage = (): SVGPage => {
   return {

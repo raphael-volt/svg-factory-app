@@ -1,3 +1,38 @@
-<p>
-  style-controller works!
-</p>
+<div class="controls h-item content pad-8">
+  <div *ngIf="pathStyle" class="form-item-group border content border br-4 pad-8" 
+  #form="ngForm" [formGroup]="formGroup">
+    <label>Motif</label>
+    <div class="form-item">
+      <mat-form-field>
+        <input [(ngModel)]="pathStyle.fill" placeholder="Couleur fond" matInput formControlName="fill">
+      </mat-form-field>
+      <mat-error *ngIf="formGroup.controls.fill.invalid">
+        {{getErrorMessage(formGroup.controls.fill)}}
+      </mat-error>
+    </div>
+    <div class="form-item">
+      <mat-form-field>
+        <input placeholder="Couleur contour" matInput formControlName="stroke" [(ngModel)]="pathStyle.stroke">
+      </mat-form-field>
+      <mat-error *ngIf="formGroup.controls.stroke.invalid">
+        {{getErrorMessage(formGroup.controls.stroke)}}
+      </mat-error>
+    </div>
+    <div class="form-item">
+      <mat-form-field>
+        <input placeholder="Épaisseur contour" matInput type="number" formControlName="strokeWidth" [(ngModel)]="pathStyle.strokeWidth">
+        <mat-error *ngIf="formGroup.controls.strokeWidth.invalid">
+          {{getErrorMessage(formGroup.controls.strokeWidth)}}
+        </mat-error>
+      </mat-form-field>
+    </div>
+    <div class="form-item">
+      <mat-form-field>
+        <input placeholder="Espacement" matInput type="number" formControlName="margin" [(ngModel)]="pathStyle.margin">
+        <mat-error *ngIf="formGroup.controls.margin.invalid">
+          {{getErrorMessage(formGroup.controls.margin)}}
+        </mat-error>
+      </mat-form-field>
+    </div>
+  </div>
+</div>

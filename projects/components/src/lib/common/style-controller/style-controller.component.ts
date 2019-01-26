@@ -1,23 +1,20 @@
-import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { Component, Input } from '@angular/core';
+import { FormBuilder, FormGroup } from "@angular/forms";
 import { ErrorController } from "../core/error-controller";
 import { SVGPathStyle, SVGPathStyleProperties } from "svg-geom";
-import { colorValidator } from "common";
+import { colorValidator, numberValidator } from "common";
+
 type PathGroupKeys = SVGPathStyleProperties | "margin"
 
-/*
-property) format: 
-(string | ((control: AbstractControl) => ValidationErrors)[])[]
-*/
 type PathGroup = {
   [P in PathGroupKeys]?: any
 }
 @Component({
   selector: 'style-controller',
   templateUrl: './style-controller.component.html',
-  styleUrls: ['./style-controller.component.css']
+  styleUrls: ['./style-controller.component.scss']
 })
-export class StyleControllerComponent extends ErrorController implements OnInit, OnChanges {
+export class StyleControllerComponent extends ErrorController {
 
   @Input()
   pathStyle: SVGPathStyle
@@ -27,18 +24,12 @@ export class StyleControllerComponent extends ErrorController implements OnInit,
     formBuilder: FormBuilder
   ) { 
     super()
-    let group: PathGroup = {
-      fill: ['fill', [colorValidator()]],
-      stroke: ['stroke', [colorValidator()]],
-      strokeWidth: ['strokeWidth', []]
+    const group: PathGroup = {
+      fill: ['', [colorValidator()]],
+      stroke: ['', [colorValidator()]],
+      strokeWidth: ['', [numberValidator()]],
+      margin: ['', [numberValidator()]]
     } 
+    this.formGroup = formBuilder.group(group)
   }
-
-
-  ngOnInit() {
-  }
-  ngOnChanges(changes: SimpleChanges) {
-
-  }
-
 }

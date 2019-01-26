@@ -1,12 +1,24 @@
 <div class="h-box">
-    <page-controller [page]="service.page"></page-controller>
+    <div class="v-box v-item">
+        <button color="accent" class="save-button" [disabled]="!canSave" mat-raised-button (click)="saveConfig()">
+            Enregister la configuration
+        </button>
+        <button color="accent" class="save-button" [disabled]="!canSave" mat-raised-button (click)="downloadPDF()">
+            Télécharger PDF
+        </button>
+        <button color="accent" class="save-button" [disabled]="!canSave" mat-raised-button (click)="downloadSVG()">
+            Télécharger SVG
+        </button>
+        <page-controller [page]="service.page"></page-controller>
+        <style-controller [pathStyle]="service.pathStyle"></style-controller>
+    </div>
     <div class="v-box v-item f-w">
         <div class="h-box config-editor content raised pad-16 br-4" *ngFor="let ps of items">
             <div (click)="removeConfig(ps)" class="fa-round-box big remove warn" matRipple matRippleCentered>
                 <fa-icon icon="times-circle"></fa-icon>
             </div>
             <div class="svg-box">
-                <svg-renderer [pathData]="ps.symbol"></svg-renderer>
+                <svg-renderer [pathData]="ps.symbol" [pathStyle]="service.pathStyle"></svg-renderer>
             </div>
             <div (click)="addEditor(ps)" class="ctrl-box fa-round-box big on accent" matRipple matRippleCentered>
                 <fa-icon icon="plus-circle"></fa-icon>

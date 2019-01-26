@@ -1,4 +1,20 @@
+.color-picker-root {
+  display: inline-flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-content: center;
+  align-items: center;
+}
+.color-picker-container {
+  order: 0;
+  flex: 1 1 auto;
+  align-self: auto;
+}
 .color-preview {
+  order: 0;
+  flex: 1 1 auto;
+  align-self: auto;
   display: inline-block;
   width: 1em;
   height: 1em;
@@ -9,7 +25,7 @@
   outline-style: solid;
   cursor: pointer;
 }
-.color-preview.none {
+.color-preview.invalid {
   background-color: #ffffff;
   background-image: repeating-linear-gradient(
     -45deg,
