@@ -6,11 +6,12 @@ import { UseDirective } from './use/use.directive';
 import { PathDirective } from './path/path.directive';
 import { SymbolDirective } from './symbol/symbol.directive';
 import { FactoryService } from './factory.service';
-
+import { CoreModule } from "@ng-svg/core";
 @NgModule({
   declarations: [SvgHostDirective, SvgDefsComponent, UseDirective, PathDirective, SymbolDirective],
   imports: [
-    CommonModule
+    CommonModule,
+    CoreModule
   ],
   exports: [
     SvgDefsComponent, UseDirective
