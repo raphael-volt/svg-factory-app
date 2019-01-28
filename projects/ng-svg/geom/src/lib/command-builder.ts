@@ -9,8 +9,11 @@ import { Coord } from './point';
 
 export class CommandBuilder {
 
-    private static _instance: CommandBuilder
-    static get instance(): CommandBuilder {
+    constructor() {
+
+    }
+    private static _instance: CommandBuilder=null
+    static getInstance(): CommandBuilder {
         if (!CommandBuilder._instance) {
             CommandBuilder._instance = new CommandBuilder()
         }
@@ -25,7 +28,6 @@ export class CommandBuilder {
     private lastCurveControlY: number
     private _currentPath: PathCommand[]
 
-    private constructor() { }
 
     parsePolygon = (data: string, result: SVGPath): SVGPath => {
         const check = this.checkInput(data, result)
@@ -252,4 +254,7 @@ export class CommandBuilder {
         return result
     }
 }
-export const builder:CommandBuilder = CommandBuilder.instance
+
+const builder:CommandBuilder = CommandBuilder.getInstance()
+
+export { builder }
