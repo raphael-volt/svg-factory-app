@@ -1,4 +1,4 @@
-import { Matrix, Coord, Rect, BBox, PathData } from "../public_api";
+import { Matrix, Coord, Rect, BBox, PathData } from "./public_api";
 
 const addCustomEqualityTester = (precision = .001) => {
   jasmine.addCustomEqualityTester(function (a, b) {
