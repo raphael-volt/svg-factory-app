@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
-import { MathModule } from "@ng-svg/math";
+
 @NgModule({
-    imports: [MathModule]
+    imports: []
 })
 export class GeomModule { }

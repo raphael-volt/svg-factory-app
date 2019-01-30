@@ -7,7 +7,7 @@ import { FormBuilder, FormGroup, ValidatorFn, AbstractControl, Validator, Valida
 @Component({
   selector: 'config',
   templateUrl: './config.component.html',
-  styleUrls: ['../catalog/catalog.component.scss']
+  styleUrls: ['./config.component.scss']
 })
 export class ConfigComponent implements OnInit, OnDestroy {
 

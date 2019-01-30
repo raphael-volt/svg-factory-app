@@ -6,16 +6,23 @@ import { UseDirective } from './use/use.directive';
 import { PathDirective } from './path/path.directive';
 import { SymbolDirective } from './symbol/symbol.directive';
 import { FactoryService } from './factory.service';
-import { CoreModule } from "@ng-svg/core";
+import { SvgStyleDirective } from './style/svg-style.directive';
+import { SymbolRendererComponent, SvgViewBoxDirective } from './symbol-renderer/symbol-renderer.component';
 @NgModule({
-  declarations: [SvgHostDirective, SvgDefsComponent, UseDirective, PathDirective, SymbolDirective],
+  declarations: [
+    SvgHostDirective, SvgDefsComponent, 
+    SvgStyleDirective,
+    UseDirective, PathDirective, SymbolDirective,
+    SymbolRendererComponent, SvgViewBoxDirective],
   imports: [
-    CommonModule,
-    CoreModule
+    CommonModule
   ],
   exports: [
-    SvgDefsComponent, UseDirective
+    SvgHostDirective, SvgDefsComponent, 
+    SvgStyleDirective,
+    UseDirective, PathDirective, SymbolDirective,
+    SymbolRendererComponent, SvgViewBoxDirective
   ],
   providers: [FactoryService]
 })
-export class ComponentsModule { }
+export class SVGComponentsModule { }

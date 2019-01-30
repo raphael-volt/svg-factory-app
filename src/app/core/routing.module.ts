@@ -4,11 +4,11 @@ import {
     ApiService,
     SymbolService,
     LoginComponent,
-    ListComponent,
+    ConfigComponent,
+    ListComponent/*,
     ImportComponent,
     CatalogComponent,
-    ConfigComponent,
-    PrintSymbolsComponent
+    PrintSymbolsComponent*/
 } from "components";
 
 import { RouterModule, Routes } from '@angular/router'
@@ -95,7 +95,7 @@ const routes: Routes = [
                 path: 'list', component: ListComponent,
                 label: 'Motifs',
                 icon: 'th-list'
-            },
+            }/*,
             <IAppRoute>{
                 path: 'import', component: ImportComponent,
                 label: 'Importer',
@@ -115,7 +115,8 @@ const routes: Routes = [
                 path: 'print', component: PrintSymbolsComponent,
                 label: 'Imprimer',
                 icon: 'print'
-            },
+            }*/
+            ,
             {
                 path: '',
                 redirectTo: '/list',

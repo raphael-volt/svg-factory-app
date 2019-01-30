@@ -1,35 +1,21 @@
-import { PathData, IPathData, SGRect } from "svg-geom";
-export interface SVGSymbol extends IPathData {
+import { PathData } from "@ng-svg/geom";
+export interface SVGSymbol {
     id?: number
     name?: string
+    data?:string,
     width?: number
     height?: number
+    pathLength?: number
     holes?: number
 }
-const cloneSymbolForSave = (symbol: IPathData): IPathData => {
-    const clone = Object.assign({}, symbol)
-    if (clone.bounds != undefined)
-        delete clone.bounds
-    if (clone.commands != undefined)
-        delete clone.commands
-    return clone
+const cloneSymbolForSave = (symbol: SVGSymbol): SVGSymbol => {
+    return Object.assign({}, symbol)
 }
-const setBounds = (symbol: SVGSymbol) => {
-    let bounds: SGRect
-    if(symbol.bounds != undefined) {
-        bounds = symbol.bounds
-        bounds.setValues(0, 0, symbol.width, symbol.height)
-    }
-    else {
-        bounds = new SGRect(0, 0, symbol.width, symbol.height)
-        symbol.bounds = bounds
-    }
-}
-const toPathData = (symbol: IPathData): PathData => {
+const toPathData = (symbol: SVGSymbol): PathData => {
     return assignToPathData(new PathData(), symbol)
 }
-const assignToPathData = (path: PathData, symbol: IPathData): PathData => {
+const assignToPathData = (path: PathData, symbol: SVGSymbol): PathData => {
     path.data = symbol.data
     return path
 }
-export { cloneSymbolForSave, toPathData, setBounds }
+export { cloneSymbolForSave, toPathData }

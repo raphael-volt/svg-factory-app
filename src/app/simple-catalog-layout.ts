@@ -1,3 +1,4 @@
+/*
 import {
     SGMatrix, SGRect, IRect, Coord, IPathData,
     SVGTextStyleDesc,
@@ -265,3 +266,4 @@ class Config2px {
         this.itemGap = config.itemGap
     }
 }
+*/

@@ -23,23 +23,39 @@ $list-item-background-opacity-selected: 0.3;
     background-color: rgba($color: $list-item-color-selected, $alpha: $list-item-background-opacity-selected);
     @include select-transition($select-transition-duration, $select-transition-ease);
   }
+  .svg-box {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    svg.symbol-renderer-svg {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      top:0
+    }
+  }
+
 }
 @mixin select-transition($duration, $ease) {
   -webkit-transition: background-color $duration $ease;
   -ms-transition: background-color $duration $ease;
   transition: background-color $duration $ease;
 }
-
-.svg-list {
-  overflow: auto;
+@mixin svg-list() {
+  .svg-list {
+    overflow: auto;
+  }
 }
-.light {
-  .ctrl-box {
-    .mat-form-field {
-      min-width: auto !important;
-      .mat-form-field-infix {
-        min-width: 74px !important;
-        width: auto !important;
+@mixin mat-form-field {
+  .light {
+    .ctrl-box {
+      .mat-form-field {
+        min-width: auto !important;
+        .mat-form-field-infix {
+          min-width: 74px !important;
+          width: auto !important;
+        }
       }
     }
   }

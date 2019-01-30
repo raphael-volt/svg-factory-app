@@ -15,6 +15,15 @@ export type FillAttributes =
     'fill-opacity' |
     'fill-rule';
 
+export type DrawAttribute = StrokeAttributes | FillAttributes
+
+export type DrawStyle = {
+    [k in DrawAttribute]?: string
+}
+
+export type DrawStyleCollection = {
+    [accessor: string]: DrawStyle
+}
 
 export interface IClass {
     class?: string

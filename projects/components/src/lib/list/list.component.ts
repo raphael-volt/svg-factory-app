@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { SVGSymbol } from '../core/symbol';
 import { MatDialog } from "@angular/material";
-import { SvgEditorComponent } from "../svg-editor/svg-editor.component";
+
 @Component({
   selector: 'symbol-list',
   templateUrl: './list.component.html',
@@ -19,11 +19,13 @@ export class ListComponent {
     private dialog: MatDialog) {    
   }
   edit() {
+    /*
     const ref = this.dialog.open(SvgEditorComponent, {
       disableClose: true,
       width: "80%",
       height: "80%"
     })
     ref.componentInstance.symbols = this.selectedItems
+    */
   }
 }
