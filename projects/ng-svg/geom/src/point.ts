@@ -1,4 +1,4 @@
-import { FixedNumbers } from "../core/public_api";
+import { FixedNumbers } from "ng-svg/core";
 
 export type Coord = FixedNumbers<2>
 

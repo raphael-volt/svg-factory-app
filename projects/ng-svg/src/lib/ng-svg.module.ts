@@ -1,11 +1,13 @@
 import { NgModule } from '@angular/core';
-import { SVGComponentsModule } from './components/svg-components.module';
+import { FixedArray } from "ng-svg/core";
+import { Coord } from "ng-svg/geom";
 
+import { SVGComponentsModule } from "ng-svg/components";
 @NgModule({
   declarations: [],
   imports: [
     SVGComponentsModule
   ],
-  exports: [SVGComponentsModule]
+  exports: []
 })
 export class NgSvgModule { }

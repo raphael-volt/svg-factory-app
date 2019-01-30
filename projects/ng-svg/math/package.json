@@ -1,0 +1,8 @@
+{
+  "ngPackage": {
+    "lib": {
+      "dest": "../../../dist/ng-svg/math",
+      "entryFile": "src/public_api.ts"
+    }
+  }
+}

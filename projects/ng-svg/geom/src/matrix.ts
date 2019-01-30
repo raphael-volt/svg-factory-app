@@ -1,4 +1,4 @@
-import { FixedNumbers } from "../core/public_api";
+import { FixedNumbers } from "ng-svg/core";
 import { Coord } from "./point";
 export const MATRIX_LENGTH: number = 6
 export type MatrixArray = FixedNumbers<6>;

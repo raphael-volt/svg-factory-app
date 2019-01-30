@@ -1,6 +1,6 @@
 import { Directive } from '@angular/core';
 import { FactoryService } from "../factory.service";
-import { NS_SVG, NS_XLINK } from "../../core/public_api";
+import { NS_SVG, NS_XLINK } from "ng-svg/core";
 @Directive({
   selector: '[svgHost]',
   host: {

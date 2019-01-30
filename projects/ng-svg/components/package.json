@@ -1,0 +1,8 @@
+{
+  "dest": "../../../dist/ng-svg/components",
+  "ngPackage": {
+    "lib": {
+      "entryFile": "src/public_api.ts"
+    }
+  }
+}
