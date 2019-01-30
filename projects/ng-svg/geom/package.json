@@ -1,0 +1,8 @@
+{
+  "ngPackage": {
+    "dest": "../../../dist/ng-svg/geom",
+    "lib": {
+      "entryFile": "src/public_api.ts"
+    }
+  }
+}

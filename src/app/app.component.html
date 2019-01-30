@@ -1,4 +1,5 @@
-<div class="v-box">
+<div class="v-box" svgHost>
+    <svg-defs></svg-defs>
     <div class="v-item">
         <nav mat-tab-nav-bar>
             <a mat-tab-link *ngFor="let link of navLinks" [routerLink]="link.path" routerLinkActive #rla="routerLinkActive"

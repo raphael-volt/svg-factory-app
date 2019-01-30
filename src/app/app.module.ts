@@ -4,9 +4,9 @@ import { CommonModule } from "@angular/common";
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { ComponentsModule, AppMaterialModule } from "components";
-import { TspdfModule } from "tspdf";
 import { AppComponent } from './app.component';
 import { RoutingModule } from "./core/routing.module";
+import { SVGComponentsModule } from "ng-svg/components";
 
 @NgModule({
   declarations: [
@@ -19,7 +19,7 @@ import { RoutingModule } from "./core/routing.module";
     ComponentsModule,
     AppMaterialModule,
     RoutingModule,
-    TspdfModule
+    SVGComponentsModule
   ],
   exports: [
     AppMaterialModule

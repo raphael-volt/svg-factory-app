@@ -1,6 +1,11 @@
-<div class="symbol-list-item" *ngFor="let s of symbols" matRipple matRippleCentered [class.selected]="isSelected(s)" (click)="symbolClick($event, s)">
-  <div class="svg-box">
-    <svg-renderer [pathData]="s"></svg-renderer>
+<div class="symbol-list">
+  <div class="symbol-list-item" *ngFor="let s of symbols" 
+    matRipple matRippleCentered 
+    [class.selected]="isSelected(s)" 
+    (click)="symbolClick($event, s)">
+    <div class="svg-box">
+      <svg-renderer [use]="s"></svg-renderer>
+    </div>
+    <span *ngIf="showSymbolName">name</span>
   </div>
-  <span *ngIf="showSymbolName">{{s | svgName}}</span>
 </div>

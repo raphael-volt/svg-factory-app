@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
 import { LocalStorage } from "@ngx-pwa/local-storage";
 import { map } from "rxjs/operators";
-import { Observable, of } from "rxjs";
-import { SVGConfig } from "./svg-model.service";
-import { SVGPathStyle, ISVGPathStyle, SVGPathStyleProperties } from "svg-geom";
+import { of } from "rxjs";
+
 @Injectable({
   providedIn: 'root'
 })
@@ -11,15 +10,15 @@ export class ConfigService {
 
   constructor(private storage: LocalStorage) { }
 
-  private print: SVGPathStyle
-  private catalog: SVGConfig
+  private print: any
+  private catalog: any
   getCatalog() {
     if (this.catalog)
       return of(this.catalog)
 
-    return this.storage.getItem<SVGConfig>("catalog-config")
+    return this.storage.getItem<any>("catalog-config")
       .pipe(
-        map((config: SVGConfig) => {
+        map((config:any) => {
           const defaultConf = this.getDefaultCatalog()
           if (!config)
             config = defaultConf
@@ -40,10 +39,10 @@ export class ConfigService {
   getPrint() {
     if (this.print)
       return of(this.print)
-    return this.storage.getItem<ISVGPathStyle>("catalog-config")
+    return this.storage.getItem("catalog-config")
       .pipe(
-        map((config: ISVGPathStyle) => {
-          this.print = new SVGPathStyle(config)
+        map((config: any) => {
+          this.print = config
           return config
         })
       )
@@ -64,7 +63,7 @@ export class ConfigService {
   }
 
 
-  getDefaultCatalog(): SVGConfig {
+  getDefaultCatalog() {
     return {
       format: "A4",
       orientation: "l",

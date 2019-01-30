@@ -1,3 +1,4 @@
+/*
 import { SGMatrix, SGRect, IRect, PathData, IPathData } from "svg-geom";
 import {
     LayoutConfig,
@@ -261,7 +262,7 @@ export class VerticalLayoutController {
                 y += data.child.transformBounds.height
             }
         }
-        /*
+        
 
 |----------------------------------------------------
 | scalable
@@ -286,10 +287,10 @@ export class VerticalLayoutController {
 |
 |----------------------------------------------------
 
-        */
+        
     }
 
-    /*
+    
     resolve(
         symbols: IPathData[],
         config: LayoutConfig,
@@ -351,5 +352,6 @@ export class VerticalLayoutController {
     createLayoutBox(element: LayoutElement) {
 
     }
-    */
+    
 }
+*/
