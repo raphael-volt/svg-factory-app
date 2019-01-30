@@ -31,20 +31,8 @@
       "common": [
         "projects/common/src/public_api"
       ],
-      "@ng-svg/core": [
-        "projects/ng-svg/core/src/public_api"
-      ],
-      "@ng-svg/components": [
-        "projects/ng-svg/components/src/public_api"
-      ],
-      "@ng-svg/dom": [
-        "projects/ng-svg/dom/src/public_api"
-      ],
-      "@ng-svg/math": [
-        "projects/ng-svg/math/src/public_api"
-      ],
-      "@ng-svg/geom": [
-        "projects/ng-svg/geom/src/public_api"
+      "ng-svg": [
+        "projects/ng-svg/src/public_api"
       ]
     }
   }

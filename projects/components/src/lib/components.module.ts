@@ -6,7 +6,7 @@ import { OverlayModule } from '@angular/cdk/overlay';
 
 import { TspdfModule } from "tspdf";
 import { CommonModule as _CommonModule } from "common";
-import { SVGComponentsModule } from "@ng-svg/components";
+import { SVGComponentsModule } from "ng-svg";
 
 import { ApiService } from "./services/api.service";
 import { SymbolService } from "./services/symbol.service";

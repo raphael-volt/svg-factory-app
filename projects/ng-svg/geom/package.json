@@ -1,9 +1,0 @@
-{
-  "name": "@ng-svg/geom",
-  "version": "0.0.1",
-  "peerDependencies": {
-    "@angular/core": "^7.1.0",
-    "@ng-svg/math": "^0.0.1",
-    "@ng-svg/core": "^0.0.1"
-  }
-}

@@ -7,7 +7,7 @@ import { ComponentsModule, AppMaterialModule } from "components";
 import { TspdfModule } from "tspdf";
 import { AppComponent } from './app.component';
 import { RoutingModule } from "./core/routing.module";
-import { SVGComponentsModule as NGSVGComponentsModule } from "@ng-svg/components";
+import { NgSvgModule } from "ng-svg";
 @NgModule({
   declarations: [
     AppComponent
@@ -20,7 +20,7 @@ import { SVGComponentsModule as NGSVGComponentsModule } from "@ng-svg/components
     AppMaterialModule,
     RoutingModule,
     TspdfModule,
-    NGSVGComponentsModule
+    NgSvgModule
   ],
   exports: [
     AppMaterialModule
