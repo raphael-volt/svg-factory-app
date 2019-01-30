@@ -6,4 +6,4 @@ import { DepthDifferService } from "./depth-differ.service";
   exports: [],
   providers: [DepthDifferService]
 })
-export class DepthDifferModule { }
+export class ChangeDetectionModule { }
