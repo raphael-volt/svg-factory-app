@@ -39,7 +39,10 @@ export class SelectHelper<T> {
         const collection = this.collection
 
         if (!ctrlKey && !shiftKey) {
-            this.setSelectedItems([item])
+            if (!this.isSelected(item))
+                this.setSelectedItems([item])
+            else
+                this.setSelectedItems([])
             return selectedItems
         }
         if (ctrlKey && !shiftKey) {

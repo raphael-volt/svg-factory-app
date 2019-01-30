@@ -1,5 +1,15 @@
 @import "../../styles.scss";
-
+.symbol-list {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-content: flex-start;
+  align-items: flex-start;
+}
 .symbol-list-item {
   @include symbol-list-item(5px, 5px);
+  * {
+    user-select: none;
+  }
 }
