@@ -6,7 +6,7 @@ import { OverlayModule } from '@angular/cdk/overlay';
 
 import { TspdfModule } from "tspdf";
 import { CommonModule as _CommonModule } from "common";
-import { SVGComponentsModule } from "ng-svg";
+import { NgSvgModule } from "ng-svg";
 
 import { ApiService } from "./services/api.service";
 import { SymbolService } from "./services/symbol.service";
@@ -32,7 +32,7 @@ import { SymbolListComponent, SymbolListBaseComponent } from './symbol-list/symb
     CommonModule,
     _CommonModule,
     OverlayModule,
-    SVGComponentsModule
+    NgSvgModule
   ],
   exports: [
     AppMaterialModule
