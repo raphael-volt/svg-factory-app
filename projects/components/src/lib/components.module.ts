@@ -3,10 +3,11 @@ import { CommonModule } from "@angular/common";
 import { HttpClientModule } from "@angular/common/http";
 import { AppMaterialModule } from "./services/app-material.module";
 import { OverlayModule } from '@angular/cdk/overlay';
+import { NgSvgModule } from "ng-svg";
 
 import { TspdfModule } from "tspdf";
 import { CommonModule as _CommonModule } from "common";
-import { NgSvgModule } from "ng-svg";
+import { SVGComponentsModule } from "ng-svg/components";
 
 import { ApiService } from "./services/api.service";
 import { SymbolService } from "./services/symbol.service";
@@ -17,6 +18,7 @@ import { ConfigComponent } from "./config/config.component";
 import { ConfigService } from "./services/config.service";
 
 import { SymbolListComponent, SymbolListBaseComponent } from './symbol-list/symbol-list.component';
+import { ChangeDetectionModule } from 'change-detection';
 
 @NgModule({
   declarations: [
@@ -27,12 +29,14 @@ import { SymbolListComponent, SymbolListBaseComponent } from './symbol-list/symb
   ],
   imports: [
     TspdfModule,
+    NgSvgModule,
+    ChangeDetectionModule,
     AppMaterialModule,
     HttpClientModule,
     CommonModule,
     _CommonModule,
     OverlayModule,
-    NgSvgModule
+    SVGComponentsModule
   ],
   exports: [
     AppMaterialModule

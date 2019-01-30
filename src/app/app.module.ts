@@ -6,7 +6,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ComponentsModule, AppMaterialModule } from "components";
 import { AppComponent } from './app.component';
 import { RoutingModule } from "./core/routing.module";
-import { NgSvgModule } from "ng-svg";
+import { SVGComponentsModule } from "ng-svg/components";
+
 @NgModule({
   declarations: [
     AppComponent
@@ -18,7 +19,7 @@ import { NgSvgModule } from "ng-svg";
     ComponentsModule,
     AppMaterialModule,
     RoutingModule,
-    NgSvgModule
+    SVGComponentsModule
   ],
   exports: [
     AppMaterialModule

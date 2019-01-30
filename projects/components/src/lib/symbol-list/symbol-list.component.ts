@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Output, Input } from '@angular/core';
 import { SelectHelper } from "../core/select-helper";
 import { SymbolService } from "../services/symbol.service";
-import { Use } from 'ng-svg';
+import { Use } from 'ng-svg/components';
 
 @Component({
   selector: 'svg-symbol-list-base',

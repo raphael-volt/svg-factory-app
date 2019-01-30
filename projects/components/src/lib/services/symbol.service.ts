@@ -3,7 +3,7 @@ import { Observable, of, Subscription } from "rxjs";
 import { map } from 'rxjs/operators';
 import { ApiService } from "./api.service";
 import { SVGSymbol, cloneSymbolForSave } from "../core/symbol";
-import { FactoryService, DrawStyleCollection, Use, ISymbol } from "ng-svg";
+import { FactoryService, DrawStyleCollection, Use, ISymbol } from "ng-svg/components";
 const SYMBOL_PREFIX: string = "symbol_"
 const PATH_CLASS: string = "path"
 @Injectable({

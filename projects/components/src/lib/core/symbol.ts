@@ -1,4 +1,4 @@
-import { PathData } from "ng-svg";
+import { PathData } from "ng-svg/geom";
 export interface SVGSymbol {
     id?: number
     name?: string
