@@ -1,3 +1,9 @@
-<p>
-  path-editor works!
-</p>
+<div style="position: relative; width: 100%; height: 100%;">
+  <svg style="position: absolute;left: 0; right: 0; top: 0; bottom: 0;"
+    *ngIf="use" [svgViewBox]="useBox">
+    <use [svgUse]="use"/>
+    <rect fill="none" stroke="black" x="0" y="0" [attr.width]="useBox.width" [attr.height]="useBox.height"/>
+    <rect fill="none" stroke="red" x="0" y="0" [attr.width]="use.width" [attr.height]="use.height"
+    [attr.transform]="use.transform"/>
+  </svg>
+</div>

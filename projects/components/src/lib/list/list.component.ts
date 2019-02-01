@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
-import { SVGSymbol } from '../core/symbol';
 import { MatDialog } from "@angular/material";
 import { PathEditorComponent } from "../path-editor/path-editor.component";
+import { Use } from 'ng-svg/core';
 @Component({
   selector: 'symbol-list',
   templateUrl: './list.component.html',
@@ -10,8 +10,8 @@ import { PathEditorComponent } from "../path-editor/path-editor.component";
 export class ListComponent {
 
   hasSelection: boolean = false
-  private selectedItems: SVGSymbol[]
-  selectionChanged(items: SVGSymbol[]) {
+  private selectedItems: Use[]
+  selectionChanged(items: Use[]) {
     this.selectedItems = items
     this.hasSelection = (items && items.length > 0)
   }
