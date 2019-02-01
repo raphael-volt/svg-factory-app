@@ -19,13 +19,14 @@ import { ConfigService } from "./services/config.service";
 
 import { SymbolListComponent, SymbolListBaseComponent } from './symbol-list/symbol-list.component';
 import { ChangeDetectionModule } from 'change-detection';
+import { PathEditorComponent } from './path-editor/path-editor.component';
 
 @NgModule({
   declarations: [
     ListComponent,
     LoginComponent,
     SymbolListComponent, SymbolListBaseComponent,
-    ConfigComponent
+    ConfigComponent, PathEditorComponent
   ],
   imports: [
     TspdfModule,
@@ -46,7 +47,8 @@ import { ChangeDetectionModule } from 'change-detection';
     ApiService
   ],
   entryComponents: [
-    LoginComponent
+    LoginComponent,
+    PathEditorComponent
   ]
 })
 export class ComponentsModule { }
