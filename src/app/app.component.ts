@@ -12,7 +12,5 @@ export class AppComponent {
 
   navLinks = appRoutes
 
-  constructor() { 
-    console.log(this.navLinks)
-  }
+  constructor() { }
 }
