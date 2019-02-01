@@ -1,5 +1,5 @@
 import { Directive, Input } from '@angular/core';
-import { ISymbol } from "../core/model";
+import { ISymbol } from "ng-svg/core";
 @Directive({
   selector: '[svgSymbol]',
   host: {

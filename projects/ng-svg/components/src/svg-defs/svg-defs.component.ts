@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FactoryService } from "../factory.service";
-import { ISymbol, DrawStyleCollection } from "../core/model";
+import { ISymbol, DrawStyleCollection } from "ng-svg/core";
 @Component({
   selector: 'svg-defs',
   templateUrl: './svg-defs.component.html',

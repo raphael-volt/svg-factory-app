@@ -1,7 +1,7 @@
 import { Component, Directive, Input, OnDestroy } from '@angular/core';
 import { SimpleProxy, PropertyChangeEvent } from "change-detection";
 import { Subscription } from 'rxjs';
-import { Use } from '../core/model';
+import { Use } from 'ng-svg/core';
 @Component({
     selector: 'svg-renderer',
     templateUrl: './symbol-renderer.component.html'

@@ -1,7 +1,7 @@
 import { Injectable, EventEmitter, Output, Input } from '@angular/core';
 import { SvgHostDirective } from "./svg-host/svg-host.directive";
 import { SvgDefsComponent } from "./svg-defs/svg-defs.component";
-import { ISymbol, DrawStyleCollection } from "./core/model";
+import { ISymbol, DrawStyleCollection } from "ng-svg/core";
 @Injectable({
   providedIn: 'root'
 })

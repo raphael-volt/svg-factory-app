@@ -1,5 +1,5 @@
 import { Directive, Input } from '@angular/core';
-import { Use } from "../core/model";
+import { Use } from "ng-svg/core";
 @Directive({
   selector: '[svgUse]',
   host: {
