@@ -154,6 +154,11 @@ export class Matrix {
     set array(value: MatrixArray) {
         this.setArray(value)
     }
+
+    toCSS() {
+        const values: string[] = this._array.map(v=>v.toString())
+        return `matrix(${values.join(' ')})`
+    }
 }
 
 export const getScaleX = (matrix: Matrix): number => {

@@ -17,7 +17,8 @@ export class SymbolRendererComponent {
         '[attr.viewBox]': 'viewBox',
         '[attr.width]': 'p',
         '[attr.height]': 'p',
-        '[class.symbol-renderer-svg]':'true'
+        '[class.symbol-renderer-svg]':'true',
+        '[attr.preserveAspectRatio]':'"xMidYMid meet"'
     }
 })
 export class SvgViewBoxDirective implements OnDestroy {
