@@ -10,7 +10,7 @@ import { CommonModule as _CommonModule } from "common";
 import { SVGComponentsModule } from "ng-svg/components";
 
 import { ApiService } from "./services/api.service";
-import { SymbolService } from "./services/symbol.service";
+import { SymbolService, provideSymbolService } from "./services/symbol.service";
 
 import { ListComponent } from "./list/list.component";
 import { LoginComponent } from './login/login.component';
@@ -43,7 +43,17 @@ import { PathEditorComponent } from './path-editor/path-editor.component';
     AppMaterialModule
   ],
   providers: [
-    SymbolService, ConfigService,
+    provideSymbolService({
+      viewBox: {
+        height: 200,
+        width: 200
+      },
+      pathStyle: {
+        "fill":"#333",
+        "stroke": "none"
+      }
+    }), 
+    ConfigService,
     ApiService
   ],
   entryComponents: [

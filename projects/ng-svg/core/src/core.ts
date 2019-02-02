@@ -52,7 +52,7 @@ export interface IGeom extends ITransform {
 }
 
 export interface Use extends IGeom {
-    href: string
+    href?: string
 }
 
 export interface ISymbol {

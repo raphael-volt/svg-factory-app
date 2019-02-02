@@ -1,0 +1,28 @@
+td {
+    text-align: left;
+}
+td:first-child {
+    text-align: right;
+}
+
+td.label {
+    text-align: left;
+    padding: 4px;
+    font-weight: bold
+}
+.editor-container {
+    flex: 1 1 auto;
+}
+.editor-toolbar {
+    flex: 0 1 auto;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    align-content: flex-start;
+    align-items: flex-start;
+    justify-content: flex-end;
+}
+.editor-toolbar > button {
+    margin-left: 8px;
+}

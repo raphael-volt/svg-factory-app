@@ -1,5 +1,4 @@
-import { Component, Directive, Input, OnDestroy } from '@angular/core';
-import { SimpleProxy, PropertyChangeEvent } from "change-detection";
+import { Component, Directive, Input } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { Use } from 'ng-svg/core';
 @Component({
@@ -11,45 +10,34 @@ export class SymbolRendererComponent {
     @Input()
     use: Use
 }
+const defaultUse: Use = {
+    width: "0",
+    height: "0"
+}
 @Directive({
     selector: "[svgViewBox]",
     host: {
-        '[attr.viewBox]': 'viewBox',
-        '[attr.width]': 'p',
-        '[attr.height]': 'p',
-        '[class.symbol-renderer-svg]':'true',
-        '[attr.preserveAspectRatio]':'"xMidYMid meet"'
+        '[attr.viewBox]': '"0 0 " + use.width + " " + use.height',
+        '[attr.width]': '"100%"',
+        '[attr.height]': '"100%"',
+        '[class.symbol-renderer-svg]': 'true',
+        '[attr.preserveAspectRatio]': '"xMidYMid meet"'
     }
 })
-export class SvgViewBoxDirective implements OnDestroy {
+export class SvgViewBoxDirective {
 
+    use: Use = defaultUse
     @Input()
     set svgViewBox(value: Use) {
-        this.proxy.target = value
-        this.updateViewbox()
+        if(! value)
+            value = defaultUse
+        this.use = value
     }
     _class = "symbol-renderer-svg"
-    p:string = "100%"
+    p: string = "100%"
 
-    private proxy: SimpleProxy = new SimpleProxy()
     private sub: Subscription
     viewBox: string
 
-    constructor() {
-        this.sub = this.proxy.change.subscribe(this.updateViewbox)
-    }
-
-    ngOnDestroy() {
-        this.sub.unsubscribe()
-        this.proxy.revoke()
-    }
-
-    private updateViewbox = (event?: PropertyChangeEvent) => {
-        const use = this.proxy.target as Use
-        if (use) {
-            this.viewBox = `0 0 ${use.width} ${use.height}`
-            return
-        }
-        this.viewBox = `0 0 0 0`
-    }
+    constructor() {}
 }

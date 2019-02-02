@@ -23,7 +23,9 @@ export class ListComponent {
     const ref = this.dialog.open(PathEditorComponent, {
       disableClose: true,
       width: "80%",
-      height: "80%"
+      height: "80%",
+      autoFocus: false,
+      panelClass: "modal-panel"
     })
     ref.componentInstance.symbols = this.selectedItems
     

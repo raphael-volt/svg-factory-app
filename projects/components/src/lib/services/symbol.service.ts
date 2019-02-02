@@ -2,16 +2,27 @@ import { Injectable, EventEmitter } from '@angular/core';
 import { Observable, of, Subscription } from "rxjs";
 import { map } from 'rxjs/operators';
 import { ApiService } from "./api.service";
-import { SVGSymbol, cloneSymbolForSave } from "../core/symbol";
+import { SVGSymbol, cloneSymbolForSave, SymbolServiceConfig } from "../core/symbol";
 import { FactoryService } from "ng-svg/components";
 import { DrawStyleCollection, ISymbol, Use } from 'ng-svg/core';
 
+export const provideSymbolService = (config: SymbolServiceConfig) => {
+  return {
+    provide: SymbolService,
+    deps: [
+      ApiService,
+      FactoryService
+    ],
+    useFactory: (
+      http: ApiService,
+      factory: FactoryService) => new SymbolService(config, http, factory)
+  }
+}
 const SYMBOL_PREFIX: string = "symbol_"
 const PATH_CLASS: string = "path"
 @Injectable({
   providedIn: 'root'
 })
-
 export class SymbolService {
 
   public pathStyle: DrawStyleCollection = {}
@@ -22,12 +33,10 @@ export class SymbolService {
   public populatedChange: EventEmitter<boolean> = new EventEmitter<boolean>()
 
   constructor(
+    public config: SymbolServiceConfig,
     private http: ApiService,
     private factory: FactoryService) {
-    this.pathStyle[`.${PATH_CLASS}`] = {
-      fill: "0x333333",
-      stroke: "none"
-    }
+    this.pathStyle[`.${PATH_CLASS}`] = config.pathStyle
   }
 
   toSymbol(s: SVGSymbol): ISymbol {
@@ -45,6 +54,10 @@ export class SymbolService {
 
   getSymbol(s: SVGSymbol): ISymbol {
     return this.factory.getSymbol(SYMBOL_PREFIX + s.id)
+  }
+
+  getSymbolByRef(href: string): ISymbol {
+    return this.factory.getSymbol(href.slice(1))
   }
 
   getUseCollection(symbols: SVGSymbol[]): Use[] {
@@ -107,11 +120,11 @@ export class SymbolService {
   }
 
   get symbols(): SVGSymbol[] {
-    if(this.populated)
+    if (this.populated)
       return this._symbols
     return null
   }
-  
+
 
   getById(id: string): Observable<SVGSymbol> {
     return this.http.get<SVGSymbol>({ params: { id: id } })
