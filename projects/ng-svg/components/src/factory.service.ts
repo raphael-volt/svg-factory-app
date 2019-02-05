@@ -65,6 +65,7 @@ export class FactoryService {
   }
   addSymbol(symbol: ISymbol) {
     this._defComponent.symbols.push(symbol)
+    return symbol
   }
   deleteSymbol(symbol: ISymbol) {
     this._defComponent.symbols.find((s, index) => {

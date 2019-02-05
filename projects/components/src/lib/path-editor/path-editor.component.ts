@@ -113,23 +113,10 @@ export class PathEditorComponent implements OnInit {
     return matrix
   }
   next() {
-    const symbol = this.service.getSymbolByRef(this.use.href)
-    const path = symbol.paths[0]
-    const matrix = this.currentMatrix(use2Rect(this.use))
-    const pathData: PathData = new PathData(path.d)
-    let r = pathData.transform(matrix)
-    const box = this.service.config.viewBox
-    const sx = box.width / r.width
-    const sy = box.height / r.height
-    const s = sx > sy ? sy : sx
-    matrix.identity()
-      .scale(s, s)
-    r = pathData.transform(matrix)
-    matrix.identity().translate(-r.x, -r.y)
-    r = pathData.transform(matrix)
-    path.d = pathData.data
-    symbol.viewBox = `0 0 ${r.width} ${r.height}`
     const use = this.symbols[this.currentIndex]
+    const symbol = this.service.getSymbolByRef(use.href)
+    const matrix = this.currentMatrix(use2Rect(use))
+    const r = this.service.setTransform(symbol, matrix)
     use.width = r.width.toString()
     use.height = r.height.toString()
     this.currentIndex ++

@@ -1,10 +1,11 @@
 import { Injectable, EventEmitter } from '@angular/core';
-import { Observable, of, Subscription } from "rxjs";
+import { Observable, of, Subscription, Observer } from "rxjs";
 import { map } from 'rxjs/operators';
 import { ApiService } from "./api.service";
 import { SVGSymbol, cloneSymbolForSave, SymbolServiceConfig } from "../core/symbol";
 import { FactoryService } from "ng-svg/components";
 import { DrawStyleCollection, ISymbol, Use } from 'ng-svg/core';
+import { Matrix, PathData, IRect, parseSVG, SVGPath } from 'ng-svg/geom'
 
 export const provideSymbolService = (config: SymbolServiceConfig) => {
   return {
@@ -27,7 +28,7 @@ export class SymbolService {
 
   public pathStyle: DrawStyleCollection = {}
 
-  private _symbols: SVGSymbol[]
+  private _symbols: SVGSymbol[] = []
 
   public populated: boolean = false
   public populatedChange: EventEmitter<boolean> = new EventEmitter<boolean>()
@@ -37,6 +38,14 @@ export class SymbolService {
     private http: ApiService,
     private factory: FactoryService) {
     this.pathStyle[`.${PATH_CLASS}`] = config.pathStyle
+  }
+
+  getSymbolTarget(s: ISymbol) {
+    return this._symbols.find(
+      t => {
+        return (SYMBOL_PREFIX + t.id) == s.id
+      }
+    )
   }
 
   toSymbol(s: SVGSymbol): ISymbol {
@@ -88,10 +97,10 @@ export class SymbolService {
     this._populating = true
     const done = (symbols: SVGSymbol[]) => {
       this.factory.addStyles(this.pathStyle)
+      this._symbols = []
       for (const s of symbols) {
-        this.factory.addSymbol(this.toSymbol(s))
+        this.registerSymbol(s)
       }
-      this._symbols = symbols
       this.populated = true
       this._populating = false
       this.populatedChange.emit(true)
@@ -138,14 +147,50 @@ export class SymbolService {
       }))
   }
 
-  add(symbol: SVGSymbol): Observable<boolean> {
+  setTransform(symbol: ISymbol, matrix: Matrix, save: boolean = true): IRect {
+    const path = symbol.paths[0]
+    const pathData: PathData = new PathData(path.d)
+    let r = pathData.transform(matrix)
+    const box = this.config.viewBox
+    const sx = box.width / r.width
+    const sy = box.height / r.height
+    const s = sx > sy ? sy : sx
+    matrix.identity()
+      .scale(s, s)
+    r = pathData.transform(matrix)
+    matrix.identity().translate(-r.x, -r.y)
+    r = pathData.transform(matrix)
+    path.d = pathData.data
+    symbol.viewBox = `0 0 ${r.width} ${r.height}`
+    if (save) {
+      const t = this.getSymbolTarget(symbol)
+      const s = this.update(
+        {
+          id: t.id,
+          data: path.d,
+          width: r.width,
+          height: r.height
+        }
+      ).subscribe(result => {
+        s.unsubscribe()
+      })
+    }
+    return r
+  }
+
+  private registerSymbol(symbol: SVGSymbol) {
+    this._symbols.push(symbol)
+    const result: ISymbol = this.factory.addSymbol(this.toSymbol(symbol))
+    symbol.data = ""
+    return result
+  }
+
+  add(symbol: SVGSymbol): Observable<ISymbol> {
     const s = cloneSymbolForSave(symbol)
     return this.http.post<SVGSymbol>(s).pipe(
       map(result => {
         symbol.id = result.id
-        this._symbols.push(symbol)
-        this.factory.addSymbol(this.toSymbol(symbol))
-        return true;
+        return this.registerSymbol(symbol)
       }))
   }
 
@@ -157,6 +202,41 @@ export class SymbolService {
         this.factory.deleteSymbol(this.getSymbol(symbol))
         return true;
       }))
+  }
+
+  parseSVG(svg: string) {
+    return Observable.create((obs: Observer<ISymbol[]>) => {
+      const pathCollection: SVGPath[] = parseSVG(svg, this.config.viewBox.width)
+      const pathData: PathData = new PathData()
+      let path: SVGPath
+      let result: ISymbol[] = []
+      const next = () => {
+        if (pathCollection.length) {
+          path = pathCollection.shift()
+          pathData.commands = path.commands
+          const sub = this.add({
+            data: pathData.data,
+            width: path.bounds.width,
+            height: path.bounds.height
+          }).subscribe(
+            symbol => {
+              sub.unsubscribe()
+              result.push(symbol)
+              next()
+            },
+            error => {
+              sub.unsubscribe()
+              obs.error(error)
+            }
+          )
+        }
+        else {
+          obs.next(result)
+          obs.complete()
+        }
+      }
+      next()
+    })
   }
 
 }
