@@ -249,7 +249,10 @@ export class CommandBuilder {
 
     private done = (result: SVGPath): SVGPath => {
         result.commands = this.commands
-        result.bounds.copyFrom(this.bbox.rect)
+        if(result.bounds)
+            result.bounds.copyFrom(this.bbox.rect)
+        else
+            result.bounds = this.bbox.rect.clone()
         this.clear()
         return result
     }

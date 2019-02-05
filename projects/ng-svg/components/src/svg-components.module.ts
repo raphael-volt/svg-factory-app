@@ -8,12 +8,13 @@ import { SymbolDirective } from './symbol/symbol.directive';
 import { FactoryService } from './factory.service';
 import { SvgStyleDirective } from './style/svg-style.directive';
 import { SymbolRendererComponent, SvgViewBoxDirective } from './symbol-renderer/symbol-renderer.component';
+import { PathRendererComponent } from "./path-renderer/path-renderer.component";
 @NgModule({
   declarations: [
     SvgHostDirective, SvgDefsComponent, 
     SvgStyleDirective,
     UseDirective, PathDirective, SymbolDirective,
-    SymbolRendererComponent, SvgViewBoxDirective],
+    PathRendererComponent, SymbolRendererComponent, SvgViewBoxDirective],
   imports: [
     CommonModule
   ],
@@ -21,7 +22,7 @@ import { SymbolRendererComponent, SvgViewBoxDirective } from './symbol-renderer/
     SvgHostDirective, SvgDefsComponent, 
     SvgStyleDirective,
     UseDirective, PathDirective, SymbolDirective,
-    SymbolRendererComponent, SvgViewBoxDirective
+    PathRendererComponent, SymbolRendererComponent, SvgViewBoxDirective
   ],
   providers: [FactoryService]
 })
