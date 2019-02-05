@@ -1,0 +1,20 @@
+@import "../../styles.scss";
+
+td {
+    text-align: left;
+}
+td:first-child {
+    text-align: right;
+}
+
+td.label {
+    text-align: left;
+    padding: 4px;
+    font-weight: bold
+}
+.editor-container {
+    flex: 1 1 auto;
+}
+.editor-toolbar {
+    @include dialog-tool-bar()
+}

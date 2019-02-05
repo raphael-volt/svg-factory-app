@@ -29,7 +29,7 @@ const use2Rect = (use: Use): IRect => {
 @Component({
   selector: 'path-editor',
   templateUrl: './path-editor.component.html',
-  styleUrls: ['./path-editor.component.css']
+  styleUrls: ['./path-editor.component.scss']
 })
 export class PathEditorComponent implements OnInit {
 

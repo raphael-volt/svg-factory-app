@@ -5,7 +5,7 @@ import { ApiService } from "./api.service";
 import { SVGSymbol, cloneSymbolForSave, SymbolServiceConfig } from "../core/symbol";
 import { FactoryService } from "ng-svg/components";
 import { DrawStyleCollection, ISymbol, Use } from 'ng-svg/core';
-import { Matrix, PathData, IRect, parseSVG, SVGPath } from 'ng-svg/geom'
+import { Matrix, PathData, IRect, parseSVG, SVGPath, split, getViewBox } from 'ng-svg/geom'
 
 export const provideSymbolService = (config: SymbolServiceConfig) => {
   return {
@@ -78,6 +78,14 @@ export class SymbolService {
       href: `#${SYMBOL_PREFIX}${symbol.id}`,
       width: `${symbol.width}`,
       height: `${symbol.height}`,
+    }
+  }
+  getUseFromISymbol(symbol: ISymbol) {
+    const rect = getViewBox(symbol.viewBox)
+    return {
+      href: `#$${symbol.id}`,
+      width: `${rect[2]}`,
+      height: `${rect[3]}`
     }
   }
   refresh(): Observable<SVGSymbol[]> {
@@ -204,7 +212,27 @@ export class SymbolService {
       }))
   }
 
-  parseSVG(svg: string) {
+  /**
+   * Create an array of SVGPath from an svg
+   * @param svg string
+   * @returns SVGPath[]
+   */
+  findPath(svg:string): SVGPath[] {
+    const pathCollection: SVGPath[] = parseSVG(svg, this.config.viewBox.width)
+    for(const p of pathCollection) {
+      p.className = PATH_CLASS
+    }
+    return pathCollection
+  }
+  registerPathCollection(collection: SVGPath[]) {
+    
+  }
+
+  /**
+   * Find path and polygon elements, create symbols and post them to the database.
+   * @param svg string
+   */
+  parseSVG(svg: string): Observable<ISymbol[]> {
     return Observable.create((obs: Observer<ISymbol[]>) => {
       const pathCollection: SVGPath[] = parseSVG(svg, this.config.viewBox.width)
       const pathData: PathData = new PathData()

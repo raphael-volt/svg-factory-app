@@ -1,6 +1,9 @@
 <div class="h-box">
   <div class="h-item content pad-8">
     <button [disabled]="!hasSelection" mat-raised-button (click)="edit()">Modifier</button>
+    <button [disabled]="!hasSelection" mat-raised-button (click)="delete()">Supprimer</button>
+    <button mat-raised-button (click)="import()">Importer</button>
+    <input #file type="file" accept=".svg"  (change)="inputChange($event)">
   </div>
   <div class="svg-list h-item f-w" mat-elevation-z4>
       <svg-symbol-list (selectedItemsChange)="selectionChanged($event)"></svg-symbol-list>

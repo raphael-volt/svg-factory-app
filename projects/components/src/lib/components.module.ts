@@ -17,16 +17,17 @@ import { LoginComponent } from './login/login.component';
 import { ConfigComponent } from "./config/config.component";
 import { ConfigService } from "./services/config.service";
 
-import { SymbolListComponent, SymbolListBaseComponent } from './symbol-list/symbol-list.component';
+import { SymbolListComponent, SymbolListBaseComponent, PathListComponent } from './symbol-list/symbol-list.component';
 import { ChangeDetectionModule } from 'change-detection';
 import { PathEditorComponent } from './path-editor/path-editor.component';
+import { SymbolSelectorComponent } from './symbol-selector/symbol-selector.component';
 
 @NgModule({
   declarations: [
     ListComponent,
     LoginComponent,
     SymbolListComponent, SymbolListBaseComponent,
-    ConfigComponent, PathEditorComponent
+    ConfigComponent, PathEditorComponent, SymbolSelectorComponent, PathListComponent
   ],
   imports: [
     TspdfModule,
@@ -58,7 +59,8 @@ import { PathEditorComponent } from './path-editor/path-editor.component';
   ],
   entryComponents: [
     LoginComponent,
-    PathEditorComponent
+    PathEditorComponent,
+    SymbolSelectorComponent
   ]
 })
 export class ComponentsModule { }
