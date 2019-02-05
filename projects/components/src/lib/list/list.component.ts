@@ -66,10 +66,19 @@ export class ListComponent {
     const reader = <FileReader>event.target
     reader.removeEventListener("loadend", this.inputFileLoaded)
     ref.componentInstance.pathCollection = this.service.findPath(<string>(reader.result))
-    ref.componentInstance.selectAll() 
-    const sub = ref.afterClosed().subscribe((items: SVGPath[])=>{
+    ref.componentInstance.selectAll()
+    const done = (result) => {
+      if (sub)
+        sub.unsubscribe()
+      if (result !== true) {
+        console.log(result)
+        alert(result)
+      }
+    }
+    const sub = ref.afterClosed().subscribe((items: SVGPath[]) => {
       sub.unsubscribe()
       this.service.registerPathCollection(items)
+        .subscribe(done, done)
     })
 
   }

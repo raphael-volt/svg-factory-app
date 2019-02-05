@@ -1,8 +1,9 @@
-import { Component, EventEmitter, Output, Input } from '@angular/core';
+import { Component, EventEmitter, Output, Input, OnDestroy } from '@angular/core';
 import { SelectHelper } from "../core/select-helper";
 import { SymbolService } from "../services/symbol.service";
 import { Use } from 'ng-svg/core';
 import { SVGPath } from 'ng-svg/geom';
+import { Subscription } from 'rxjs';
 
 export class ListBase<T> {
   protected selectHelper: SelectHelper<T> = new SelectHelper<T>()
@@ -63,16 +64,14 @@ export class PathListComponent extends ListBase<SVGPath>{
   templateUrl: './symbol-list.component.html',
   styleUrls: ['./symbol-list.component.scss']
 })
-export class SymbolListBaseComponent extends ListBase<Use>{
+export class SymbolListBaseComponent extends ListBase<Use> implements OnDestroy{
+  private populateSubscribtion: Subscription
   constructor(public service: SymbolService) {
     super()
-    if (!service.populated) {
-      const sub = service.populatedChange.subscribe(populated => {
-        sub.unsubscribe()
-        this.initializedChange(populated)
-      })
-    }
-    else
+    this.populateSubscribtion = service.populatedChange.subscribe(populated => {
+      this.initializedChange(populated)
+    })
+    if (service.populated)
       this.initializedChange(true)
   }
 
@@ -80,6 +79,10 @@ export class SymbolListBaseComponent extends ListBase<Use>{
 
   @Input()
   showSymbolName = true
+
+  ngOnDestroy() {
+    this.populateSubscribtion.unsubscribe()
+  }
 }
 @Component({
   selector: 'svg-symbol-list',

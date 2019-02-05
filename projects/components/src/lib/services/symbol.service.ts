@@ -193,12 +193,15 @@ export class SymbolService {
     return result
   }
 
-  add(symbol: SVGSymbol): Observable<ISymbol> {
+  add(symbol: SVGSymbol, notifyChange: boolean = true): Observable<ISymbol> {
     const s = cloneSymbolForSave(symbol)
     return this.http.post<SVGSymbol>(s).pipe(
       map(result => {
         symbol.id = result.id
-        return this.registerSymbol(symbol)
+        const data = this.registerSymbol(symbol)
+        if (notifyChange)
+          this.populatedChange.emit(true)
+        return data
       }))
   }
 
@@ -217,15 +220,51 @@ export class SymbolService {
    * @param svg string
    * @returns SVGPath[]
    */
-  findPath(svg:string): SVGPath[] {
+  findPath(svg: string): SVGPath[] {
     const pathCollection: SVGPath[] = parseSVG(svg, this.config.viewBox.width)
-    for(const p of pathCollection) {
+    for (const p of pathCollection) {
       p.className = PATH_CLASS
     }
     return pathCollection
   }
+  /**
+   * Create symbols then post them to the database.
+   * @param collection SVGPath[]
+   */
   registerPathCollection(collection: SVGPath[]) {
-    
+    return Observable.create((observer: Observer<Boolean>) => {
+      const pathData: PathData = new PathData()
+      let count: number = 0
+      const next = () => {
+        if (collection.length) {
+          const path = collection.shift()
+          pathData.commands = path.commands
+          const sub = this.add({
+            data: pathData.data,
+            width: path.bounds.width,
+            height: path.bounds.height
+          }, false).subscribe(
+            symbol => {
+              count++
+              sub.unsubscribe()
+              next()
+            },
+            error => {
+              sub.unsubscribe()
+              observer.error(error)
+              if (count)
+                this.populatedChange.emit(true)
+            }
+          )
+        }
+        else {
+          observer.next(true)
+          observer.complete()
+          this.populatedChange.emit(true)
+        }
+      }
+      next()
+    })
   }
 
   /**
