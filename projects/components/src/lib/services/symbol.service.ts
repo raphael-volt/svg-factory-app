@@ -41,18 +41,18 @@ export class SymbolService {
     private http: ApiService,
     private factory: FactoryService) {
 
-      const config = configService.symbolConfig
-      if(! config) {
-        const sub = configService.getSymbolConfig().subscribe(
-          config=>{
-            this.setSymbolConfig(config)
-            sub.unsubscribe()
-          }
-        )
-      }
-      else {
-        this.setSymbolConfig(config)
-      }
+    const config = configService.symbolConfig
+    if (!config) {
+      const sub = configService.getSymbolConfig().subscribe(
+        config => {
+          this.setSymbolConfig(config)
+          sub.unsubscribe()
+        }
+      )
+    }
+    else {
+      this.setSymbolConfig(config)
+    }
   }
 
   private setSymbolConfig(value: SymbolServiceConfig) {
@@ -92,6 +92,10 @@ export class SymbolService {
 
   getSymbolByRef(href: string): ISymbol {
     return this.factory.getSymbol(href.slice(1))
+  }
+
+  getSymbolIndex(s: ISymbol): number {
+    return this.factory.getSymbolIndex(s)
   }
 
   getUseCollection(symbols: SVGSymbol[]): Use[] {

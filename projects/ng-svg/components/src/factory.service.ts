@@ -79,4 +79,7 @@ export class FactoryService {
   getSymbol(id: string): ISymbol {
     return this._defComponent.symbols.find(s => (s.id == id))
   }
+  getSymbolIndex(symbol: ISymbol): number {
+    return this._defComponent.symbols.indexOf(symbol)
+  }
 }
