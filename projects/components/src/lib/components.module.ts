@@ -21,17 +21,20 @@ import { ChangeDetectionModule } from 'change-detection';
 import { PathEditorComponent } from './path-editor/path-editor.component';
 import { SymbolSelectorComponent } from './symbol-selector/symbol-selector.component';
 import { ColorPickerModule } from "./color-picker/color-picker.module";
-import { DrawStyleEditorComponent } from './draw-style-editor/draw-style-editor.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SymbolNamePipe } from './symbol-list/symbol-name.pipe';
 import { CatalogComponent } from './catalog/catalog.component';
-import { MarginsEditorComponent } from './margins-editor/margins-editor.component';
+import { MarginsEditorComponent } from './form-controllers/margins-editor/margins-editor.component';
+import { DrawStyleEditorComponent } from './form-controllers/draw-style-editor/draw-style-editor.component';
+
 @NgModule({
   declarations: [
     ListComponent,
     LoginComponent,
     SymbolListComponent, SymbolListBaseComponent,
-    ConfigComponent, PathEditorComponent, SymbolSelectorComponent, PathListComponent, DrawStyleEditorComponent, SymbolNamePipe, CatalogComponent, MarginsEditorComponent
+    ConfigComponent, PathEditorComponent, SymbolSelectorComponent, 
+    PathListComponent, SymbolNamePipe, CatalogComponent,
+    MarginsEditorComponent, DrawStyleEditorComponent
   ],
   imports: [
     CommonModule,

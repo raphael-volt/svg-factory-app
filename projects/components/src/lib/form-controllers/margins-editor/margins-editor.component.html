@@ -3,7 +3,7 @@
     <label>Marges</label>
     <div class="form-item">
       <mat-form-field>
-        <input matInput required type="number" [(ngModel)]="margins.top" placeholder="Haut" formControlName="top">
+        <input matInput required type="number" [(ngModel)]="data.top" placeholder="Haut" formControlName="top">
       </mat-form-field>
       <mat-error *ngIf="formGroup.controls.top.invalid">
         {{getErrorMessage(formGroup.controls.top)}}
@@ -11,7 +11,7 @@
     </div>
     <div class="form-item">
       <mat-form-field>
-        <input matInput required type="number" [(ngModel)]="margins.bottom" placeholder="Bas" formControlName="bottom">
+        <input matInput required type="number" [(ngModel)]="data.bottom" placeholder="Bas" formControlName="bottom">
       </mat-form-field>
       <mat-error *ngIf="formGroup.controls.bottom.invalid">
         {{getErrorMessage(formGroup.controls.bottom)}}
@@ -19,7 +19,7 @@
     </div>
     <div class="form-item">
       <mat-form-field>
-        <input matInput required type="number" [(ngModel)]="margins.left" placeholder="Gauche" formControlName="left">
+        <input matInput required type="number" [(ngModel)]="data.left" placeholder="Gauche" formControlName="left">
       </mat-form-field>
       <mat-error *ngIf="formGroup.controls.left.invalid">
         {{getErrorMessage(formGroup.controls.left)}}
@@ -27,7 +27,7 @@
     </div>
     <div class="form-item">
       <mat-form-field>
-        <input matInput required type="number" [(ngModel)]="margins.right" placeholder="Droite" formControlName="right">
+        <input matInput required type="number" [(ngModel)]="data.right" placeholder="Droite" formControlName="right">
       </mat-form-field>
       <mat-error *ngIf="formGroup.controls.right.invalid">
         {{getErrorMessage(formGroup.controls.right)}}

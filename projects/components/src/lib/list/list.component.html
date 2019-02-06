@@ -4,7 +4,7 @@
     <button color="accent" [disabled]="!hasSelection" mat-raised-button (click)="delete()">Supprimer</button>
     <button color="accent" mat-raised-button (click)="import()">Importer</button>
     <input #file type="file" accept=".svg" (change)="inputChange($event)">
-    <draw-style-editor [style]="service.config.pathStyle" (change)="styleChanged($event)"></draw-style-editor>
+    <draw-style-editor [data]="service.config.pathStyle" (change)="styleChanged($event)"></draw-style-editor>
   </div>
   <div class="svg-list h-item f-w" mat-elevation-z4>
     <svg-symbol-list (selectedItemsChange)="selectionChanged($event)"></svg-symbol-list>

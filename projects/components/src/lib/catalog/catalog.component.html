@@ -2,8 +2,8 @@
   <div class="h-item content pad-8 v-box">
     <button color="accent" mat-raised-button (click)="edit()">Créer PDF</button>
     <button color="accent" mat-raised-button (click)="delete()">Créer SVG</button>
-    <draw-style-editor [style]="pathStyle" (change)="styleChanged($event)"></draw-style-editor>
-    <margins-editor [margins]="config.margins" (change)="marginsChanged($event)"></margins-editor>
+    <draw-style-editor [data]="pathStyle" (change)="styleChanged($event)"></draw-style-editor>
+    <margins-editor [data]="config.margins" (change)="marginsChanged($event)"></margins-editor>
   </div>
   <div class="svg-list h-item f-w" mat-elevation-z4>
     <p>Catalog preview</p>  
