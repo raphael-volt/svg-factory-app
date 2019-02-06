@@ -1,0 +1,12 @@
+<div class="color-picker-root">
+  <div [formGroup]="parts" class="color-picker-container">
+    <input class="color-picker-container-input-element" formControlName="color">
+    <span #trigger class="color-preview" colorPreview [hexColor]="previewColor" (click)="showSelector()"></span>
+  </div>
+</div>
+<ng-template>
+    <color-selector 
+    [@transformPanel]="'showing'"
+    (@transformPanel.done)="_panelDoneAnimatingStream.next($event.toState)" 
+    [cssColor]="initColor" (onChange)="selectorChange($event)" (onAccept)="close()" (onCancel)="cancel()"></color-selector>
+</ng-template>

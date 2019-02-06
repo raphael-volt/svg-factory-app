@@ -1,0 +1,29 @@
+<div class="picker mat-typography">
+  <div class="button-bar">
+    <h1>Couleur</h1>
+    <button mat-raised-button color="accent" (click)="onAccept.emit($event)">OK</button>
+    <button mat-raised-button color="accent" (click)="clearColor($event)">Aucune</button>
+    <button mat-raised-button color="accent" (click)="onCancel.emit($event)">Annuler</button>
+  </div>
+  <div class="picker-body">
+    <div class="saturation">
+      <color-saturation [hsl]="hsl" [hsv]="hsv" [circle]="circle" (onChange)="handleValueChange($event)"></color-saturation>
+    </div>
+    <div class="hue">
+      <color-hue direction="vertical" [hsl]="hsl" [hidePointer]="true" (onChange)="handleValueChange($event)"></color-hue>
+    </div>
+    <div class="hue">
+      <color-gray-scale direction="vertical" [hsl]="hsl" [hidePointer]="true" (onChange)="handleValueChange($event)"></color-gray-scale>
+    </div>
+    <div class="controls">
+      <div class="top">
+        <div class="previews">
+          <color-previews [rgb]="rgb" [currentColor]="currentColor"></color-previews>
+        </div>
+        <div class="actions">
+          <color-fields [rgb]="rgb" [hex]="hex" [hsv]="hsv" (onChange)="handleValueChange($event)"></color-fields>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
