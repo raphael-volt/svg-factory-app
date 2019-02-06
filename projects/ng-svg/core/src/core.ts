@@ -7,7 +7,6 @@ const NS_XLINK: string = 'http://www.w3.org/1999/xlink'
 
 export type StrokeAttributes =
     'stroke' |
-    'strokeWidth' |
     'vector-effect' |
     'stroke-dasharray' |
     'stroke-dashoffset' |
