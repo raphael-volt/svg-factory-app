@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { DrawStyle } from 'ng-svg/core';
 import { ConfigService, ICatalogConfig } from '../services/config.service';
-import { Margins } from 'tspdf';
+import { TspdfService } from 'tspdf';
 
 @Component({
   selector: 'catalog',
@@ -10,12 +9,25 @@ import { Margins } from 'tspdf';
 })
 export class CatalogComponent implements OnInit {
 
-  pathStyle: DrawStyle
+  private _ready: boolean = false
+  public get ready(): boolean {
+    return this._ready
+  }
+  public set ready(value: boolean) {
+    if (value) {
+      if (this.fontList.indexOf(this.config.fontFamily) < 0) {
+        this.config.fontFamily = this.fontList[0]
+        this.saveCatalogConfig()
+      }
+    }
+    this._ready = value
+  }
   config: ICatalogConfig
   constructor(
-    private storage: ConfigService
-  ) { 
-    if(storage.catalog)
+    private storage: ConfigService,
+    private pdfService: TspdfService
+  ) {
+    if (storage.catalog)
       this.setCatalogConfig(storage.catalog)
     else {
       const sub = storage.getCatalog().subscribe((config: ICatalogConfig) => {
@@ -23,20 +35,41 @@ export class CatalogComponent implements OnInit {
         this.setCatalogConfig(config)
       })
     }
+    this.setupFonts().then(fonts => {
+      if (this.config)
+        this.ready = true
+    })
   }
 
   private setCatalogConfig(config: ICatalogConfig) {
     this.config = config
-    this.pathStyle = config.style
+    if (this.fontList)
+      this.ready = true
   }
 
-  styleChanged(style: DrawStyle) {
-
-  }
-  marginsChanged(margins: Margins) {
-
+  saveCatalogConfig(data?: any) {
+    this.storage.saveCatalogSubscribe()
   }
   ngOnInit() {
   }
 
+  fontList: string[]
+  private setupFonts() {
+    return new Promise((res, rej) => {
+      const srv = this.pdfService
+      if (srv.embededFontsLoaded) {
+        this.fontList = srv.fontList
+        res(this.fontList)
+      }
+      else {
+        const s = srv.loadEmbededFonts().subscribe(
+          fonts => {
+            this.fontList = srv.fontList
+            s.unsubscribe()
+            res(this.fontList)
+          }
+        )
+      }
+    })
+  }
 }

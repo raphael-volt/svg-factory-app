@@ -74,6 +74,9 @@ $list-item-background-opacity-selected: 0.3;
 }
 @mixin page-controls() {
   > * {
+    order: 0;
+    flex: 0 1 auto;
+    align-self: auto;
     margin-bottom: $button-margin;
   }
 }

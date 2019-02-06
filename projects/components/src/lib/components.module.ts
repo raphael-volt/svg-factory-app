@@ -26,6 +26,9 @@ import { SymbolNamePipe } from './symbol-list/symbol-name.pipe';
 import { CatalogComponent } from './catalog/catalog.component';
 import { MarginsEditorComponent } from './form-controllers/margins-editor/margins-editor.component';
 import { DrawStyleEditorComponent } from './form-controllers/draw-style-editor/draw-style-editor.component';
+import { LayoutEditorComponent } from './form-controllers/layout-editor/layout-editor.component';
+import { TextStyleEditorComponent } from './form-controllers/text-style-editor/text-style-editor.component';
+import { PageRowEditorComponent } from './form-controllers/page-row-editor/page-row-editor.component';
 
 @NgModule({
   declarations: [
@@ -34,7 +37,7 @@ import { DrawStyleEditorComponent } from './form-controllers/draw-style-editor/d
     SymbolListComponent, SymbolListBaseComponent,
     ConfigComponent, PathEditorComponent, SymbolSelectorComponent, 
     PathListComponent, SymbolNamePipe, CatalogComponent,
-    MarginsEditorComponent, DrawStyleEditorComponent
+    MarginsEditorComponent, DrawStyleEditorComponent, LayoutEditorComponent, TextStyleEditorComponent, PageRowEditorComponent
   ],
   imports: [
     CommonModule,

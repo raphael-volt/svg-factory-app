@@ -1,0 +1,29 @@
+<div class="controls h-item content">
+    <div #form="ngForm" [formGroup]="formGroup" class="form-item-group border content border br-4 pad-8">
+      <label>Rangées</label>
+      <div class="form-item">
+        <mat-form-field>
+          <input matInput type="number" required placeholder="Nombre" formControlName="numRows" [(ngModel)]="data.numRows">
+          <mat-error *ngIf="formGroup.controls.numRows.invalid">
+            {{getErrorMessage(formGroup.controls.numRows)}}
+          </mat-error>
+        </mat-form-field>
+      </div>
+      <div class="form-item">
+        <mat-form-field>
+          <input matInput type="number" required placeholder="Éspacement" formControlName="rowGap" [(ngModel)]="data.rowGap">
+          <mat-error *ngIf="formGroup.controls.rowGap.invalid">
+            {{getErrorMessage(formGroup.controls.rowGap)}}
+          </mat-error>
+        </mat-form-field>
+      </div>
+      <div class="form-item">
+        <mat-form-field>
+          <input matInput type="number" required placeholder="Marge des motifs" formControlName="itemGap" [(ngModel)]="data.itemGap">
+          <mat-error *ngIf="formGroup.controls.itemGap.invalid">
+            {{getErrorMessage(formGroup.controls.itemGap)}}
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+  </div>

@@ -1,0 +1,19 @@
+<div class="controls h-item content">
+  <div #form="ngForm" [formGroup]="formGroup" class="form-item-group border content border br-4 pad-8">
+    <label>Page</label>
+    <div class="form-item">
+      <label>Format:</label>
+      <mat-radio-group class="form-item" formControlName="format" [(ngModel)]="data.format">
+        <mat-radio-button class="example-margin" value="A4">A4</mat-radio-button>
+        <mat-radio-button class="example-margin" value="A3">A3</mat-radio-button>
+      </mat-radio-group>
+    </div>
+    <div class="form-item">
+      <label>Orientation:</label>
+      <mat-radio-group class="form-item" formControlName="orientation" [(ngModel)]="data.orientation">
+        <mat-radio-button value="portrait">portrait</mat-radio-button>
+        <mat-radio-button value="landscape">paysage</mat-radio-button>
+      </mat-radio-group>
+    </div>
+  </div>
+</div>
