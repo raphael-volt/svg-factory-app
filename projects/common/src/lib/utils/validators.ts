@@ -1,20 +1,10 @@
 import { AbstractControl, ValidatorFn } from "@angular/forms";
-import { isCSSColorAlias } from "./colors";
+import { isCSSColorAlias, isCSSColor } from "./colors";
 
-const IS_HEX_COLOR = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i
-export const isCSSColor = (color: string, checkName: boolean = true): boolean => {
-    if (!color)
-        return null
-    const isHex = IS_HEX_COLOR.test(color)
-    if ((checkName && !isHex) && isCSSColorAlias(color)) {
-        return true
-    }
-    return isHex
-}
 const colorValidator = (checkName: boolean = true): ValidatorFn => {
     return (control: AbstractControl): { [key: string]: any } | null => {
         const v = control.value
-        if(!v)
+        if(!v || v == "none")
             return null
         return isCSSColor(v, checkName) ? null : { 'couleur invalide': { value: v } }
     }
@@ -37,6 +27,8 @@ const orientationValidator = (): ValidatorFn => {
 const numberValidator = (): ValidatorFn => {
     return (control: AbstractControl): { [key: string]: any } | null => {
         const v = control.value
+        if(v == '' || v == undefined)
+            return null
         let n = Number(v)
         return ! isNaN(v) && v >= 0 ? null : { 'nombre invalide': { value: control.value } };
     }
