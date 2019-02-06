@@ -11,7 +11,7 @@
       </div>
       <div class="form-item">
         <mat-form-field>
-          <input matInput type="number" required placeholder="Éspacement" formControlName="rowGap" [(ngModel)]="data.rowGap">
+          <input matInput type="number" required placeholder="Éspacement (mm)" formControlName="rowGap" [(ngModel)]="data.rowGap">
           <mat-error *ngIf="formGroup.controls.rowGap.invalid">
             {{getErrorMessage(formGroup.controls.rowGap)}}
           </mat-error>
@@ -19,7 +19,7 @@
       </div>
       <div class="form-item">
         <mat-form-field>
-          <input matInput type="number" required placeholder="Marge des motifs" formControlName="itemGap" [(ngModel)]="data.itemGap">
+          <input matInput type="number" required placeholder="Marge des motifs (mm)" formControlName="itemGap" [(ngModel)]="data.itemGap">
           <mat-error *ngIf="formGroup.controls.itemGap.invalid">
             {{getErrorMessage(formGroup.controls.itemGap)}}
           </mat-error>

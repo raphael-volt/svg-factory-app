@@ -15,7 +15,7 @@
     </div>
     <div class="form-item">
       <mat-form-field>
-        <input matInput type="number" required placeholder="Marge" formControlName="textPadding" [(ngModel)]="data.textPadding">
+        <input matInput type="number" required placeholder="Marge (mm)" formControlName="textPadding" [(ngModel)]="data.textPadding">
       </mat-form-field>
       <mat-error *ngIf="formGroup.controls.textPadding.invalid">
         {{getErrorMessage(formGroup.controls.textPadding)}}
@@ -23,7 +23,7 @@
     </div>
     <div class="form-item">
       <mat-form-field>
-        <input matInput type="number" required placeholder="Taille" formControlName="fontSize" [(ngModel)]="data.fontSize">
+        <input matInput type="number" required placeholder="Taille (pt)" formControlName="fontSize" [(ngModel)]="data.fontSize">
         <mat-error *ngIf="formGroup.controls.fontSize.invalid">
           {{getErrorMessage(formGroup.controls.fontSize)}}
         </mat-error>
