@@ -25,12 +25,13 @@ import { DrawStyleEditorComponent } from './draw-style-editor/draw-style-editor.
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SymbolNamePipe } from './symbol-list/symbol-name.pipe';
 import { CatalogComponent } from './catalog/catalog.component';
+import { MarginsEditorComponent } from './margins-editor/margins-editor.component';
 @NgModule({
   declarations: [
     ListComponent,
     LoginComponent,
     SymbolListComponent, SymbolListBaseComponent,
-    ConfigComponent, PathEditorComponent, SymbolSelectorComponent, PathListComponent, DrawStyleEditorComponent, SymbolNamePipe, CatalogComponent
+    ConfigComponent, PathEditorComponent, SymbolSelectorComponent, PathListComponent, DrawStyleEditorComponent, SymbolNamePipe, CatalogComponent, MarginsEditorComponent
   ],
   imports: [
     CommonModule,

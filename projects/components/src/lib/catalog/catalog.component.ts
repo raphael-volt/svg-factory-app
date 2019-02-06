@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { DrawStyle } from 'ng-svg/core';
 import { ConfigService, ICatalogConfig } from '../services/config.service';
+import { Margins } from 'tspdf';
 
 @Component({
   selector: 'catalog',
@@ -30,6 +31,9 @@ export class CatalogComponent implements OnInit {
   }
 
   styleChanged(style: DrawStyle) {
+
+  }
+  marginsChanged(margins: Margins) {
 
   }
   ngOnInit() {
