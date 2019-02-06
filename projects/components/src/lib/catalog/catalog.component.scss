@@ -1,9 +1,5 @@
 @import '../../styles.scss';
 
-input[type="file"] {
-    display: none;
-}
-
 .v-box {
     @include page-controls();
 }
