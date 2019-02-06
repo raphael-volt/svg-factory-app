@@ -24,12 +24,13 @@ import { ColorPickerModule } from "./color-picker/color-picker.module";
 import { DrawStyleEditorComponent } from './draw-style-editor/draw-style-editor.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SymbolNamePipe } from './symbol-list/symbol-name.pipe';
+import { CatalogComponent } from './catalog/catalog.component';
 @NgModule({
   declarations: [
     ListComponent,
     LoginComponent,
     SymbolListComponent, SymbolListBaseComponent,
-    ConfigComponent, PathEditorComponent, SymbolSelectorComponent, PathListComponent, DrawStyleEditorComponent, SymbolNamePipe
+    ConfigComponent, PathEditorComponent, SymbolSelectorComponent, PathListComponent, DrawStyleEditorComponent, SymbolNamePipe, CatalogComponent
   ],
   imports: [
     CommonModule,
