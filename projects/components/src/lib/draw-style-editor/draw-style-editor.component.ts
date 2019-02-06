@@ -5,7 +5,6 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { colorValidator, numberValidator } from 'common';
 import { Subscription } from 'rxjs';
 import { callLater } from '../core/call-later';
-const VALID:string = 'VALID'
 
 @Component({
   selector: 'draw-style-editor',
