@@ -1,23 +1,30 @@
 import { FocusMonitor } from '@angular/cdk/a11y';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { Component, ElementRef, Input, Directive, OnChanges, SimpleChanges, ViewChild, TemplateRef, ViewContainerRef } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
-import { MatFormFieldControl } from '@angular/material';
+import { Component, ElementRef, Input, Directive, OnChanges, SimpleChanges, ViewChild, TemplateRef, ViewContainerRef, Optional, Self, forwardRef, InjectionToken, Inject } from '@angular/core';
+import { FormBuilder, FormGroup, NgControl, NG_VALUE_ACCESSOR, NgForm, FormGroupDirective, ControlValueAccessor } from '@angular/forms';
+import { MatFormFieldControl, ErrorStateMatcher } from '@angular/material';
 import { Subject } from 'rxjs';
-import { getHexToString, isCSSColorAlias, isCSSColor } from "../colors";
+import { getHexToString, isCSSColorAlias, isCSSColor } from "common";
 import { OverlayRef, Overlay, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
 import { ColorEvent } from "../color-selector/color-selector.component";
 import { matSelectAnimations } from "../color-selector/common/panel-animation";
 
-export class Picker {
-  constructor(public color: string) { }
-}
+const COLOR_PICKER_VALUE_ACCESSOR =
+  new InjectionToken<{ value: any }>('COLOR_PICKER_VALUE_ACCESSOR');
+const COLOR_PICKER_CONTROL_VALUE_ACCESSOR: any = {
+  provide: NG_VALUE_ACCESSOR,
+  useExisting: forwardRef(() => ColorPicker),
+  multi: true
+};
+
 @Component({
   selector: 'color-picker',
   templateUrl: './color-picker.component.html',
   styleUrls: ['./color-picker.component.css'],
-  providers: [{ provide: MatFormFieldControl, useExisting: ColorPicker }],
+  providers: [
+    { provide: MatFormFieldControl, useExisting: ColorPicker }
+  ],
   host: {
     '[class.example-floating]': 'shouldLabelFloat',
     '[id]': 'id',
@@ -27,7 +34,7 @@ export class Picker {
     matSelectAnimations.transformPanel
   ]
 })
-export class ColorPicker implements MatFormFieldControl<Picker> {
+export class ColorPicker implements MatFormFieldControl<any>, ControlValueAccessor {
 
   @ViewChild("trigger")
   triggerRef: ElementRef
@@ -38,20 +45,57 @@ export class ColorPicker implements MatFormFieldControl<Picker> {
 
   static nextId = 0;
 
-  parts: FormGroup;
   _panelDoneAnimatingStream = new Subject<string>();
   stateChanges = new Subject<void>();
   focused = false;
-  ngControl = null;
   errorState = false;
   controlType = 'color-picker';
   id = `color-picker-${ColorPicker.nextId++}`;
   describedBy = '';
 
+  constructor(
+    @Optional() @Self() public ngControl: NgControl,
+    @Optional() _parentForm: NgForm,
+    @Optional() _parentFormGroup: FormGroupDirective,
+    @Optional() @Self() @Inject(COLOR_PICKER_VALUE_ACCESSOR) inputValueAccessor: any,
+    private readonly sso: ScrollStrategyOptions,
+    private _overlay: Overlay,
+    private _viewContainerRef: ViewContainerRef,
+    private fm: FocusMonitor,
+    private elRef: ElementRef<HTMLElement>) {
+    
+    fm.monitor(elRef, true).subscribe(origin => {
+      this.focused = !!origin;
+      this.stateChanges.next();
+    });
+    if (this.ngControl != null) {
+      // Setting the value accessor directly (instead of using
+      // the providers) to avoid running into a circular import.
+      this.ngControl.valueAccessor = this;
+    }
+  }
+  inputChange(event: Event) {
+    event.stopImmediatePropagation()
+    const i: HTMLInputElement = event.target as HTMLInputElement
+    this.value = i.value
+  }
+  writeValue(color: any) {
+    this._value = color
+    this.setPreviewColor(color)
+    if(this._onChange)
+      this._onChange(color)
+    this.stateChanges.next();
+  }
+  _onChange: (value: any) => void = () => {};
+  registerOnChange(fn: any) {
+    this._onChange = fn
+  }
+  _onTouched = () => {};
+  registerOnTouched(fn: any) {
+    this._onTouched = fn
+  }
   get empty() {
-    const { value: { color } } = this.parts;
-
-    return !color;
+    return !this.value;
   }
 
   get shouldLabelFloat() { return this.focused || !this.empty; }
@@ -80,40 +124,15 @@ export class ColorPicker implements MatFormFieldControl<Picker> {
   }
   private _disabled = false;
 
+  private _value: string=null
   @Input()
-  get value(): Picker | null {
-    const { value: { color } } = this.parts;
-    if (color) {
-      return new Picker(color);
-    }
-    return null;
+  set value(value: string) {
+    this.writeValue(value)
   }
-  set value(picker: Picker | null) {
-    const { color } = picker || new Picker('');
-    this.parts.setValue({ color });
-    this.setPreviewColor(picker ? picker.color : '')
-    this.stateChanges.next();
+  get value(): string {
+    return this._value;
   }
   ngOnInit() {
-  }
-  constructor(
-    private readonly sso: ScrollStrategyOptions,
-    private _overlay: Overlay,
-    private _viewContainerRef: ViewContainerRef,
-    fb: FormBuilder,
-    private fm: FocusMonitor,
-    private elRef: ElementRef<HTMLElement>) {
-    this.parts = fb.group({
-      color: ''
-    });
-
-    this.parts.valueChanges.subscribe(event => {
-      this.setPreviewColor(event.color)
-    })
-    fm.monitor(elRef, true).subscribe(origin => {
-      this.focused = !!origin;
-      this.stateChanges.next();
-    });
   }
 
   ngOnDestroy() {
@@ -136,8 +155,8 @@ export class ColorPicker implements MatFormFieldControl<Picker> {
     this.previewColor = value
   }
   showSelector() {
-    this.oldValue = this.value
-    this.initColor = this.value ? this.value.color : null
+    this.oldValue = this._value
+    this.initColor = this._value
     const trigger = this.triggerRef.nativeElement
     if (!this._overlayRef) {
       const positionStrategy = this._overlay
@@ -167,17 +186,17 @@ export class ColorPicker implements MatFormFieldControl<Picker> {
     this._overlayRef.attach(this._portal);
   }
 
-  private oldValue: Picker = null
+  private oldValue: string = null
   selectorChange(event: ColorEvent) {
-    this.value = event.color ? new Picker(event.color.hex) : null
+    this.value = event.color ? event.color.hex : null
   }
   close() {
     this._overlayRef.detach();
   }
   cancel() {
-    this.close()
     this.value = this.oldValue
     this.oldValue = null
+    this.close()
   }
   _handleKeydown($event) {
 

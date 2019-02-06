@@ -1,6 +1,6 @@
 <div class="color-picker-root">
-  <div [formGroup]="parts" class="color-picker-container">
-    <input class="color-picker-container-input-element" formControlName="color">
+  <div class="color-picker-container">
+    <input class="color-picker-container-input-element" [value]="value" (input)="inputChange($event)">
     <span #trigger class="color-preview" colorPreview [hexColor]="previewColor" (click)="showSelector()"></span>
   </div>
 </div>
