@@ -1,22 +1,14 @@
 import { FocusMonitor } from '@angular/cdk/a11y';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { Component, ElementRef, Input, Directive, OnChanges, SimpleChanges, ViewChild, TemplateRef, ViewContainerRef, Optional, Self, forwardRef, InjectionToken, Inject } from '@angular/core';
-import { FormBuilder, FormGroup, NgControl, NG_VALUE_ACCESSOR, NgForm, FormGroupDirective, ControlValueAccessor } from '@angular/forms';
-import { MatFormFieldControl, ErrorStateMatcher } from '@angular/material';
+import { Component, ElementRef, Input, Directive, OnChanges, SimpleChanges, ViewChild, TemplateRef, ViewContainerRef, Optional, Self } from '@angular/core';
+import { NgControl, ControlValueAccessor } from '@angular/forms';
+import { MatFormFieldControl } from '@angular/material';
 import { Subject } from 'rxjs';
 import { getHexToString, isCSSColorAlias, isCSSColor } from "common";
 import { OverlayRef, Overlay, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
 import { ColorEvent } from "../color-selector/color-selector.component";
 import { matSelectAnimations } from "../color-selector/common/panel-animation";
-
-const COLOR_PICKER_VALUE_ACCESSOR =
-  new InjectionToken<{ value: any }>('COLOR_PICKER_VALUE_ACCESSOR');
-const COLOR_PICKER_CONTROL_VALUE_ACCESSOR: any = {
-  provide: NG_VALUE_ACCESSOR,
-  useExisting: forwardRef(() => ColorPicker),
-  multi: true
-};
 
 @Component({
   selector: 'color-picker',
@@ -55,9 +47,6 @@ export class ColorPicker implements MatFormFieldControl<any>, ControlValueAccess
 
   constructor(
     @Optional() @Self() public ngControl: NgControl,
-    @Optional() _parentForm: NgForm,
-    @Optional() _parentFormGroup: FormGroupDirective,
-    @Optional() @Self() @Inject(COLOR_PICKER_VALUE_ACCESSOR) inputValueAccessor: any,
     private readonly sso: ScrollStrategyOptions,
     private _overlay: Overlay,
     private _viewContainerRef: ViewContainerRef,
