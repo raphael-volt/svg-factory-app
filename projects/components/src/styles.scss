@@ -73,7 +73,7 @@ $list-item-background-opacity-selected: 0.3;
   }
 }
 @mixin page-controls() {
-  > button {
+  > * {
     margin-bottom: $button-margin;
   }
 }
