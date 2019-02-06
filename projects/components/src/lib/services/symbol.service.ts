@@ -6,17 +6,19 @@ import { SVGSymbol, cloneSymbolForSave, SymbolServiceConfig } from "../core/symb
 import { FactoryService } from "ng-svg/components";
 import { DrawStyleCollection, ISymbol, Use } from 'ng-svg/core';
 import { Matrix, PathData, IRect, parseSVG, SVGPath, split, getViewBox } from 'ng-svg/geom'
-
-export const provideSymbolService = (config: SymbolServiceConfig) => {
+import { ConfigService } from "./config.service";
+export const provideSymbolService = () => {
   return {
     provide: SymbolService,
     deps: [
       ApiService,
-      FactoryService
+      FactoryService,
+      ConfigService
     ],
     useFactory: (
       http: ApiService,
-      factory: FactoryService) => new SymbolService(config, http, factory)
+      factory: FactoryService,
+      config: ConfigService) => new SymbolService(config, http, factory)
   }
 }
 const SYMBOL_PREFIX: string = "symbol_"
@@ -33,15 +35,34 @@ export class SymbolService {
   public populated: boolean = false
   public populatedChange: EventEmitter<boolean> = new EventEmitter<boolean>()
 
+  public config: SymbolServiceConfig
   constructor(
-    public config: SymbolServiceConfig,
+    private configService: ConfigService,
     private http: ApiService,
     private factory: FactoryService) {
-    this.pathStyle[`.${PATH_CLASS}`] = config.pathStyle
+
+      const config = configService.symbolConfig
+      if(! config) {
+        const sub = configService.getSymbolConfig().subscribe(
+          config=>{
+            this.setSymbolConfig(config)
+            sub.unsubscribe()
+          }
+        )
+      }
+      else {
+        this.setSymbolConfig(config)
+      }
+  }
+
+  private setSymbolConfig(value: SymbolServiceConfig) {
+    this.config = value
+    this.pathStyle[`.${PATH_CLASS}`] = value.pathStyle
   }
 
   updateStyle() {
     this.factory.updateStyles()
+    this.configService.saveSymbolConfig()
   }
 
   getSymbolTarget(s: ISymbol) {

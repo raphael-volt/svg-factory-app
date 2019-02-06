@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
 import { LocalStorage } from "@ngx-pwa/local-storage";
 import { map } from "rxjs/operators";
-import { of } from "rxjs";
+import { of, Observable } from "rxjs";
+import { SymbolServiceConfig } from '../core/symbol';
 
+const SYMBOL_CONFIG: string = "symbol-config"
 @Injectable({
   providedIn: 'root'
 })
@@ -12,13 +14,51 @@ export class ConfigService {
 
   private print: any
   private catalog: any
+
+  private _symbolConfig: SymbolServiceConfig
+  
+  get symbolConfig(): SymbolServiceConfig {
+    if (this._symbolConfig)
+      return this._symbolConfig
+    return null
+  }
+
+  getSymbolConfig(): Observable<SymbolServiceConfig> {
+    if(this._symbolConfig)
+      return of(this._symbolConfig)
+    return this.storage.getItem<SymbolServiceConfig>(SYMBOL_CONFIG).pipe(
+      map((item: SymbolServiceConfig) => {
+        if(item == null) {
+          item = {
+            viewBox: {
+              width:200,
+              height: 200
+            },
+            pathStyle: {
+              'fill': "#000000",
+              'stroke': '',
+              'stroke-width': '0'
+            }
+          }
+          this.storage.setItemSubscribe(SYMBOL_CONFIG, item)
+        }
+        this._symbolConfig = item
+        return item
+      })
+    )
+  }
+  
+  saveSymbolConfig() {
+    this.storage.setItemSubscribe(SYMBOL_CONFIG, this._symbolConfig)
+  }
+
   getCatalog() {
     if (this.catalog)
       return of(this.catalog)
 
     return this.storage.getItem<any>("catalog-config")
       .pipe(
-        map((config:any) => {
+        map((config: any) => {
           const defaultConf = this.getDefaultCatalog()
           if (!config)
             config = defaultConf

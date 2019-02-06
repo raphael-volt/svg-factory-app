@@ -46,16 +46,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     AppMaterialModule
   ],
   providers: [
-    provideSymbolService({
-      viewBox: {
-        height: 200,
-        width: 200
-      },
-      pathStyle: {
-        "fill":"#333",
-        "stroke": "none"
-      }
-    }), 
+    provideSymbolService(), 
     ConfigService,
     ApiService
   ],
