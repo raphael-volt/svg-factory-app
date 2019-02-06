@@ -40,6 +40,10 @@ export class SymbolService {
     this.pathStyle[`.${PATH_CLASS}`] = config.pathStyle
   }
 
+  updateStyle() {
+    this.factory.updateStyles()
+  }
+
   getSymbolTarget(s: ISymbol) {
     return this._symbols.find(
       t => {

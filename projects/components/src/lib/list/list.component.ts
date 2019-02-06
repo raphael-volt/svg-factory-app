@@ -1,7 +1,7 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { MatDialog } from "@angular/material";
 import { PathEditorComponent } from "../path-editor/path-editor.component";
-import { Use } from 'ng-svg/core';
+import { Use, DrawStyle } from 'ng-svg/core';
 import { SymbolService } from '../services/symbol.service';
 import { SymbolSelectorComponent } from '../symbol-selector/symbol-selector.component';
 import { SVGPath } from 'ng-svg/geom';
@@ -31,12 +31,15 @@ export class ListComponent {
   constructor(
     private dialog: MatDialog,
     private service: SymbolService) {
+      
+  }
+
+  styleChanged(style: DrawStyle) {
+    this.service.updateStyle()
   }
   edit() {
-
     const ref = this.dialog.open(PathEditorComponent, dialogConfig)
     ref.componentInstance.symbols = this.selectedItems
-
   }
 
   delete() {
