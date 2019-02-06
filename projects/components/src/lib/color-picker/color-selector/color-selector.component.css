@@ -1,0 +1,82 @@
+.picker {
+  background: rgb(220, 220, 220);
+  border-radius: 4px;
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 0px 0px 1px, rgba(0, 0, 0, 0.15) 0px 8px 16px;
+  box-sizing: initial;
+  width: 513px;
+}
+.head {
+  background-image: linear-gradient(-180deg, rgb(240, 240, 240) 0%, rgb(212, 212, 212) 100%);
+  border-bottom: 1px solid rgb(177, 177, 177);
+  box-shadow: rgba(255, 255, 255, 0.2) 0px 1px 0px 0px inset, rgba(0, 0, 0, 0.02) 0px -1px 0px 0px inset;
+  height: 23px;
+  line-height: 24px;
+  border-radius: 4px 4px 0px 0px;
+  font-size: 13px;
+  color: rgb(77, 77, 77);
+  text-align: center;
+}
+.picker-body {
+  padding: 15px;
+  display: flex;
+}
+.saturation {
+  width: 256px;
+  height: 256px;
+  position: relative;
+  border-width: 2px;
+  border-style: solid;
+  border-color: rgb(179, 179, 179) rgb(179, 179, 179) rgb(240, 240, 240);
+  border-image: initial;
+  overflow: hidden;
+}
+.hue {
+  position: relative;
+  height: 256px;
+  width: 23px;
+  margin-left: 10px;
+  border-width: 2px;
+  border-style: solid;
+  border-color: rgb(179, 179, 179) rgb(179, 179, 179) rgb(240, 240, 240);
+  border-image: initial;
+}
+.controls {
+  width: 180px;
+  margin-left: 10px;
+}
+.top {
+  display: flex;
+}
+.previews {
+  width: 60px;
+}
+.actions {
+  -webkit-box-flex: 1;
+  flex: 1 1 0%;
+  margin-left: 20px;
+}
+.button-bar {
+  padding: 15px 15px 0px 15px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  align-content: flex-start;
+  align-items: baseline;
+}
+
+.button-bar > * {
+  margin-right: 8px;
+  align-self: auto;
+  order: 0;
+}
+.button-bar > h1 {
+  display: inline-block;
+  flex: 1 1 auto;
+}
+.button-bar > button {
+  flex: 0 1 auto;
+}
+.button-bar > button:last-child {
+  margin-right: 0;
+}

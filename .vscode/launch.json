@@ -2,12 +2,26 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "chrome",
-      "request": "attach",
-      "name": "Attach to Chrome",
-      "port": 9222,
-      "webRoot": "${workspaceFolder}"
-    },
+			"name": "Launch localhost with sourcemaps",
+			"type": "chrome",
+			"request": "launch",
+			"url": "http://localhost:4200",
+			"sourceMaps": true,
+			"webRoot": "${workspaceRoot}"
+			// Uncomment this to run easily alongside another running instance of Chrome
+			,"userDataDir": "${workspaceRoot}/.vscode/chrome",
+
+			// Uncomment this to get diagnostic logs in the console
+			//"trace": true
+		},
+		{
+			"name": "Attach with sourcemaps",
+			"type": "chrome",
+			"request": "attach",
+			"port": 9222,
+			"sourceMaps": true,
+			"webRoot": "${workspaceRoot}"
+		},
     {
       "name": "Firefox Launch",
       "type": "firefox",

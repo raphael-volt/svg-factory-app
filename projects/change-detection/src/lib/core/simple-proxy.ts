@@ -4,13 +4,18 @@ import {
 
 import { Subject } from "rxjs";
 
-export class SimpleProxy {
+export class SimpleProxy<T> {
     change: Subject<PropertyChangeEvent> = new Subject<PropertyChangeEvent>()
-    private _target: any
-    public get target(): any {
+    private _target: T
+    private _proxy: T
+
+    get proxy(): T {
+        return this._proxy
+    }
+    public get target(): T {
         return this._target
     }
-    public set target(value: any) {
+    public set target(value: T) {
         if (value == this._target)
             return
         this.revoke()
@@ -20,6 +25,7 @@ export class SimpleProxy {
                 value,
                 new ChangeHandler(this.change)
             )
+            this._proxy = revocable.proxy
             this._revoke = revocable.revoke
         }
     }
@@ -36,7 +42,7 @@ class ChangeHandler {
 
     constructor(private change: Subject<PropertyChangeEvent>) { }
 
-    get(target: any, prop: string, receiver?: SimpleProxy) {
+    get(target: any, prop: string, receiver?: SimpleProxy<any>) {
         return target[prop]
     }
     set(target: any, prop: string, value: any) {

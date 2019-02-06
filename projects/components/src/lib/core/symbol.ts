@@ -1,4 +1,5 @@
-import { PathData } from "ng-svg/geom";
+import { PathData, IRect } from "ng-svg/geom";
+import { DrawStyle } from 'ng-svg/core';
 export interface SVGSymbol {
     id?: number
     name?: string
@@ -17,5 +18,9 @@ const toPathData = (symbol: SVGSymbol): PathData => {
 const assignToPathData = (path: PathData, symbol: SVGSymbol): PathData => {
     path.data = symbol.data
     return path
+}
+export interface SymbolServiceConfig {
+    viewBox: IRect
+    pathStyle: DrawStyle
 }
 export { cloneSymbolForSave, toPathData }

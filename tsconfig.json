@@ -15,34 +15,31 @@
     "outDir": "./dist/out-tsc",
     "paths": {
       "change-detection": [
-        "dist/change-detection"
-      ],
-      "change-detection/*": [
-        "dist/change-detection/*"
+        "projects/change-detection/src/public_api"
       ],
       "common": [
-        "dist/common"
-      ],
-      "common/*": [
-        "dist/common/*"
+        "projects/common/src/public_api"
       ],
       "components": [
-        "dist/components"
-      ],
-      "components/*": [
-        "dist/components/*"
+        "projects/components/src/public_api"
       ],
       "ng-svg": [
-        "dist/ng-svg"
+        "projects/ng-svg/src/public_api"
       ],
-      "ng-svg/*": [
-        "dist/ng-svg/*"
+      "ng-svg/components": [
+        "projects/ng-svg/components/src/public_api.ts"
+      ],
+      "ng-svg/core": [
+        "projects/ng-svg/core/src/public_api.ts"
+      ],
+      "ng-svg/geom": [
+        "projects/ng-svg/geom/src/public_api.ts"
+      ],
+      "ng-svg/math": [
+        "projects/ng-svg/math/src/public_api.ts"
       ],
       "tspdf": [
-        "dist/tspdf"
-      ],
-      "tspdf/*": [
-        "dist/tspdf/*"
+        "projects/tspdf/src/public_api"
       ]
     },
     "sourceMap": true,

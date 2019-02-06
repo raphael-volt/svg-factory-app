@@ -42,7 +42,7 @@ div {
   flex: 0 1 auto;
   align-self: auto;
 }
-.v-box.v-item.f-w { 
+.v-box.v-item.f-w {
   order: 0;
   flex: 1 1 auto;
   align-self: auto;
@@ -78,7 +78,8 @@ div {
 .h-box > .h-item.f-w {
   outline-color: dodgerblue;
 }
-.h-box > .h-item.f-w, .v-box > .v-item.f-h {
+.h-box > .h-item.f-w,
+.v-box > .v-item.f-h {
   order: 0;
   flex: 1 1 auto;
   align-self: auto;
@@ -96,4 +97,8 @@ div {
 
 .dialog-tool-bar > button {
   margin-left: 8px;
+}
+
+.modal-panel > .mat-dialog-container  {
+  padding: 0;
 }

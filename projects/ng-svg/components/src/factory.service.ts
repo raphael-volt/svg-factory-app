@@ -1,7 +1,7 @@
 import { Injectable, EventEmitter, Output, Input } from '@angular/core';
 import { SvgHostDirective } from "./svg-host/svg-host.directive";
 import { SvgDefsComponent } from "./svg-defs/svg-defs.component";
-import { ISymbol, DrawStyleCollection } from "./core/model";
+import { ISymbol, DrawStyleCollection } from "ng-svg/core";
 @Injectable({
   providedIn: 'root'
 })
@@ -65,6 +65,7 @@ export class FactoryService {
   }
   addSymbol(symbol: ISymbol) {
     this._defComponent.symbols.push(symbol)
+    return symbol
   }
   deleteSymbol(symbol: ISymbol) {
     this._defComponent.symbols.find((s, index) => {
@@ -77,5 +78,8 @@ export class FactoryService {
   }
   getSymbol(id: string): ISymbol {
     return this._defComponent.symbols.find(s => (s.id == id))
+  }
+  getSymbolIndex(symbol: ISymbol): number {
+    return this._defComponent.symbols.indexOf(symbol)
   }
 }

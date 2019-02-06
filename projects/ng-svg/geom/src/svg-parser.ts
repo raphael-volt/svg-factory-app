@@ -3,8 +3,16 @@ import { Matrix } from './matrix';
 import { builder } from "./command-builder";
 import { Rect } from './rect';
 
-export const parseSVG = (svg: string, fitBox: number = NaN): SVGPath[] => {
+export const parseSVG = (svg: string, fitBoxWidth: number = NaN, fitBoxHeight: number = NaN): SVGPath[] => {
 
+    if (isNaN(fitBoxHeight) && isNaN(fitBoxWidth))
+        throw new Error("can't resolve fit box")
+    if (isNaN(fitBoxHeight) || isNaN(fitBoxWidth)) {
+        if (isNaN(fitBoxHeight))
+            fitBoxHeight = fitBoxWidth
+        else
+            fitBoxWidth = fitBoxHeight
+    }
     const result: SVGPath[] = []
     const div: HTMLElement = document.createElement("div")
     div.innerHTML = svg
@@ -27,21 +35,16 @@ export const parseSVG = (svg: string, fitBox: number = NaN): SVGPath[] => {
         pathData = builder.parsePolygon(svgElement.getAttribute("d"), null)
         result.push(pathData)
     }
-    let sx: number = 1
-    let s: number = 1
-    const fit: boolean = !isNaN(fitBox)
+    let sy: number
+    let s: number
     for (pathData of result) {
         bb = pathData.bounds
-        if (fit) {
-            sx = fitBox / bb.width
-            s = fitBox / bb.height
-            if (s > sx)
-                s = sx
-            m.identity().translate(-bb.x, -bb.y)
-                .scale(s, s)
-        }
-        else
-            m.identity().translate(-bb.x, -bb.y)
+        s = fitBoxWidth / bb.width
+        sy = fitBoxHeight / bb.height
+        if (sy < s)
+            s = sy
+        m.identity().translate(-bb.x, -bb.y)
+            .scale(s, s)
         transformPathData(pathData, m)
     }
     return result

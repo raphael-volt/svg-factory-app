@@ -1,4 +1,5 @@
 import { Matrix, Coord, Rect, BBox, PathData } from "./public_api";
+import { getViewBox } from './strings';
 
 const addCustomEqualityTester = (precision = .001) => {
   jasmine.addCustomEqualityTester(function (a, b) {
@@ -186,6 +187,23 @@ describe('Geom', () => {
       expect(0).toEqual(b.y)
       expect(b.width).toBeLessThanOrEqual(200)
       expect(b.height).toBeLessThanOrEqual(200)
+    })
+  })
+  describe('viewBox', ()=>{
+    it('should parse viewBox', ()=>{
+      let values = getViewBox("1 2 3 4")
+      let i=0
+      expect(values[i++]).toEqual(1)
+      expect(values[i++]).toEqual(2)
+      expect(values[i++]).toEqual(3)
+      expect(values[i++]).toEqual(4)
+      values = getViewBox("1.1 2.2 3.3 4.4")
+      i=0
+      expect(values[i++]).toEqual(1.1)
+      expect(values[i++]).toEqual(2.2)
+      expect(values[i++]).toEqual(3.3)
+      expect(values[i++]).toEqual(4.4)
+
     })
   })
   describe('Matrix', () => {

@@ -1,10 +1,11 @@
 # svg-facory-app
 
-## Goal ##
-
-A cross device application. 
-
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.1.0.
+
+## Goals ##
+
+* A cross device application.
+* Advanced use of angular libraries (inter dependencies, multiple entry points).
 
 ## Development server
 
@@ -14,26 +15,45 @@ Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app w
 
 Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
 
-### Library
+### Library management
 
-Run `ng g library my-lib` to create a library, then create a [index.ts]() file at the root directory :
+Use **ng-workspace-command-helper** to manage libraries.
+
+Link libraries to their **source** directory during development :
 ```bash
-echo "export * from './src/public_api'" >> projects/svg-geom/index.ts
-```   
-In [tsconfig.json](./tsconfig.json), modify the path of the new library :
-```json
-{
-  "compilerOptions": {
-    "paths": {
-      "my-lib": [
-        "projects/my-lib"
-      ],
-      "my-lib/*": [
-        "projects/my-lib/src/*"
-      ]
-    }
-  }
-}
+ngh ls
+```
+Link libraries to **dist** directory to build :
+```bash
+ngh ld
+```
+Create a new library :
+```bash
+ngh new my-lib
+```
+Import library components :
+```typescript
+import { Foo } from 'my-lib'
+```
+Create a new entry point to an existing library :
+```bash
+ngh sub my-lib entry-point
+```
+Import library sub components :
+```typescript
+import { Bar} from 'my-lib/entry-point'
+```
+Build all libraries :
+```bash
+# Libraries must be linked to dist directory
+ngh ld
+ngh build
+```
+#### Libraries build order
+Add peer depencencies to automatically resolve build order :
+```bash
+# build my-other-lib before my-lib
+ngh dep my-lib my-other-lib
 ```
 ## Build
 
@@ -46,7 +66,11 @@ Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.
 
 Run `ng test my-lib` to only run unit tests of a library.
 
-[angular.json](./angular.json) has been modified to make working the vscode debugger during the tests :
+Breakpoints are not working in **vs-code** with **chrome-debugger-extension**
+
+**firefox-debugger-extension** works fine but is very slow...
+
+[angular.json](./angular.json) has been modified to make working the vscode debugger during the tests (work some time...) :
 ```json
 {
     "projects": {
@@ -60,6 +84,7 @@ Run `ng test my-lib` to only run unit tests of a library.
 
 
 ## Running end-to-end tests
+
 
 Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
 

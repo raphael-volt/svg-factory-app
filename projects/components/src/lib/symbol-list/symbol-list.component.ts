@@ -1,58 +1,37 @@
-import { Component, EventEmitter, Output, Input } from '@angular/core';
+import { Component, EventEmitter, Output, Input, OnDestroy } from '@angular/core';
 import { SelectHelper } from "../core/select-helper";
 import { SymbolService } from "../services/symbol.service";
-import { Use } from 'ng-svg/components';
+import { Use } from 'ng-svg/core';
+import { SVGPath } from 'ng-svg/geom';
+import { Subscription } from 'rxjs';
 
-@Component({
-  selector: 'svg-symbol-list-base',
-  templateUrl: './symbol-list.component.html',
-  styleUrls: ['./symbol-list.component.scss']
-})
-export class SymbolListBaseComponent {
-  protected selectHelper: SelectHelper<Use> = new SelectHelper<Use>()
-
-  constructor(public service: SymbolService) {
-
-    if (!service.populated) {
-      const sub = service.populatedChange.subscribe(populated => {
-        sub.unsubscribe()
-        this.initializedChange(populated)
-      })
-    }
-    else
-      this.initializedChange(true)
-  }
-
-  protected initializedChange(populated: boolean) { }
-
-  @Input()
-  showSymbolName = true
-
-  private _symbols: Use[]
+export class ListBase<T> {
+  protected selectHelper: SelectHelper<T> = new SelectHelper<T>()
+  private _symbols: T[]
   @Output()
-  symbolsChange: EventEmitter<Use[]> = new EventEmitter<Use[]>()
-  get symbols(): Use[] {
+  symbolsChange: EventEmitter<T[]> = new EventEmitter<T[]>()
+  get symbols(): T[] {
     return this.selectHelper.collection
   }
   @Input()
-  set symbols(value: Use[]) {
+  set symbols(value: T[]) {
     this.selectHelper.collection = value
     this.symbolsChange.emit(value)
   }
 
   @Output()
-  selectedItemsChange: EventEmitter<Use[]> = new EventEmitter<Use[]>()
-  get selectedItems(): Use[] {
+  selectedItemsChange: EventEmitter<T[]> = new EventEmitter<T[]>()
+  get selectedItems(): T[] {
     return this.selectHelper.selectedItems
   }
   @Input()
-  set selectedItems(value: Use[]) {
+  set selectedItems(value: T[]) {
     this.selectHelper.selectedItems = value
   }
   get hasSelection() {
     return this.selectHelper.hasSelection
   }
-  symbolClick(event: MouseEvent, s: Use) {
+  symbolClick(event: MouseEvent, s: T) {
     this.selectHelper.checkEvent(event, s)
     this.emitSelectionChange()
   }
@@ -61,6 +40,48 @@ export class SymbolListBaseComponent {
   }
   protected emitSelectionChange() {
     this.selectedItemsChange.emit(this.selectHelper.selectedItems)
+  }
+  selectAll() {
+    this.selectHelper.selectAll()
+  }
+  unselect() {
+    this.selectHelper.clear()
+  }
+
+}
+
+
+@Component({
+  selector: 'path-list',
+  templateUrl: './svgpath-list.component.html',
+  styleUrls: ['./symbol-list.component.scss']
+})
+export class PathListComponent extends ListBase<SVGPath>{
+}
+
+@Component({
+  selector: 'svg-symbol-list-base',
+  templateUrl: './symbol-list.component.html',
+  styleUrls: ['./symbol-list.component.scss']
+})
+export class SymbolListBaseComponent extends ListBase<Use> implements OnDestroy{
+  private populateSubscribtion: Subscription
+  constructor(public service: SymbolService) {
+    super()
+    this.populateSubscribtion = service.populatedChange.subscribe(populated => {
+      this.initializedChange(populated)
+    })
+    if (service.populated)
+      this.initializedChange(true)
+  }
+
+  protected initializedChange(populated: boolean) { }
+
+  @Input()
+  showSymbolName = true
+
+  ngOnDestroy() {
+    this.populateSubscribtion.unsubscribe()
   }
 }
 @Component({

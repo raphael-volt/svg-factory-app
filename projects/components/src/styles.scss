@@ -32,10 +32,9 @@ $list-item-background-opacity-selected: 0.3;
       left: 0;
       right: 0;
       bottom: 0;
-      top:0
+      top: 0;
     }
   }
-
 }
 @mixin select-transition($duration, $ease) {
   -webkit-transition: background-color $duration $ease;
@@ -58,5 +57,18 @@ $list-item-background-opacity-selected: 0.3;
         }
       }
     }
+  }
+}
+@mixin dialog-tool-bar() {
+  flex: 0 1 auto;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  align-content: flex-start;
+  align-items: flex-start;
+  justify-content: flex-end;
+  > button {
+    margin-left: 8px;
   }
 }

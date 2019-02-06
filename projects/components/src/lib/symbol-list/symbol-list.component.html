@@ -6,6 +6,6 @@
     <div class="svg-box">
       <svg-renderer [use]="s"></svg-renderer>
     </div>
-    <span *ngIf="showSymbolName">name</span>
+    <span *ngIf="showSymbolName">{{s | symbolName}}</span>
   </div>
 </div>

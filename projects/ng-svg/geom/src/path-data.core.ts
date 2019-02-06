@@ -152,6 +152,7 @@ export interface SVGPath {
     commands?: PathCommandCollection
     bounds?: Rect
     pathLength?: number
+    className?: string
 }
 
 const getSVGnumber = (value: number, digits: number, ignoreComma: boolean = false): string => {
