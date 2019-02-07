@@ -1,13 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ViewChild, OnDestroy } from '@angular/core';
 import { ConfigService, ICatalogConfig } from '../services/config.service';
 import { TspdfService } from 'tspdf';
+import { CatalogPreviewComponent } from './catalog-preview/catalog-preview.component';
+import { DepthDifferService, DepthDiffer } from 'change-detection';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'catalog',
   templateUrl: './catalog.component.html',
   styleUrls: ['./catalog.component.scss']
 })
-export class CatalogComponent implements OnInit {
+export class CatalogComponent implements OnDestroy {
+
+  @ViewChild(CatalogPreviewComponent)
+  preview: CatalogPreviewComponent
 
   private _ready: boolean = false
   public get ready(): boolean {
@@ -23,10 +29,14 @@ export class CatalogComponent implements OnInit {
     this._ready = value
   }
   config: ICatalogConfig
+  private configDiffer: DepthDiffer<ICatalogConfig>
+
   constructor(
     private storage: ConfigService,
-    private pdfService: TspdfService
+    private pdfService: TspdfService,
+    private differService: DepthDifferService
   ) {
+
     if (storage.catalog)
       this.setCatalogConfig(storage.catalog)
     else {
@@ -40,17 +50,30 @@ export class CatalogComponent implements OnInit {
         this.ready = true
     })
   }
+  private differSuscription: Subscription
 
+  private configChanged: boolean = false
   private setCatalogConfig(config: ICatalogConfig) {
     this.config = config
     if (this.fontList)
       this.ready = true
+    this.configDiffer = this.differService.create(config)
+    this.differSuscription = this.configDiffer.events.subscribe(event => {
+      this.configChanged = true
+    })
   }
 
   saveCatalogConfig(data?: any) {
-    this.storage.saveCatalogSubscribe()
+    this.configDiffer.doCheck()
+    if (this.configChanged) {
+      this.storage.saveCatalogSubscribe()
+      if (this.preview)
+        this.preview.update()
+      this.configChanged = false
+    }
   }
-  ngOnInit() {
+  ngOnDestroy() {
+    this.differSuscription.unsubscribe()
   }
 
   fontList: string[]

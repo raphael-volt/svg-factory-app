@@ -1,0 +1,20 @@
+<div class="main">
+  <svg #svg *ngIf="symbolsCollection" [svgViewBox]="viewBox">
+    <defs>
+      <style [svgStyle]="fontCss"></style>
+      <style [svgStyle]="stylesCss"></style>
+      <symbol *ngFor="let s of symbolsCollection" [svgSymbol]="s">
+        <path *ngFor="let p of s.paths" [svgPath]="p" />
+      </symbol>
+    </defs>
+    <g id="rect">
+      <rect *ngFor="let p of pages" x="0" [attr.y]="p.y" [attr.width]="pageWidth" [attr.height]="pageHeight" [attr.class]="rectClass" />
+    </g>
+    <g id="text">
+      <text *ngFor="let t of textes" [attr.class]="textClass" [attr.transform]="t.transform">{{t.text}}</text>
+    </g>
+    <g id="use">
+      <use *ngFor="let u of uses" [svgUse]="u" />
+    </g>
+  </svg>
+</div>

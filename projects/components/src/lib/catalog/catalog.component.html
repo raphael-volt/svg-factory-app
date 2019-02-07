@@ -10,7 +10,7 @@
     <draw-style-editor [data]="config.style" (change)="saveCatalogConfig($event)"></draw-style-editor>
     <text-style-editor [data]="config" [fontList]="fontList" (change)="saveCatalogConfig($event)"></text-style-editor>
   </div>
-  <div class="svg-list h-item f-w" mat-elevation-z4>
-    <p>Catalog preview</p>
+  <div class="h-item f-w" mat-elevation-z4>
+    <catalog-preview [config]="config"></catalog-preview>
   </div>
 </div>
