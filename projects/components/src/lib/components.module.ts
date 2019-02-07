@@ -29,7 +29,7 @@ import { DrawStyleEditorComponent } from './form-controllers/draw-style-editor/d
 import { LayoutEditorComponent } from './form-controllers/layout-editor/layout-editor.component';
 import { TextStyleEditorComponent } from './form-controllers/text-style-editor/text-style-editor.component';
 import { PageRowEditorComponent } from './form-controllers/page-row-editor/page-row-editor.component';
-import { CatalogPreviewComponent } from './catalog/catalog-preview/catalog-preview.component';
+import { CatalogPreviewComponent, SVGNSDirective } from './catalog/catalog-preview/catalog-preview.component';
 
 @NgModule({
   declarations: [
@@ -39,7 +39,7 @@ import { CatalogPreviewComponent } from './catalog/catalog-preview/catalog-previ
     ConfigComponent, PathEditorComponent, SymbolSelectorComponent, 
     PathListComponent, SymbolNamePipe, CatalogComponent,
     MarginsEditorComponent, DrawStyleEditorComponent, LayoutEditorComponent, TextStyleEditorComponent, PageRowEditorComponent, 
-    CatalogPreviewComponent
+    CatalogPreviewComponent, SVGNSDirective
   ],
   imports: [
     CommonModule,

@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import { PDFWrapper, PDFDocumentOptions } from "./tspdf.model";
-import { Observable, Observer, of } from "rxjs";
-import { map } from "rxjs/operators";
+import { Observable, Observer } from "rxjs";
 
 export interface IFont {
   name?: string
   data?: string | ArrayBuffer
   url?: string
-  filename?: string
+  weight?: string,
+  style?: string
 }
 export interface IFontCollection {
   [name: string]: IFont
@@ -38,6 +38,27 @@ export class TspdfService {
     }
     return result
   }
+  loadFontData(fontName: string): Observable<ArrayBuffer> {
+    return Observable.create((observer: Observer<ArrayBuffer>) => {
+      const font = this.getFont(fontName)
+      if (!font) {
+        return observer.error(`font ${fontName} is not embeded`)
+      }
+      const error = (e?: any) => {
+        sub.unsubscribe()
+        if (e)
+          observer.error(e)
+      }
+      let sub = fontXHR(font.url).subscribe(
+        data => {
+          error()
+          observer.next(data)
+          observer.complete()
+        },
+        error
+      )
+    })
+  }
   getFont(name: string): IFont | undefined {
     return this.fontMap[name]
   }
@@ -45,69 +66,28 @@ export class TspdfService {
     return this._embededFontsLoaded
   }
   private _embededFontsLoaded = false
-  loadEmbededFonts(): Observable<IFontCollection> {
-    if (this._embededFontsLoaded)
-      return of(this.fontMap)
-    return Observable.create(
-      (obs: Observer<IFontCollection>) => {
-        const fonts: IFontCollection = this.fontMap
-        const fontList: IFont[] = []
-        const FONT_FACE_TYPE: number = 5
-        let s: any
-        for (const sheet of <any>document.styleSheets) {
-          for (const rule of (sheet.cssRules || [])) {
-            if (rule.type == FONT_FACE_TYPE) {
-              const font: IFont = {}
-              s = rule.style
-              font.name = s.getPropertyValue("font-family").replace(/['|"|`](.*)['|"|`]/, "$1")
-              font.url = getFontUrl(s.getPropertyValue("src"))
-              if (font.url !== undefined) {
-                fontList.push(font)
-              }
+  loadEmbededFonts(): IFontCollection {
+    if (!this._embededFontsLoaded) {
+      const fonts: IFontCollection = this.fontMap
+      const FONT_FACE_TYPE: number = 5
+      let s: CSSStyleDeclaration
+      for (const sheet of <any>document.styleSheets) {
+        for (const rule of (sheet.cssRules || [])) {
+          if (rule.type == FONT_FACE_TYPE) {
+            s = rule.style
+            const font: IFont = {}
+            font.url = getFontUrl(s.getPropertyValue("src"))
+            if (font.url !== undefined) {
+              font.name = s.fontFamily
+              font.weight = s.fontWeight || 'normal'
+              font.style = s.fontStyle || 'normal'
+              fonts[font.name] = font
             }
           }
         }
-        const next = () => {
-          if (fontList.length) {
-            const f = fontList.shift()
-            const sub = fontXHR(f.url)
-              .subscribe(
-                data => {
-                  f.data = data
-                  fonts[f.name] = f
-                },
-                error => {
-                  console.log(error)
-                  sub.unsubscribe()
-                  next()
-                },
-                () => {
-                  sub.unsubscribe()
-                  next()
-                }
-              )
-          }
-          else {
-            obs.next(fonts)
-            obs.complete()
-          }
-        }
-        next()
       }
-    )
-  }
-  addFont(file: File) {
-    return fontReader(file).pipe(
-      map(
-        data => {
-          const f: IFont = {
-            data: data,
-            filename: file.name
-          }
-          return data
-        }
-      )
-    )
+    }
+    return this.fontMap
   }
 }
 const CSS_URL = /url\((.*?)\)/
@@ -150,52 +130,3 @@ const getFontUrl = (str: string): string | undefined => {
   }
   return undefined
 }
-
-/*
-  const parseFont = (doc: PDFDocument, contents: any, name: string) => {
-    doc.registerFont(name, contents)
-    return (<any>doc)._registeredFonts[name]
-  }
-  var a, j, key, len, line, match, name, ref, section, value;
-  section = '';
-  ref = String(contents).split('\n');
-  for (j = 0, len = ref.length; j < len; j++) {
-    line = ref[j];
-    if (match = line.match(/^Start(\w+)/)) {
-      section = match[1];
-      continue;
-    } else if (match = line.match(/^End(\w+)/)) {
-      section = '';
-      continue;
-    }
-    console.log(section)
-    switch (section) {
-      case 'FontMetrics':
-        match = line.match(/(^\w+)\s+(.*)/);
-        key = match[1];
-        value = match[2];
-        if (a = this.attributes[key]) {
-          if (!Array.isArray(a)) {
-            a = this.attributes[key] = [a];
-          }
-          a.push(value);
-        } else {
-          this.attributes[key] = value;
-        }
-        break;
-      case 'CharMetrics':
-        if (!/^CH?\s/.test(line)) {
-          continue;
-        }
-        name = line.match(/\bN\s+(\.?\w+)\s*;/)[1];
-        this.glyphWidths[name] = +line.match(/\bWX\s+(\d+)\s*;/)[1];
-        break;
-      case 'KernPairs':
-        match = line.match(/^KPX\s+(\.?\w+)\s+(\.?\w+)\s+(-?\d+)/);
-        if (match) {
-          this.kernPairs[match[1] + '\0' + match[2]] = parseInt(match[3]);
-        }
-    }
-  }
-}
-*/

@@ -1,29 +1,28 @@
-import { Component, Input, OnChanges, SimpleChanges, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, ViewChild, ElementRef, AfterViewInit, Directive } from '@angular/core';
 import { ICatalogConfig } from '../../services/config.service';
-import { Use, ISymbol, SVGStyleCollection, DrawStyle, NS_SVG, NONE, NON_SCALING_STROKE, TextStyle } from 'ng-svg/core';
+import { Use, ISymbol, SVGStyleCollection, DrawStyle, NS_SVG, NONE, NON_SCALING_STROKE, TextStyle, Path, NS_XLINK } from 'ng-svg/core';
 import { SymbolService } from '../../services/symbol.service';
-import { Subscription, Observable } from 'rxjs';
+import { Subscription, Observable, Observer } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { TspdfService, mm2px, getLayoutSizes } from 'tspdf';
+import { TspdfService, mm2px, getLayoutSizes, PDFWrapper, PDFDocument } from 'tspdf';
 import { encodeFont } from '../../core/font-encoder';
-import { IRect, Matrix, Coord } from 'ng-svg/geom';
+import { IRect, Matrix, Coord, PathData } from 'ng-svg/geom';
 
 const PATH_SELECTOR: string = "st0"
 const TEXT_SELECTOR: string = "st1"
 const RECT_SELECTOR: string = "st2"
 const SYMBOL_PREFIX: string = "sym"
 const FONT_SUFIX: string = "-embeded"
-const PT:string = "pt"
+const PT: string = "pt"
 
 interface TextDesc { text: string, transform: string }
 interface RectDesc { y: number }
 interface RowItem {
+  symbol?: ISymbol,
   index?: number
   bbox?: IRect
   scale?: number
   bounds?: IRect
-  useMatrix?: Matrix
-  textMatrix?: Matrix
   text?: TextDesc
   use?: Use
 }
@@ -74,7 +73,7 @@ export class CatalogPreviewComponent implements OnChanges, AfterViewInit {
 
   textClass = TEXT_SELECTOR
   rectClass = RECT_SELECTOR
-  constructor(private service: SymbolService, private pdf: TspdfService) {
+  constructor(private service: SymbolService, private pdfService: TspdfService) {
     if (service.populated)
       this.initializedChange(true)
     else {
@@ -159,15 +158,15 @@ export class CatalogPreviewComponent implements OnChanges, AfterViewInit {
     let drawStyle: DrawStyle = styles[PATH_SELECTOR]
     if (drawStyle["stroke-width"] && drawStyle["stroke-width"] != NONE)
       drawStyle["stroke-width"] = drawStyle["stroke-width"] + PT
-    if(! drawStyle["fill"]) {
+    if (!drawStyle["fill"]) {
       drawStyle["fill"] = NONE
     }
-    if(! drawStyle["stroke"]) {
+    if (!drawStyle["stroke"]) {
       drawStyle["stroke"] = NONE
       drawStyle["stroke-width"] = NONE
     }
     drawStyle["vector-effect"] = NON_SCALING_STROKE
-    
+
     drawStyle = {
       "fill": "none",
       "stroke": "#666666",
@@ -175,7 +174,7 @@ export class CatalogPreviewComponent implements OnChanges, AfterViewInit {
       "vector-effect": NON_SCALING_STROKE
     }
     styles[RECT_SELECTOR] = drawStyle
-    
+
     let textStyle: TextStyle = {
       "font-family": `"${config.fontFamily + FONT_SUFIX}"`,
       "font-size": config.fontSize + PT,
@@ -205,7 +204,7 @@ export class CatalogPreviewComponent implements OnChanges, AfterViewInit {
     const config = this.config
     this._font = config.fontFamily
     const fontName: string = config.fontFamily + FONT_SUFIX
-    const url = this.pdf.getFont(config.fontFamily).url
+    const url = this.pdfService.getFont(config.fontFamily).url
     return encodeFont(url).pipe(
       map(
         data64 => {
@@ -248,18 +247,140 @@ export class CatalogPreviewComponent implements OnChanges, AfterViewInit {
       return textDrawer.getBBox()
     }
 
-    this.lastRowItemCollection = this.createRows()
+    this.currentItemCollection = this.createRows()
     this.svg.removeChild(textDrawer)
   }
 
-  public stringifySVG(): string {
-    return this.svg.outerHTML
+  public saveSVG(filename) {
+    // @TODO angular injection should not be present, 
+    // so svg must be created with document.createElement 
+    const data = this.svg.outerHTML
+    const file = new Blob([data], { type: "image/svg+xml" })
+    if (window.navigator.msSaveOrOpenBlob) // IE10+
+      window.navigator.msSaveOrOpenBlob(file, filename)
+    else { // Others
+      const a: HTMLAnchorElement = document.createElement("a")
+      const url: string = URL.createObjectURL(file)
+      a.href = url
+      a.download = filename
+      document.body.appendChild(a)
+      a.click()
+      setTimeout(() => {
+        document.body.removeChild(a)
+        window.URL.revokeObjectURL(url)
+      }, 0)
+    }
   }
-  public createPDF() {
 
+  public savePDF(filename: string): Observable<boolean> {
+    const srv = this.pdfService
+    const fontName: string = this.config.fontFamily
+    return srv.loadFontData(fontName).pipe(
+      map(
+        data => {
+          const style = this.config.style
+          const collections = this.currentItemCollection
+          const config = new Config2pix(this.config)
+          const pdf: PDFWrapper = new PDFWrapper({
+            margins: {
+              top: 0,
+              bottom: 0,
+              right: 0,
+              left: 0
+            },
+            size: [config.width, config.height]
+          })
+          const checkStyleValue = (value: any, nullValue: any = undefined): any => {
+            if (!value || value == NONE)
+              return nullValue
+            return value
+          }
+          let strokeColor: any = checkStyleValue(style["stroke"])
+          let fillColor: any = checkStyleValue(style["fill"])
+          let strokeWidth: any = checkStyleValue(style["stroke-width"])
+          if (strokeWidth != undefined)
+            strokeWidth = Number(strokeWidth)
+
+          let beforeDraw: () => void
+          const setlineWidth = () => {
+            if (strokeWidth != undefined) {
+              doc.lineWidth(strokeWidth)
+            }
+          }
+          if (strokeColor && fillColor)
+            beforeDraw = () => {
+              setlineWidth()
+              doc.fillAndStroke(fillColor, strokeColor)
+            }
+          else {
+            if (fillColor)
+              beforeDraw = () => {
+                doc.fill(fillColor)
+              }
+            else {
+              beforeDraw = () => {
+                setlineWidth()
+                doc.stroke(strokeColor)
+              }
+            }
+          }
+          const fontSize: number = this.config.fontSize
+          const fontColor: string = this.config.textColor
+          const textPadding = config.textPadding
+
+          const doc: PDFDocument = pdf.document
+          doc.registerFont(fontName, <any>data)
+          doc.font(fontName)
+            .fontSize(fontSize)
+            .fillColor(fontColor)
+          let m: Matrix = new Matrix()
+          const svgService = this.service
+          let symbol: ISymbol
+          let path: Path
+          let b: IRect
+          const drawer: PathData = new PathData()
+          let addPage: boolean = false
+          let text: string
+
+          for (const collection of collections) {
+            if (addPage) {
+              doc.addPage()
+            }
+            addPage = true
+            // draw symbols
+
+            for (let row of collection.rows) {
+              for (let i of row) {
+                symbol = i.symbol
+                path = symbol.paths[0]
+                doc.moveTo(0, 0)
+                b = i.bounds
+                m.identity().scale(i.scale, i.scale).translate(b.x, b.y)
+                drawer.data = path.d
+                drawer.transform(m)
+
+                beforeDraw()
+                doc.path(drawer.data)
+
+                text = i.text.text
+                const ox = doc.widthOfString(text) / 2
+                doc.font(fontName)
+                  .fontSize(fontSize)
+                  .fillColor(fontColor)
+                  .text(text,
+                    b.x + b.width / 2 - ox,
+                    b.y + b.height + textPadding)
+              }
+            }
+          }
+          pdf.save(filename)
+          return true
+        }
+      )
+    )
   }
 
-  private lastRowItemCollection: RowItemCollection[]
+  private currentItemCollection: RowItemCollection[]
 
   private createRows(): RowItemCollection[] {
     const config: Config2pix = new Config2pix(this.config)
@@ -284,6 +405,7 @@ export class CatalogPreviewComponent implements OnChanges, AfterViewInit {
       const bounds: IRect = { width: +use.width, height: +use.height, x: 0, y: 0 }
       const s = rowDesc.height / bounds.height
       return <RowItem>{
+        symbol: symbol,
         scale: s,
         bbox: bounds,
         text: textes[index],
@@ -342,13 +464,11 @@ export class CatalogPreviewComponent implements OnChanges, AfterViewInit {
           r = item.bounds
           m.identity().scale(s, s).translate(r.x, r.y + y)
           item.use.transform = m.toCSS()
-          item.useMatrix = m.clone()
           bb = this.measureText(td.text)
           m.identity()
             .translate(-bb.x - bb.width / 2, -bb.y)
             .translate(r.x + r.width / 2, r.y + r.height + tp + y)
           td.transform = m.toCSS()
-          item.textMatrix = m.clone()
         }
       }
       y += config.height
@@ -408,4 +528,15 @@ export class CatalogPreviewComponent implements OnChanges, AfterViewInit {
     }
     return true
   }
+}
+@Directive({
+  selector: '[svgNS]',
+  host: {
+    '[attr.xmlns]': 'nsSvg',
+    '[attr.xmlns:xlink]': 'nsXlink'
+  }
+})
+export class SVGNSDirective {
+  nsSvg = NS_SVG
+  nsXlink = NS_XLINK
 }

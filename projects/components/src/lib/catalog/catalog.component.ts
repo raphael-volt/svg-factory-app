@@ -15,27 +15,21 @@ export class CatalogComponent implements OnDestroy {
   @ViewChild(CatalogPreviewComponent)
   preview: CatalogPreviewComponent
 
-  private _ready: boolean = false
-  public get ready(): boolean {
-    return this._ready
-  }
-  public set ready(value: boolean) {
-    if (value) {
-      if (this.fontList.indexOf(this.config.fontFamily) < 0) {
-        this.config.fontFamily = this.fontList[0]
-        this.saveCatalogConfig()
-      }
-    }
-    this._ready = value
-  }
   config: ICatalogConfig
+  fontList: string[]
+
   private configDiffer: DepthDiffer<ICatalogConfig>
+  private differSuscription: Subscription
+  private configChanged: boolean = false
 
   constructor(
     private storage: ConfigService,
-    private pdfService: TspdfService,
+    pdfService: TspdfService,
     private differService: DepthDifferService
   ) {
+
+    pdfService.loadEmbededFonts()
+    this.fontList = pdfService.fontList
 
     if (storage.catalog)
       this.setCatalogConfig(storage.catalog)
@@ -45,18 +39,15 @@ export class CatalogComponent implements OnDestroy {
         this.setCatalogConfig(config)
       })
     }
-    this.setupFonts().then(fonts => {
-      if (this.config)
-        this.ready = true
-    })
-  }
-  private differSuscription: Subscription
 
-  private configChanged: boolean = false
+  }
+
   private setCatalogConfig(config: ICatalogConfig) {
     this.config = config
-    if (this.fontList)
-      this.ready = true
+    if (this.fontList.indexOf(config.fontFamily) < 0) {
+      config.fontFamily = this.fontList[0]
+      this.saveCatalogConfig()
+    }
     this.configDiffer = this.differService.create(config)
     this.differSuscription = this.configDiffer.events.subscribe(event => {
       this.configChanged = true
@@ -72,27 +63,19 @@ export class CatalogComponent implements OnDestroy {
       this.configChanged = false
     }
   }
-  ngOnDestroy() {
-    this.differSuscription.unsubscribe()
+  
+  savePDF() {
+    const sub = this.preview.savePDF("catalog.pdf")
+      .subscribe(success => {
+        sub.unsubscribe()
+      })
   }
 
-  fontList: string[]
-  private setupFonts() {
-    return new Promise((res, rej) => {
-      const srv = this.pdfService
-      if (srv.embededFontsLoaded) {
-        this.fontList = srv.fontList
-        res(this.fontList)
-      }
-      else {
-        const s = srv.loadEmbededFonts().subscribe(
-          fonts => {
-            this.fontList = srv.fontList
-            s.unsubscribe()
-            res(this.fontList)
-          }
-        )
-      }
-    })
+  saveSVG() {
+    this.preview.saveSVG("catalog.svg")
+  }
+
+  ngOnDestroy() {
+    this.differSuscription.unsubscribe()
   }
 }

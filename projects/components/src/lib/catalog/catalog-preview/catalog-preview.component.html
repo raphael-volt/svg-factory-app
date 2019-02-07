@@ -1,10 +1,10 @@
 <div class="main">
-  <svg #svg *ngIf="symbolsCollection" [svgViewBox]="viewBox">
+  <svg #svg *ngIf="symbolsCollection" svgNS [svgViewBox]="viewBox">
     <defs>
       <style [svgStyle]="fontCss"></style>
       <style [svgStyle]="stylesCss"></style>
       <symbol *ngFor="let s of symbolsCollection" [svgSymbol]="s">
-        <path *ngFor="let p of s.paths" [svgPath]="p" />
+        <path *ngFor="let p of s.paths" nonScalingStroke [svgPath]="p"/>
       </symbol>
     </defs>
     <g id="rect">
