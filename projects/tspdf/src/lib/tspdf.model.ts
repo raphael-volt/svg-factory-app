@@ -561,10 +561,13 @@ const layoutSizes: {
   LETTER: [612.00, 792.00],
   TABLOID: [792.00, 1224.00]
 }
-const getLayoutSizes = (name: LayoutNames): Sizes | undefined => {
-  if (!(<Object>layoutSizes).hasOwnProperty(name))
+const getLayoutSizes = (name: LayoutNames, orientation: LayoutOrientation): Sizes | undefined => {
+  if (!(<Object>layoutSizes).hasOwnProperty(name) || (orientation != "landscape" && orientation != "portrait"))
     return undefined
-  return <Sizes>(layoutSizes[name].slice())
+  const sizes = <Sizes>(layoutSizes[name].slice())
+  if(orientation == 'landscape')
+    sizes.reverse()
+  return sizes
 }
 
 const getLayoutName = (layout: [number, number]) => {
@@ -580,7 +583,7 @@ const getLayoutName = (layout: [number, number]) => {
     return null
 }
 
-const SIZE_RATIO = 297/getLayoutSizes('A4')[1]
+const SIZE_RATIO = 297/getLayoutSizes('A4', 'portrait')[1]
 const px2mm = (px: number)=>{
   return px * SIZE_RATIO
 }

@@ -4,14 +4,14 @@ import { NS_SVG, NS_XLINK } from "ng-svg/core";
 @Directive({
   selector: '[svgHost]',
   host: {
-    'attr.xmlns': NS_SVG,
-    'attr.xmlns:xlink': NS_XLINK
+    '[attr.xmlns]': 'nsSvg',
+    '[attr.xmlns:xlink]': 'nsXlink'
   }
 })
 export class SvgHostDirective {
-
-  constructor(factory: FactoryService) { 
+  nsSvg = NS_SVG
+  nsXlink = NS_XLINK
+  constructor(factory: FactoryService) {
     factory.registerHost(this)
   }
-
 }

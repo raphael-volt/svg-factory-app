@@ -1,0 +1,37 @@
+<div class="controls h-item content">
+  <div #form="ngForm" [formGroup]="formGroup" class="form-item-group border content border br-4 pad-8">
+    <label>Marges (mm)</label>
+    <div class="form-item">
+      <mat-form-field>
+        <input matInput required type="number" [(ngModel)]="data.top" placeholder="Haut" formControlName="top">
+      </mat-form-field>
+      <mat-error *ngIf="formGroup.controls.top.invalid">
+        {{getErrorMessage(formGroup.controls.top)}}
+      </mat-error>
+    </div>
+    <div class="form-item">
+      <mat-form-field>
+        <input matInput required type="number" [(ngModel)]="data.bottom" placeholder="Bas" formControlName="bottom">
+      </mat-form-field>
+      <mat-error *ngIf="formGroup.controls.bottom.invalid">
+        {{getErrorMessage(formGroup.controls.bottom)}}
+      </mat-error>
+    </div>
+    <div class="form-item">
+      <mat-form-field>
+        <input matInput required type="number" [(ngModel)]="data.left" placeholder="Gauche" formControlName="left">
+      </mat-form-field>
+      <mat-error *ngIf="formGroup.controls.left.invalid">
+        {{getErrorMessage(formGroup.controls.left)}}
+      </mat-error>
+    </div>
+    <div class="form-item">
+      <mat-form-field>
+        <input matInput required type="number" [(ngModel)]="data.right" placeholder="Droite" formControlName="right">
+      </mat-form-field>
+      <mat-error *ngIf="formGroup.controls.right.invalid">
+        {{getErrorMessage(formGroup.controls.right)}}
+      </mat-error>
+    </div>
+  </div>
+</div>

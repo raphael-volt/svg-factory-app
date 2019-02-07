@@ -13,3 +13,4 @@ export * from './use/use.directive';
 export * from './style/svg-style.directive';
 export * from './symbol-renderer/symbol-renderer.component'
 export * from './path-renderer/path-renderer.component'
+export * from './non-scaling-stroke.directive'

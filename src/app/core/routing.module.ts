@@ -5,9 +5,9 @@ import {
     SymbolService,
     LoginComponent,
     ConfigComponent,
-    ListComponent/*,
+    ListComponent,
+    CatalogComponent/*,
     ImportComponent,
-    CatalogComponent,
     PrintSymbolsComponent*/
 } from "components";
 
@@ -95,16 +95,16 @@ const routes: Routes = [
                 path: 'list', component: ListComponent,
                 label: 'Motifs',
                 icon: 'th-list'
-            }/*,
-            <IAppRoute>{
-                path: 'import', component: ImportComponent,
-                label: 'Importer',
-                icon: 'file-import'
             },
             <IAppRoute>{
                 path: 'catalog', component: CatalogComponent,
                 label: 'Catalogue',
                 icon: 'book-open'
+            }/*,
+            <IAppRoute>{
+                path: 'import', component: ImportComponent,
+                label: 'Importer',
+                icon: 'file-import'
             },
             <IAppRoute>{
                 path: 'config', component: ConfigComponent, canDeactivate: [AppGuard],

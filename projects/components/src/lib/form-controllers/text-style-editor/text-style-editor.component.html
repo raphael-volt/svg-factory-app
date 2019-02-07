@@ -1,0 +1,41 @@
+<div class="controls h-item content">
+  <div #form="ngForm" [formGroup]="formGroup" class="form-item-group border content border br-4 pad-8">
+    <label>Texte</label>
+    <div class="form-item">
+      <mat-form-field>
+        <mat-select placeholder="Police" formControlName="fontFamily" [(ngModel)]="data.fontFamily">
+          <mat-option *ngFor="let n of fontList" [value]="n">
+            {{n}}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="formGroup.controls.fontFamily.invalid">
+          {{getErrorMessage(formGroup.controls.fontFamily)}}
+        </mat-error>
+      </mat-form-field>
+    </div>
+    <div class="form-item">
+      <mat-form-field>
+        <input matInput type="number" required placeholder="Marge (mm)" formControlName="textPadding" [(ngModel)]="data.textPadding">
+      </mat-form-field>
+      <mat-error *ngIf="formGroup.controls.textPadding.invalid">
+        {{getErrorMessage(formGroup.controls.textPadding)}}
+      </mat-error>
+    </div>
+    <div class="form-item">
+      <mat-form-field>
+        <input matInput type="number" required placeholder="Taille (pt)" formControlName="fontSize" [(ngModel)]="data.fontSize">
+        <mat-error *ngIf="formGroup.controls.fontSize.invalid">
+          {{getErrorMessage(formGroup.controls.fontSize)}}
+        </mat-error>
+      </mat-form-field>
+    </div>
+    <div class="form-item">
+      <mat-form-field>
+        <color-picker placeholder="Couleur" formControlName="textColor" [(ngModel)]="data.textColor"></color-picker>
+        <mat-error *ngIf="formGroup.controls.textColor.invalid">
+          {{getErrorMessage(formGroup.controls.textColor)}}
+        </mat-error>
+      </mat-form-field>
+    </div>
+  </div>
+</div>

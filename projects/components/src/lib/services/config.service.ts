@@ -3,8 +3,26 @@ import { LocalStorage } from "@ngx-pwa/local-storage";
 import { map } from "rxjs/operators";
 import { of, Observable } from "rxjs";
 import { SymbolServiceConfig } from '../core/symbol';
+import { LayoutOrientation, LayoutNames, Margins } from 'tspdf';
+import { DrawStyle } from 'ng-svg/core';
 
+const CATALOG_CONFIG: string = 'catalog-config'
 const SYMBOL_CONFIG: string = "symbol-config"
+
+export interface ICatalogConfig {
+  version: number
+  format: LayoutNames
+  orientation: LayoutOrientation
+  margins: Margins
+  itemGap: number
+  rowGap: number
+  style: DrawStyle
+  numRows: number
+  textPadding: number
+  fontSize: number
+  textColor: string
+  fontFamily: string
+}
 @Injectable({
   providedIn: 'root'
 })
@@ -13,8 +31,9 @@ export class ConfigService {
   constructor(private storage: LocalStorage) { }
 
   private print: any
-  private catalog: any
-
+  private _catalog: any
+  private catalogVersion: number = 1
+  
   private _symbolConfig: SymbolServiceConfig
   
   get symbolConfig(): SymbolServiceConfig {
@@ -52,26 +71,22 @@ export class ConfigService {
     this.storage.setItemSubscribe(SYMBOL_CONFIG, this._symbolConfig)
   }
 
-  getCatalog() {
-    if (this.catalog)
-      return of(this.catalog)
+  get catalog() {
+    return this._catalog
+  }
 
-    return this.storage.getItem<any>("catalog-config")
+  getCatalog() {
+    if (this._catalog)
+      return of(this._catalog)
+
+    return this.storage.getItem<ICatalogConfig>(CATALOG_CONFIG)
       .pipe(
         map((config: any) => {
-          const defaultConf = this.getDefaultCatalog()
-          if (!config)
-            config = defaultConf
-          if (config['margin'] !== undefined) {
-            config.paddings = config['margin']
-            delete (config['margin'])
+          if(! config || config.version != this.catalogVersion) {
+            config = this.getDefaultCatalog()
+            this.storage.setItemSubscribe(CATALOG_CONFIG, config)
           }
-          if (config.textColor == undefined)
-            config.textColor = defaultConf.textColor
-          if (config.fontFamily == undefined)
-            config.fontFamily = defaultConf.fontFamily
-
-          this.catalog = config
+          this._catalog = config
           return config
         })
       )
@@ -96,18 +111,19 @@ export class ConfigService {
   }
 
   saveCatlog() {
-    return this.storage.setItem("catalog-config", this.catalog)
+    return this.storage.setItem("catalog-config", this._catalog)
   }
   saveCatalogSubscribe() {
-    return this.storage.setItemSubscribe("catalog-config", this.catalog)
+    return this.storage.setItemSubscribe("catalog-config", this._catalog)
   }
 
 
-  getDefaultCatalog() {
+  getDefaultCatalog(): ICatalogConfig {
     return {
+      version: this.catalogVersion,
       format: "A4",
-      orientation: "l",
-      paddings: {
+      orientation: "landscape",
+      margins: {
         top: 10,
         right: 10,
         bottom: 15,
@@ -116,8 +132,9 @@ export class ConfigService {
       itemGap: 8,
       rowGap: 12,
       style: {
-        strokeWidth: 1,
-        stroke: "#000000"
+        'fill': "#000000",
+        'stroke': '',
+        'stroke-width': '0'
       },
       numRows: 4,
       textPadding: 7,

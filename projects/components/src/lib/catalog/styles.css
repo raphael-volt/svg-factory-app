@@ -1,0 +1,16 @@
+.controls-container {
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-content: flex-start;
+  align-items: stretch;
+}
+.controls-container > * {
+  margin-bottom: 8px;
+}
+
+/*# sourceMappingURL=styles.css.map */

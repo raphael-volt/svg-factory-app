@@ -1,7 +1,9 @@
+@import '../../styles.scss';
+
 input[type="file"] {
     display: none;
 }
 
-.v-box > button {
-    margin-bottom: 8px;
+.v-box {
+    @include page-controls();
 }
