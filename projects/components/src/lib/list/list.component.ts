@@ -31,8 +31,9 @@ export class ListComponent {
   constructor(
     private dialog: MatDialog,
     private service: SymbolService) {
-      
+      this.style = service.config.pathStyle
   }
+  style: DrawStyle
 
   styleChanged(style: DrawStyle) {
     this.service.updateStyle()

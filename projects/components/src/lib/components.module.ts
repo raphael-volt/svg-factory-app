@@ -9,7 +9,6 @@ import { CommonModule as _CommonModule } from "common";
 import { SVGComponentsModule } from "ng-svg/components";
 
 import { ApiService } from "./services/api.service";
-import { provideSymbolService } from "./services/symbol.service";
 
 import { ListComponent } from "./list/list.component";
 import { LoginComponent } from './login/login.component';
@@ -30,6 +29,7 @@ import { LayoutEditorComponent } from './form-controllers/layout-editor/layout-e
 import { TextStyleEditorComponent } from './form-controllers/text-style-editor/text-style-editor.component';
 import { PageRowEditorComponent } from './form-controllers/page-row-editor/page-row-editor.component';
 import { CatalogPreviewComponent, SVGNSDirective } from './catalog/catalog-preview/catalog-preview.component';
+import { SymbolService } from './services/symbol.service';
 
 @NgModule({
   declarations: [
@@ -57,7 +57,7 @@ import { CatalogPreviewComponent, SVGNSDirective } from './catalog/catalog-previ
     AppMaterialModule
   ],
   providers: [
-    provideSymbolService(), 
+    SymbolService, 
     ConfigService,
     ApiService
   ],

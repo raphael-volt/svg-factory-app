@@ -1,11 +1,9 @@
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { Output, EventEmitter, Input, OnDestroy, OnInit, Component } from '@angular/core';
+import { Output, EventEmitter, Input, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { callLater } from '../core/call-later';
 import { ErrorController } from '../core/error-controller';
-@Component({
-    selector: 'form-controller-base'
-})
+
 export abstract class FormControllerBase<T> extends ErrorController implements OnDestroy, OnInit {
     @Output()
     change: EventEmitter<T> = new EventEmitter<T>()
