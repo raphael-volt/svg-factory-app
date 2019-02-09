@@ -1,10 +1,13 @@
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { Output, EventEmitter, Input, OnDestroy, OnInit } from '@angular/core';
+import { Output, EventEmitter, Input, OnDestroy, OnInit, Component } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { callLater } from '../core/call-later';
 import { ErrorController } from '../core/error-controller';
-
-export abstract class FormControllerBase<T> extends ErrorController implements OnDestroy, OnInit {
+@Component({
+    selector: 'form-controller-base',
+    template:'form-controller-base'
+})
+export class FormControllerBase<T> extends ErrorController implements OnDestroy, OnInit {
     @Output()
     change: EventEmitter<T> = new EventEmitter<T>()
 
@@ -19,7 +22,7 @@ export abstract class FormControllerBase<T> extends ErrorController implements O
         super()
     }
 
-    protected abstract createControlsConfig(): { [key: string]: any }
+    protected createControlsConfig(): { [key: string]: any } { return null }
 
     ngOnInit() {
         this.createFormGroup(this.createControlsConfig())
@@ -36,7 +39,7 @@ export abstract class FormControllerBase<T> extends ErrorController implements O
         })
         this.formGroup = group
     }
-    
+
     ngOnDestroy() {
         this.subscription.unsubscribe()
     }

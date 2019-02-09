@@ -15,6 +15,7 @@ import { LoginComponent } from './login/login.component';
 import { ConfigComponent } from "./config/config.component";
 import { ConfigService } from "./services/config.service";
 
+import { FormControllerBase } from "./form-controllers/form-controller-base";
 import { SymbolListComponent, SymbolListBaseComponent, PathListComponent } from './symbol-list/symbol-list.component';
 import { ChangeDetectionModule } from 'change-detection';
 import { PathEditorComponent } from './path-editor/path-editor.component';
@@ -30,20 +31,23 @@ import { TextStyleEditorComponent } from './form-controllers/text-style-editor/t
 import { PageRowEditorComponent } from './form-controllers/page-row-editor/page-row-editor.component';
 import { CatalogPreviewComponent, SVGNSDirective } from './catalog/catalog-preview/catalog-preview.component';
 import { SymbolService } from './services/symbol.service';
+import { PrintComponent } from './print/print.component';
 
 @NgModule({
   declarations: [
+    FormControllerBase,
     ListComponent,
     LoginComponent,
     SymbolListComponent, SymbolListBaseComponent,
     ConfigComponent, PathEditorComponent, SymbolSelectorComponent, 
     PathListComponent, SymbolNamePipe, CatalogComponent,
     MarginsEditorComponent, DrawStyleEditorComponent, LayoutEditorComponent, TextStyleEditorComponent, PageRowEditorComponent, 
-    CatalogPreviewComponent, SVGNSDirective
+    CatalogPreviewComponent, SVGNSDirective, PrintComponent
   ],
   imports: [
     CommonModule,
-    FormsModule, ReactiveFormsModule,
+    FormsModule, 
+    ReactiveFormsModule,
     TspdfModule,
     NgSvgModule,
     ChangeDetectionModule,
