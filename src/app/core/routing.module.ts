@@ -6,9 +6,12 @@ import {
     LoginComponent,
     ConfigComponent,
     ListComponent,
-    CatalogComponent/*,
+    CatalogComponent,
+    PrintComponent
+    /*,
     ImportComponent,
-    PrintSymbolsComponent*/
+    PrintSymbolsComponent
+    */
 } from "components";
 
 import { RouterModule, Routes } from '@angular/router'
@@ -100,7 +103,13 @@ const routes: Routes = [
                 path: 'catalog', component: CatalogComponent,
                 label: 'Catalogue',
                 icon: 'book-open'
-            }/*,
+            },
+            <IAppRoute>{
+                path: 'print', component: PrintComponent,
+                label: 'Imprimer',
+                icon: 'print'
+            }
+            /*,
             <IAppRoute>{
                 path: 'import', component: ImportComponent,
                 label: 'Importer',
@@ -111,11 +120,7 @@ const routes: Routes = [
                 label: 'Config',
                 icon: 'cogs'
             },
-            <IAppRoute>{
-                path: 'print', component: PrintSymbolsComponent,
-                label: 'Imprimer',
-                icon: 'print'
-            }*/
+            */
             ,
             {
                 path: '',
