@@ -1,6 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { FactoryService } from "../factory.service";
-import { ISymbol, DrawStyleCollection } from "ng-svg/core";
+import { ISymbol, DrawStyleCollection, NONE } from "ng-svg/core";
+
+const checkValue = (value: string): string => {
+  if(! value)
+    return NONE
+  return value
+}
 @Component({
   selector: 'svg-defs',
   templateUrl: './svg-defs.component.html',
@@ -31,7 +37,7 @@ export class SvgDefsComponent implements OnInit {
       for (const a in coll) {
         row = []
         for (const k in coll[a])
-          row.push(`${k}:${coll[a][k]}`)
+          row.push(`${k}:${checkValue(coll[a][k])}`)
         css.push(`${a} {${row.join(";")}}`)
       }
     }
