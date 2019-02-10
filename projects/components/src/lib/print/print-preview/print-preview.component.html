@@ -1,0 +1,29 @@
+<div class="h-box main" *ngIf="service.config">
+  <div class="h-item content pad-8 controls-container">
+    <div class="button-container">
+      <button color="accent" mat-raised-button (click)="savePDF()">Créer PDF</button>
+    </div>
+    <layout-editor [data]="service.config" [itemGapEditable]="true" (change)="service.saveConfig('layout')"></layout-editor>
+    <margins-editor [data]="service.config.margins" (change)="service.saveConfig('margins')"></margins-editor>
+    <draw-style-editor [data]="service.config.style" (change)="service.saveConfig('style')"></draw-style-editor>
+  </div>
+  <div class="h-item f-w">
+    <div class="main">
+      <svg #svg svgNS [svgViewBox]="service.viewBox">
+        <defs>
+          <style [svgStyle]="service.cssStyle"></style>
+          <symbol *ngFor="let s of service.symbols" [svgSymbol]="s">
+            <path *ngFor="let p of s.paths" nonScalingStroke [svgPath]="p" />
+          </symbol>
+        </defs>
+        <g id="rect">
+          <rect *ngFor="let p of service.pages" x="0" [attr.y]="p.y" [attr.width]="service.pageWidth" [attr.height]="service.pageHeight"
+            [attr.class]="service.rectClass" />
+        </g>
+        <g id="use">
+          <use *ngFor="let t of service.transforms" [svgUse]="t.useRef" />
+        </g>
+      </svg>
+    </div>
+  </div>
+</div>

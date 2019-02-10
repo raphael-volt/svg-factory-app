@@ -72,11 +72,41 @@ $list-item-background-opacity-selected: 0.3;
     margin-left: $button-margin;
   }
 }
+
 @mixin page-controls() {
+  button {
+    width: 100%
+  }
   > * {
     order: 0;
     flex: 0 1 auto;
     align-self: auto;
     margin-bottom: $button-margin;
+  }
+}
+
+.main .controls-container {
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-content: flex-start;
+  align-items: stretch;
+  > * {
+    order: 0;
+    flex: 0 1 auto;
+    align-self: auto;
+    margin-bottom: $button-margin;
+  }
+  .button-container {
+    > button {
+      width: 100%;
+    }
+    > button:first-child {
+      margin-bottom: $button-margin;
+    }
   }
 }

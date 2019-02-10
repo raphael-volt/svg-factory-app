@@ -15,5 +15,13 @@
         <mat-radio-button value="landscape">paysage</mat-radio-button>
       </mat-radio-group>
     </div>
+    <div class="form-item" *ngIf="itemGapEditable">
+      <mat-form-field>
+        <input matInput required type="number" [(ngModel)]="data.itemGap" placeholder="Éspacement motif" formControlName="itemGap">
+      </mat-form-field>
+      <mat-error *ngIf="formGroup.controls.itemGap.invalid">
+        {{getErrorMessage(formGroup.controls.itemGap)}}
+      </mat-error>
+    </div>
   </div>
 </div>

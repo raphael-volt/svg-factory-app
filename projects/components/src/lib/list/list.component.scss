@@ -3,7 +3,13 @@
 input[type="file"] {
     display: none;
 }
+/*
+.main {
+    @include form-editor-controls()
 
-.v-box {
+}
+*/
+.controls-container {
     @include page-controls();
+    overflow: visible;
 }

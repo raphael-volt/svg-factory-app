@@ -1,0 +1,43 @@
+.ctrl-box {
+  margin-right: 16px;
+  order: 0;
+  flex: 0 0 auto;
+  align-self: center;
+  display: inline-flex;
+  flex-direction: column;
+  overflow: hidden;
+  > * {
+    transform: translateX(-100%);
+    transition-property: transform;
+    transition-duration: 600ms;
+  }
+  > .remove {
+    flex: 0 0 auto;
+    align-self: flex-end;
+  }
+  &.on > * {
+    transform: translateX(0%);
+  }
+  .mat-form-field {
+    width: auto !important;
+  }
+
+  .mat-select-value {
+    max-width: 100%;
+    width: auto;
+  }  
+  .mat-form-field-infix {
+    min-width: 0!important;
+    width: auto!important;
+  }
+}
+.config-row {
+  margin: 8px;
+}
+
+.delete-config {
+  visibility: hidden;
+}
+.delete-config.deletable {
+  visibility: visible;
+}

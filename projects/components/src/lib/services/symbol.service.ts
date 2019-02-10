@@ -2,7 +2,7 @@ import { Injectable, EventEmitter } from '@angular/core';
 import { Observable, of, Subscription, Observer } from "rxjs";
 import { map } from 'rxjs/operators';
 import { ApiService } from "./api.service";
-import { SVGSymbol, cloneSymbolForSave, SymbolServiceConfig } from "../core/symbol";
+import { SVGSymbol, cloneSymbolForSave, SymbolConfig } from "../core/symbol";
 import { FactoryService } from "ng-svg/components";
 import { DrawStyleCollection, ISymbol, Use } from 'ng-svg/core';
 import { Matrix, PathData, IRect, parseSVG, SVGPath, split, getViewBox } from 'ng-svg/geom'
@@ -35,7 +35,7 @@ export class SymbolService {
   public populated: boolean = false
   public populatedChange: EventEmitter<boolean> = new EventEmitter<boolean>()
 
-  public config: SymbolServiceConfig
+  public config: SymbolConfig
   constructor(
     private configService: ConfigService,
     private http: ApiService,
@@ -55,9 +55,9 @@ export class SymbolService {
     }
   }
 
-  private setSymbolConfig(value: SymbolServiceConfig) {
+  private setSymbolConfig(value: SymbolConfig) {
     this.config = value
-    this.pathStyle[`.${PATH_CLASS}`] = value.pathStyle
+    this.pathStyle[PATH_CLASS] = value.pathStyle
   }
 
   updateStyle() {
