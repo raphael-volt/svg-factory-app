@@ -1,12 +1,13 @@
 import { Component, Input, OnChanges, SimpleChanges, ViewChild, ElementRef, AfterViewInit, Directive } from '@angular/core';
 import { ICatalogConfig } from '../../services/config.service';
-import { Use, ISymbol, SVGStyleCollection, DrawStyle, NS_SVG, NONE, NON_SCALING_STROKE, TextStyle, Path, NS_XLINK } from 'ng-svg/core';
+import { Use, ISymbol, SVGStyleCollection, DrawStyle, NS_SVG, NONE, NON_SCALING_STROKE, TextStyle, Path, NS_XLINK, stringifyStyles } from 'ng-svg/core';
 import { SymbolService } from '../../services/symbol.service';
 import { Subscription, Observable, Observer } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { TspdfService, mm2px, getLayoutSizes, PDFWrapper, PDFDocument } from 'tspdf';
 import { encodeFont } from '../../core/font-encoder';
 import { IRect, Matrix, Coord, PathData } from 'ng-svg/geom';
+import { style } from '@angular/animations';
 
 const PATH_SELECTOR: string = "st0"
 const TEXT_SELECTOR: string = "st1"
@@ -182,16 +183,7 @@ export class CatalogPreviewComponent implements OnChanges, AfterViewInit {
     }
     styles[TEXT_SELECTOR] = textStyle
 
-    let css: string[] = []
-    let row: string[]
-    for (const accessor in styles) {
-      row = []
-      for (const k in styles[accessor]) {
-        row.push(`${k}: ${styles[accessor][k]}`)
-      }
-      css.push(`.${accessor} {${row.join("; ")}}`)
-    }
-    this.stylesCss = css.join("\r\n")
+    this.stylesCss = stringifyStyles(styles)
   }
 
   private get fontChanged(): boolean {
@@ -301,24 +293,24 @@ export class CatalogPreviewComponent implements OnChanges, AfterViewInit {
           if (strokeWidth != undefined)
             strokeWidth = Number(strokeWidth)
 
-          let beforeDraw: () => void
+          let afterDraw: () => void
           const setlineWidth = () => {
             if (strokeWidth != undefined) {
               doc.lineWidth(strokeWidth)
             }
           }
           if (strokeColor && fillColor)
-            beforeDraw = () => {
+            afterDraw = () => {
               setlineWidth()
               doc.fillAndStroke(fillColor, strokeColor)
             }
           else {
             if (fillColor)
-              beforeDraw = () => {
+              afterDraw = () => {
                 doc.fill(fillColor)
               }
             else {
-              beforeDraw = () => {
+              afterDraw = () => {
                 setlineWidth()
                 doc.stroke(strokeColor)
               }
@@ -359,8 +351,8 @@ export class CatalogPreviewComponent implements OnChanges, AfterViewInit {
                 drawer.data = path.d
                 drawer.transform(m)
 
-                beforeDraw()
                 doc.path(drawer.data)
+                afterDraw()
 
                 text = i.text.text
                 const ox = doc.widthOfString(text) / 2
@@ -454,10 +446,16 @@ export class CatalogPreviewComponent implements OnChanges, AfterViewInit {
     y = 0
     const pages: any[] = []
     let td: TextDesc
+    const lastRow = row
     for (collection of collections) {
       pages.push({ y: y })
       for (row of collection.rows) {
-        this.spaceBetween(config.left, rowDesc.row[0], row)
+        if(row != lastRow){
+          this.spaceBetween(config.left, rowDesc.row[0], row)
+        }
+        else {
+          this.spaceGap(config.left, ig, row)
+        }
         for (item of row) {
           td = item.text
           s = item.scale
@@ -506,6 +504,15 @@ export class CatalogPreviewComponent implements OnChanges, AfterViewInit {
     return result
   }
 
+  private spaceGap(x: number, gap: number, items: RowItem[]) {
+    let i: RowItem
+    let b: IRect
+    for (i of items) {
+      b = i.bounds
+      b.x = x
+      x += b.width + gap
+    }
+  }
   private spaceBetween(x: number, width: number, items: RowItem[]) {
     if (items.length < 1)
       return false

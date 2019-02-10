@@ -1,7 +1,7 @@
 import { Injectable, EventEmitter, Output, Input } from '@angular/core';
 import { SvgHostDirective } from "./svg-host/svg-host.directive";
 import { SvgDefsComponent } from "./svg-defs/svg-defs.component";
-import { ISymbol, DrawStyleCollection } from "ng-svg/core";
+import { ISymbol, DrawStyleCollection, DrawStyle } from "ng-svg/core";
 @Injectable({
   providedIn: 'root'
 })
@@ -56,7 +56,6 @@ export class FactoryService {
       this.setInitialized(init)
     }
   }
-
   addStyles(styles: DrawStyleCollection) {
     this._defComponent.addStyles(styles)
   }

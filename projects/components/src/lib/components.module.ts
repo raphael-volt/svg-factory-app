@@ -7,31 +7,41 @@ import { NgSvgModule } from "ng-svg";
 import { TspdfModule } from "tspdf";
 import { CommonModule as _CommonModule } from "common";
 import { SVGComponentsModule } from "ng-svg/components";
+import { ChangeDetectionModule } from 'change-detection';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ColorPickerModule } from "./color-picker/color-picker.module";
 
 import { ApiService } from "./services/api.service";
+import { PrintConfigService } from "./print/config/print-config-service";
+import { ConfigService } from "./services/config.service";
+import { SymbolService } from './services/symbol.service';
+
+import { SymbolListComponent, SymbolListBaseComponent, PathListComponent } from './symbol-list/symbol-list.component';
 
 import { ListComponent } from "./list/list.component";
-import { LoginComponent } from './login/login.component';
-import { ConfigComponent } from "./config/config.component";
-import { ConfigService } from "./services/config.service";
-
-import { FormControllerBase } from "./form-controllers/form-controller-base";
-import { SymbolListComponent, SymbolListBaseComponent, PathListComponent } from './symbol-list/symbol-list.component';
-import { ChangeDetectionModule } from 'change-detection';
 import { PathEditorComponent } from './path-editor/path-editor.component';
 import { SymbolSelectorComponent } from './symbol-selector/symbol-selector.component';
-import { ColorPickerModule } from "./color-picker/color-picker.module";
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { SymbolNamePipe } from './symbol-list/symbol-name.pipe';
+
 import { CatalogComponent } from './catalog/catalog.component';
+import { CatalogPreviewComponent, SVGNSDirective } from './catalog/catalog-preview/catalog-preview.component';
+
+import { LoginComponent } from './login/login.component';
+import { ConfigComponent } from "./config/config.component";
+import { FormControllerBase } from "./form-controllers/form-controller-base";
+
+import { PrintComponent } from './print/print.component';
+import { PrintConfigComponent } from "./print/config/print-config.component";
+import { PrintConfigEditorComponent, PrintConfigRendererComponent } from './print/config/print-config-editor.component';
+import { PrintPreviewComponent } from './print/print-preview/print-preview.component';
+
 import { MarginsEditorComponent } from './form-controllers/margins-editor/margins-editor.component';
 import { DrawStyleEditorComponent } from './form-controllers/draw-style-editor/draw-style-editor.component';
 import { LayoutEditorComponent } from './form-controllers/layout-editor/layout-editor.component';
 import { TextStyleEditorComponent } from './form-controllers/text-style-editor/text-style-editor.component';
 import { PageRowEditorComponent } from './form-controllers/page-row-editor/page-row-editor.component';
-import { CatalogPreviewComponent, SVGNSDirective } from './catalog/catalog-preview/catalog-preview.component';
-import { SymbolService } from './services/symbol.service';
-import { PrintComponent } from './print/print.component';
+
+
+import { SymbolNamePipe } from './symbol-list/symbol-name.pipe';
 
 @NgModule({
   declarations: [
@@ -42,7 +52,11 @@ import { PrintComponent } from './print/print.component';
     ConfigComponent, PathEditorComponent, SymbolSelectorComponent, 
     PathListComponent, SymbolNamePipe, CatalogComponent,
     MarginsEditorComponent, DrawStyleEditorComponent, LayoutEditorComponent, TextStyleEditorComponent, PageRowEditorComponent, 
-    CatalogPreviewComponent, SVGNSDirective, PrintComponent
+    CatalogPreviewComponent, SVGNSDirective, 
+    PrintComponent, 
+    PrintPreviewComponent, 
+    PrintConfigComponent, 
+    PrintConfigEditorComponent, PrintConfigRendererComponent
   ],
   imports: [
     CommonModule,
@@ -63,7 +77,8 @@ import { PrintComponent } from './print/print.component';
   providers: [
     SymbolService, 
     ConfigService,
-    ApiService
+    ApiService,
+    PrintConfigService
   ],
   entryComponents: [
     LoginComponent,

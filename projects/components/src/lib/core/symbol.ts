@@ -19,7 +19,8 @@ const assignToPathData = (path: PathData, symbol: SVGSymbol): PathData => {
     path.data = symbol.data
     return path
 }
-export interface SymbolServiceConfig {
+export interface SymbolConfig {
+    version: number
     viewBox: IRect
     pathStyle: DrawStyle
 }

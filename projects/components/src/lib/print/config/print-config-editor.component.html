@@ -1,0 +1,6 @@
+<print-config-renderer *ngFor="let i of item.items; let j = index" 
+    [item]="i" [deletable]="item.items.length > 1"
+    (removeItem)="removeEditor(i)"
+    (numCopyChange)="numCopyChangeHandler($event)"
+    (sizeChange)="sizeChangeHandler($event)"
+    (mirroredChange)="mirroredChangeHandler($event)"></print-config-renderer>

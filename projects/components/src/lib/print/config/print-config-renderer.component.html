@@ -1,0 +1,23 @@
+<div class="ctrl-box content raised pad-16 br-4 on mat-form-field-auto">
+    <div [class.deletable]="deletable" class="fa-round-box medium remove warn delete-config" matRipple
+        matRippleCentered>
+        <fa-icon (click)="removeItem.next(item)" icon="times-circle"></fa-icon>
+    </div>
+    <mat-form-field>    
+        <mat-select placeholder="Taille en mm" [(ngModel)]="item.size" (ngModelChange)="sizeChange.next(item)">
+            <mat-option *ngFor="let size of sizeProvider" [value]="size">
+                {{size}}    
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+    <mat-form-field>
+        <mat-select placeholder="Copies" [(ngModel)]="item.numCopies" (ngModelChange)="numCopyChange.next(item)">
+            <mat-option *ngFor="let n of copyProvider" [value]="n">
+                {{n}}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+    <mat-slide-toggle [(ngModel)]="item.mirrored" (ngModelChange)="mirroredChange.next(item)">
+        Mirroir
+    </mat-slide-toggle>
+</div>

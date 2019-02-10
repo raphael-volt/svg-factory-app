@@ -37,7 +37,24 @@ export type DrawStyleCollection = {
     [accessor: string]: DrawStyle
 }
 export type SVGStyleCollection = {
-    [accessor: string]: DrawStyle|TextStyle
+    [accessor: string]: DrawStyle | TextStyle
+}
+
+const checkValue = (value: string): string => {
+    if (!value)
+        return NONE
+    return value
+}
+const stringifyStyles = (coll: DrawStyle | TextStyle) => {
+    let css: string[] = []
+    let row: string[]
+    for (const a in coll) {
+        row = []
+        for (const k in coll[a])
+            row.push(`${k}:${checkValue(coll[a][k])}`)
+        css.push(`.${a} {${row.join(";")}}`)
+    }
+    return css.join("\r\n")
 }
 
 export interface IClass {
@@ -69,4 +86,7 @@ export interface ISymbol {
     paths: Path[]
 }
 
-export { FixedArray, FixedStrings, FixedBooleans, FixedNumbers, NS_SVG, NS_XLINK, NONE, NON_SCALING_STROKE }
+
+export { FixedArray, FixedStrings, FixedBooleans, FixedNumbers, 
+    stringifyStyles, checkValue,
+    NS_SVG, NS_XLINK, NONE, NON_SCALING_STROKE }

@@ -1,12 +1,12 @@
 <div class="h-box">
-  <div class="h-item content pad-8 v-box">
+  <div class="h-item content pad-8 controls-container">
     <button color="accent" [disabled]="!hasSelection" mat-raised-button (click)="edit()">Modifier</button>
     <button color="accent" [disabled]="!hasSelection" mat-raised-button (click)="delete()">Supprimer</button>
     <button color="accent" mat-raised-button (click)="import()">Importer</button>
     <input #file type="file" accept=".svg" (change)="inputChange($event)">
     <draw-style-editor [data]="style" (change)="styleChanged($event)"></draw-style-editor>
   </div>
-  <div class="svg-list h-item f-w" mat-elevation-z4>
+  <div class="h-item f-w" mat-elevation-z4>
     <svg-symbol-list (selectedItemsChange)="selectionChanged($event)"></svg-symbol-list>
   </div>
 </div>

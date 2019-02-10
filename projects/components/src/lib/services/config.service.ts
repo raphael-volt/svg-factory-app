@@ -2,21 +2,23 @@ import { Injectable } from '@angular/core';
 import { LocalStorage } from "@ngx-pwa/local-storage";
 import { map } from "rxjs/operators";
 import { of, Observable } from "rxjs";
-import { SymbolServiceConfig } from '../core/symbol';
+import { SymbolConfig } from '../core/symbol';
 import { LayoutOrientation, LayoutNames, Margins } from 'tspdf';
 import { DrawStyle } from 'ng-svg/core';
 
 const CATALOG_CONFIG: string = 'catalog-config'
+const PRINT_CONFIG: string = 'print-config'
 const SYMBOL_CONFIG: string = "symbol-config"
-
-export interface ICatalogConfig {
+export interface IPrintConfig {
   version: number
   format: LayoutNames
   orientation: LayoutOrientation
   margins: Margins
-  itemGap: number
-  rowGap: number
   style: DrawStyle
+  itemGap: number
+}
+export interface ICatalogConfig extends IPrintConfig {
+  rowGap: number
   numRows: number
   textPadding: number
   fontSize: number
@@ -30,59 +32,52 @@ export class ConfigService {
 
   constructor(private storage: LocalStorage) { }
 
-  private print: any
+  private _print: IPrintConfig
+  private _printVersion: number = 2
+
   private _catalog: any
-  private catalogVersion: number = 1
-  
-  private _symbolConfig: SymbolServiceConfig
-  
-  get symbolConfig(): SymbolServiceConfig {
-    if (this._symbolConfig)
-      return this._symbolConfig
+  private _catalogVersion: number = 1
+
+  private _symbol: SymbolConfig
+  private _symbolVersion: number = 1
+
+  get symbolConfig(): SymbolConfig {
+    if (this._symbol)
+      return this._symbol
     return null
   }
 
-  getSymbolConfig(): Observable<SymbolServiceConfig> {
-    if(this._symbolConfig)
-      return of(this._symbolConfig)
-    return this.storage.getItem<SymbolServiceConfig>(SYMBOL_CONFIG).pipe(
-      map((item: SymbolServiceConfig) => {
-        if(item == null) {
-          item = {
-            viewBox: {
-              width:200,
-              height: 200
-            },
-            pathStyle: {
-              'fill': "#000000",
-              'stroke': '',
-              'stroke-width': '0'
-            }
+  getSymbolConfig(): Observable<SymbolConfig> {
+    if (this._symbol)
+      return of(this._symbol)
+    return this.storage.getItem<SymbolConfig>(SYMBOL_CONFIG).pipe(
+      map((item: SymbolConfig) => {
+        if (item == null || item.version != this._symbolVersion) {
+          if (!item)
+            item = this.getDeffaultSymbolConfig()
+          else {
+            item.version = this._symbolVersion
           }
           this.storage.setItemSubscribe(SYMBOL_CONFIG, item)
         }
-        this._symbolConfig = item
+        this._symbol = item
         return item
       })
     )
-  }
-  
-  saveSymbolConfig() {
-    this.storage.setItemSubscribe(SYMBOL_CONFIG, this._symbolConfig)
   }
 
   get catalog() {
     return this._catalog
   }
 
-  getCatalog() {
+  getCatalog(): Observable<ICatalogConfig> {
     if (this._catalog)
       return of(this._catalog)
 
     return this.storage.getItem<ICatalogConfig>(CATALOG_CONFIG)
       .pipe(
         map((config: any) => {
-          if(! config || config.version != this.catalogVersion) {
+          if (!config || config.version != this._catalogVersion) {
             config = this.getDefaultCatalog()
             this.storage.setItemSubscribe(CATALOG_CONFIG, config)
           }
@@ -91,56 +86,96 @@ export class ConfigService {
         })
       )
   }
-  getPrint() {
-    if (this.print)
-      return of(this.print)
-    return this.storage.getItem("catalog-config")
+
+  get print(): IPrintConfig {
+    return this._print
+  }
+
+  getPrint(): Observable<IPrintConfig> {
+    if (this._print)
+      return of(this._print)
+    return this.storage.getItem<IPrintConfig>(PRINT_CONFIG)
       .pipe(
-        map((config: any) => {
-          this.print = config
+        map((config: IPrintConfig) => {
+          if (!config || config.version != this._printVersion) {
+            if (config) {
+              config.version = this._printVersion
+              if(!config.itemGap) {
+                config.itemGap = 5
+              }
+            }
+            else {
+              config = this.getDefaultPrint()
+            }
+            this.savePrintSubscribe()
+          }
+          this._print = config
           return config
         })
       )
   }
 
-  savePrint() {
-    return this.storage.setItem("print-config", this.print.asCookie())
+
+  saveSymbolConfig() {
+    this.storage.setItemSubscribe(SYMBOL_CONFIG, this._symbol)
   }
+
+  savePrint() {
+    return this.storage.setItem(PRINT_CONFIG, this._print)
+  }
+
   savePrintSubscribe() {
-    return this.storage.setItemSubscribe("print-config", this.print.asCookie())
+    return this.storage.setItemSubscribe(PRINT_CONFIG, this._print)
   }
 
   saveCatlog() {
-    return this.storage.setItem("catalog-config", this._catalog)
+    return this.storage.setItem(CATALOG_CONFIG, this._catalog)
   }
+
   saveCatalogSubscribe() {
-    return this.storage.setItemSubscribe("catalog-config", this._catalog)
+    return this.storage.setItemSubscribe(CATALOG_CONFIG, this._catalog)
   }
 
-
-  getDefaultCatalog(): ICatalogConfig {
+  private getDefaultPrint(): IPrintConfig {
     return {
-      version: this.catalogVersion,
+      version: this._printVersion,
       format: "A4",
       orientation: "landscape",
+      itemGap: 5,
       margins: {
         top: 10,
         right: 10,
         bottom: 15,
         left: 10
       },
+      style: {
+        'fill': "none",
+        'stroke': '#000000',
+        'stroke-width': '1'
+      }
+    }
+  }
+
+  private getDefaultCatalog(): ICatalogConfig {
+    let config: any = Object.assign({}, this.getDefaultPrint())
+    return Object.assign(config, {
+      version: this._catalogVersion,
       itemGap: 8,
       rowGap: 12,
-      style: {
-        'fill': "#000000",
-        'stroke': '',
-        'stroke-width': '0'
-      },
       numRows: 4,
       textPadding: 7,
       fontSize: 9,
       textColor: "#333333",
       fontFamily: "Arial, Helvetica, sans-serif"
+    })
+  }
+
+  private getDeffaultSymbolConfig(): SymbolConfig {
+    const style = this.getDefaultPrint().style
+    return {
+      pathStyle: style,
+      version: this._printVersion,
+      viewBox: { x: 0, y: 0, width: 200, height: 200 }
     }
   }
 }
