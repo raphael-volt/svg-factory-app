@@ -1,5 +1,5 @@
 import { Injectable, isDevMode } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
+import { HttpClient, HttpHeaders, HttpParams, HttpInterceptor, HttpRequest, HttpHandler, HttpEvent } from "@angular/common/http";
 import { map, catchError } from "rxjs/operators";
 import { Observable, Observer } from "rxjs";
 import { LocalStorage } from "@ngx-pwa/local-storage";
@@ -32,11 +32,12 @@ export class ApiService {
     private http: HttpClient,
     private storage: LocalStorage
   ) { }
-
+  
   private url: string
   private _authorizing: boolean = false
   private _logedIn: boolean = false
-  private authData: string
+
+  private _authData: string
 
   get logedIn(): boolean {
     return this._logedIn
@@ -47,15 +48,15 @@ export class ApiService {
         throw "Authorization not validated"
     }
     this.url = user.api
-    this.authData = "Basic " + btoa(`${user.login}:${user.password}`)
+    this._authData = "Basic " + btoa(`${user.login}:${user.password}`)
   }
 
   private updateHeaders(options: HTTPRequestOptions) {
     if (!options)
       options = {}
     if (!options.headers)
-      options.headers = {}
-    options.headers['X-Auth'] = this.authData
+        options.headers = {}
+    options.headers["X-Auth"] = this._authData
     return options
   }
 
@@ -66,13 +67,13 @@ export class ApiService {
           obs.next(this._logedIn)
           obs.complete()
         }
-        if(isDevMode) {
+        if (isDevMode) {
 
         }
         this.storage.getItem<IUser>("user").subscribe(
           (user: IUser) => {
             if (!user) {
-              if(isDevMode) {
+              if (isDevMode) {
                 user = {
                   api: "http://localhost:4280",
                   login: "user",

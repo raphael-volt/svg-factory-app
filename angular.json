@@ -315,6 +315,41 @@
           }
         }
       }
+    },
+    "tinycolor": {
+      "root": "projects/tinycolor",
+      "sourceRoot": "projects/tinycolor/src",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/tinycolor/tsconfig.lib.json",
+            "project": "projects/tinycolor/ng-package.json"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/tinycolor/src/test.ts",
+            "tsConfig": "projects/tinycolor/tsconfig.spec.json",
+            "karmaConfig": "projects/tinycolor/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/tinycolor/tsconfig.lib.json",
+              "projects/tinycolor/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
     }
   },
   "defaultProject": "svg-factory-app"

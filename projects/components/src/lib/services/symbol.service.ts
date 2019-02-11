@@ -65,7 +65,10 @@ export class SymbolService {
     this.configService.saveSymbolConfig()
   }
 
-  getSymbolTarget(s: ISymbol) {
+  getSymbolTargetByRef(href:string): SVGSymbol {
+    return this.getSymbolTarget(this.getSymbolByRef(href))
+  }
+  getSymbolTarget(s: ISymbol): SVGSymbol {
     return this._symbols.find(
       t => {
         return (SYMBOL_PREFIX + t.id) == s.id
@@ -240,6 +243,7 @@ export class SymbolService {
         const i = this._symbols.indexOf(symbol)
         this._symbols.splice(i, 1)
         this.factory.deleteSymbol(this.getSymbol(symbol))
+        this.populatedChange.emit(true)
         return true;
       }))
   }
