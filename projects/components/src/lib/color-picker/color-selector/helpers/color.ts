@@ -1,8 +1,5 @@
-import * as _tinycolor from 'tinycolor2';
-
 import { Color } from './color.interfaces';
-
-const tinycolor = _tinycolor;
+import { tinycolor } from 'tinycolor';
 
 export function simpleCheckForValidColor(data) {
   const keysToCheck = ['r', 'g', 'b', 'a', 'h', 's', 'l', 'v'];

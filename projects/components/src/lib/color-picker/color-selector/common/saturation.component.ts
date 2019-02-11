@@ -3,7 +3,6 @@ import {
   Component,
   EventEmitter,
   Input,
-  NgModule,
   OnChanges,
   Output,
 } from '@angular/core';

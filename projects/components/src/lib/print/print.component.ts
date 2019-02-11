@@ -28,7 +28,7 @@ export class PrintComponent implements OnInit {
 
   @ViewChild(MatStepper)
   stepper: MatStepper
-  stepperIndex:number=0
+  stepperIndex: number = 0
 
   @ViewChild(SymbolListComponent)
   symbolList: SymbolListComponent
@@ -51,6 +51,15 @@ export class PrintComponent implements OnInit {
       })
     })
     */
+  }
+
+  reset() {
+    this.selectionChanged(this.symbolList.symbols.slice(0, 20))
+    this.selectionCtrl.updateValueAndValidity()
+    callLater(() => {
+      this.stepper.selectedIndex = 0
+    })
+
   }
 
   private _selectionChangedFlag: boolean = false

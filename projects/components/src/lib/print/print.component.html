@@ -17,7 +17,7 @@
         <button mat-raised-button matStepperNext>Next</button>
       </div>
       <div class="svg-list h-item f-w" mat-elevation-z4>
-        <svg-symbol-list (symbolsChange)="symbolsChange($event)" (selectedItemsChange)="selectionChanged($event)"
+        <svg-symbol-list (selectedItemsChange)="selectionChanged($event)"
           [selectedItems]="selectedSymbols"></svg-symbol-list>
       </div>
     </mat-step>

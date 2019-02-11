@@ -5,6 +5,7 @@ import { Use, DrawStyle } from 'ng-svg/core';
 import { SymbolService } from '../services/symbol.service';
 import { SymbolSelectorComponent } from '../symbol-selector/symbol-selector.component';
 import { SVGPath } from 'ng-svg/geom';
+import { Subscription } from 'rxjs';
 
 const dialogConfig = {
   disableClose: true,
@@ -23,14 +24,15 @@ export class ListComponent {
   @ViewChild("file")
   fileRef: ElementRef
   hasSelection: boolean = false
-  private selectedItems: Use[]
+  selectedItems: Use[]
   selectionChanged(items: Use[]) {
-    this.selectedItems = items
     this.hasSelection = (items && items.length > 0)
+    this.selectedItems = items
   }
   constructor(
     private dialog: MatDialog,
-    public service: SymbolService) {
+    public service: SymbolService,
+    private symbolService:SymbolService) {
       this.style = service.config.pathStyle
   }
   style: DrawStyle
@@ -43,8 +45,29 @@ export class ListComponent {
     ref.componentInstance.symbols = this.selectedItems
   }
 
-  delete() {
+  sending: boolean
 
+  delete() {
+    this.sending = true
+    const items = this.selectedItems.slice()
+    this.selectedItems = []
+    let sub:Subscription
+    const next = ()=>{
+      if(items.length) {
+        const u = items.shift()
+        
+        sub = this.symbolService.delete(this.service.getSymbolTargetByRef(u.href))
+        .subscribe(v=>{
+          sub.unsubscribe()
+          next()
+        })
+      }
+      else {
+        this.sending = false
+      }
+
+    }
+    next()
   }
 
   import() {
@@ -72,6 +95,7 @@ export class ListComponent {
     ref.componentInstance.pathCollection = this.service.findPath(<string>(reader.result))
     ref.componentInstance.selectAll()
     const done = (result) => {
+      this.sending = false
       if (sub)
         sub.unsubscribe()
       if (result !== true) {
@@ -79,6 +103,7 @@ export class ListComponent {
         alert(result)
       }
     }
+    this.sending = true
     const sub = ref.afterClosed().subscribe((items: SVGPath[]) => {
       sub.unsubscribe()
       this.service.registerPathCollection(items)

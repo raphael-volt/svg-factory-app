@@ -5,7 +5,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 import { simpleCheckForValidColor, toState } from './helpers/color';
 import { Color, HSLA, HSVA, RGBA } from './helpers/color.interfaces';
-import * as tinycolor from 'tinycolor2';
+import { tinycolor } from 'tinycolor';
 
 export interface ColorEvent {
   $event: Event;
