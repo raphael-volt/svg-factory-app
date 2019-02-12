@@ -1,20 +1,35 @@
 // Modules to control application life and create native browser window
-const {app, BrowserWindow} = require('electron')
+const { app, BrowserWindow } = require('electron')
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
 
-function createWindow () {
+function createWindow() {
   // Create the browser window.
-  mainWindow = new BrowserWindow({width: 800, height: 600})
-
+  mainWindow = new BrowserWindow({
+    width: 800, height: 600,
+    icon: 'src/assets/icons/64x64.png',
+    fullscreenable: true
+  })
+/*
+,
+    backgroundColor: '#312450',
+    show: false,
+    icon: path.join(__dirname, 'src/assets/icons/64x64.png')
+    */
   // and load the index.html of the app.
-  mainWindow.loadFile('./dist/web-app/index.html')
+  mainWindow.loadFile('./dist/svg-factory-app/index.html')
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()
-
+  /*
+  ",
+    "electronPackagerConfig": {
+      "icon": "./assets/icons/1024x1024.png",
+      "setupIcon": "./favicon.ico"
+    },
+    */
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
     // Dereference the window object, usually you would store windows

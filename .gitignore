@@ -44,3 +44,7 @@ Thumbs.db
 
 # NPM
 package-lock.json
+
+# Build packages and installers
+svg-factory-app-*/
+release-builds/
