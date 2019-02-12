@@ -1,6 +1,4 @@
 import { Matrix, MATRIX_LENGTH } from "./matrix";
-import { IRect } from './rect';
-import { FixedNumbers } from 'ng-svg/core';
 
 const COMMA: string = ","
 const _MATRIX_RE: RegExp = new RegExp(`^matrix\s*\((.*)\)$`)
@@ -64,10 +62,10 @@ const strings2numbers = (inputs: string[], output: number[] = null): number[] =>
     return output
 }
 
-const getViewBox = (data: string): FixedNumbers<4> => {
+const getViewBox = (data: string): [number, number, number, number] => {
     let inputs = split(data)
     if (inputs.length == 4) {
-        return inputs.map(value => Number(value)) as FixedNumbers<4>
+        return inputs.map(value => Number(value)) as [number, number, number, number]
     }
     return null
 }
