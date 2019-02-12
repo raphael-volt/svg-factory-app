@@ -9,7 +9,7 @@ let mainWindow
 function createWindow() {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 800, height: 600,
+    width: 1200, height: 800,
     icon: 'src/assets/icons/64x64.png',
     fullscreenable: true
   })
