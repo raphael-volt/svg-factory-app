@@ -1,7 +1,6 @@
-import { FixedNumbers } from "ng-svg/core";
 import { Coord } from "./point";
 export const MATRIX_LENGTH: number = 6
-export type MatrixArray = FixedNumbers<6>;
+export type MatrixArray = [number, number, number, number, number, number]
 export type PartialMatrixArray = [number?, number?, number?, number?, number?, number?];
 const IDENTITY: MatrixArray = [1, 0, 0, 1, 0, 0]
 export enum MATRIX_ALIASES {
