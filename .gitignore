@@ -45,6 +45,9 @@ Thumbs.db
 # NPM
 package-lock.json
 
+# YARN
+yarn.lock
+
 # Build packages and installers
 svg-factory-app-*/
 release-builds/
