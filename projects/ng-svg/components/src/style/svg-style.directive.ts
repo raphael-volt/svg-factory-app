@@ -6,7 +6,7 @@ export class SvgStyleDirective {
 
   @Input()
   set svgStyle(value: string) {
-      this.style.textContent = value
+      this.style.innerHTML = value
   }
 
   private style: SVGStyleElement

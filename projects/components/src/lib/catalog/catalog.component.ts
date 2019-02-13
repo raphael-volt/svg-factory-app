@@ -44,26 +44,36 @@ export class CatalogComponent implements OnDestroy {
 
   private setCatalogConfig(config: ICatalogConfig) {
     this.config = config
+    this.configChanged = true
     this.configDiffer = this.differService.create(config)
     this.differSuscription = this.configDiffer.events.subscribe(event => {
       this.configChanged = true
     })
-    if (this.fontList.indexOf(config.fontFamily) < 0) {
+    if (this.fontList.indexOf(config.fontFamily) > -1) {
+      this.previewUpdate()
+    }
+    else {
       config.fontFamily = this.fontList[0]
       this.saveCatalogConfig()
     }
   }
 
-  saveCatalogConfig(data?: any) {
-    this.configDiffer.doCheck()
-    if (this.configChanged) {
-      this.storage.saveCatalogSubscribe()
-      if (this.preview)
-        this.preview.update()
+  private previewUpdate() {
+    if (this.preview) {
+      this.preview.update()
       this.configChanged = false
     }
   }
-  
+
+  saveCatalogConfig(data?: any) {
+    if (this.configDiffer)
+      this.configDiffer.doCheck()
+    if (this.configChanged) {
+      this.storage.saveCatalogSubscribe()
+      this.previewUpdate()
+    }
+  }
+
   savePDF() {
     const sub = this.preview.savePDF("catalog.pdf")
       .subscribe(success => {
