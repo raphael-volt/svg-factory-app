@@ -4,7 +4,7 @@
         <nav mat-tab-nav-bar>
             <a mat-tab-link *ngFor="let link of navLinks" [routerLink]="link.path" routerLinkActive #rla="routerLinkActive"
                 [active]="rla.isActive">
-                {{link.label}} <fa-icon style="margin-left: 10px; font-size: 20px" icon="{{link.icon}}"></fa-icon>
+                        {{link.label}} <i class="material-icons">{{link.icon}}</i>
             </a>
         </nav>
     </div>

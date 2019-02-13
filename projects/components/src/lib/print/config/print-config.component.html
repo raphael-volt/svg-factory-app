@@ -1,13 +1,17 @@
 <div>
   <div *ngFor="let config of configs" class="h-box config-editor content raised pad-16 br-4">
     <div (click)="remove(config)" class="fa-round-box big remove warn" matRipple matRippleCentered>
-      <fa-icon icon="times-circle"></fa-icon>
+      <i class="material-icons">
+        highlight_off
+      </i>
     </div>
     <div class="svg-box">
       <svg-renderer [use]="config.use"></svg-renderer>
     </div>
     <div (click)="addEditor(config)" class="ctrl-box fa-round-box big on accent" matRipple matRippleCentered>
-      <fa-icon icon="plus-circle"></fa-icon>
+      <i class="material-icons">
+        add_circle_outline
+      </i>
     </div>
     <print-config-editor [item]="config"></print-config-editor>
   </div>
