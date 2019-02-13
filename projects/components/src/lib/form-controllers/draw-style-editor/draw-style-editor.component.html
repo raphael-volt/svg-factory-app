@@ -3,7 +3,7 @@
     <label>Motif</label>
     <div class="form-item">
       <mat-form-field>
-        <color-picker placeholder="Couleur fond" formControlName="fill" [(ngModel)]="data.fill"></color-picker>
+        <color-picker placeholder="Couleur fond" formControlName="fill"></color-picker>
       </mat-form-field>
       <mat-error *ngIf="formGroup.controls.fill.invalid">
         {{getErrorMessage(formGroup.controls.fill)}}
@@ -11,7 +11,7 @@
     </div>
     <div class="form-item">
       <mat-form-field>
-        <color-picker placeholder="Couleur contour" formControlName="stroke" [(ngModel)]="data.stroke"></color-picker>
+        <color-picker placeholder="Couleur contour" formControlName="stroke"></color-picker>
       </mat-form-field>
       <mat-error *ngIf="formGroup.controls.stroke.invalid">
         {{getErrorMessage(formGroup.controls.stroke)}}
@@ -19,7 +19,7 @@
     </div>
     <div class="form-item">
       <mat-form-field>
-        <input placeholder="Épaisseur contour (pt)" matInput type="number" formControlName="strokeWidth" [(ngModel)]="data['stroke-width']">
+        <input placeholder="Épaisseur contour (pt)" matInput type="number" formControlName="strokeWidth">
         <mat-error *ngIf="formGroup.controls.strokeWidth.invalid">
           {{getErrorMessage(formGroup.controls.strokeWidth)}}
         </mat-error>

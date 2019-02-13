@@ -3,21 +3,21 @@
     <label>Page</label>
     <div class="form-item">
       <label>Format:</label>
-      <mat-radio-group class="form-item" formControlName="format" [(ngModel)]="data.format">
+      <mat-radio-group class="form-item" formControlName="format">
         <mat-radio-button class="example-margin" value="A4">A4</mat-radio-button>
         <mat-radio-button class="example-margin" value="A3">A3</mat-radio-button>
       </mat-radio-group>
     </div>
     <div class="form-item">
       <label>Orientation:</label>
-      <mat-radio-group class="form-item" formControlName="orientation" [(ngModel)]="data.orientation">
+      <mat-radio-group class="form-item" formControlName="orientation">
         <mat-radio-button value="portrait">portrait</mat-radio-button>
         <mat-radio-button value="landscape">paysage</mat-radio-button>
       </mat-radio-group>
     </div>
     <div class="form-item" *ngIf="itemGapEditable">
       <mat-form-field>
-        <input matInput required type="number" [(ngModel)]="data.itemGap" placeholder="Éspacement motif" formControlName="itemGap">
+        <input matInput required type="number" placeholder="Éspacement motif" formControlName="itemGap">
       </mat-form-field>
       <mat-error *ngIf="formGroup.controls.itemGap.invalid">
         {{getErrorMessage(formGroup.controls.itemGap)}}
