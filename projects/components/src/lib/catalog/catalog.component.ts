@@ -44,14 +44,14 @@ export class CatalogComponent implements OnDestroy {
 
   private setCatalogConfig(config: ICatalogConfig) {
     this.config = config
-    if (this.fontList.indexOf(config.fontFamily) < 0) {
-      config.fontFamily = this.fontList[0]
-      this.saveCatalogConfig()
-    }
     this.configDiffer = this.differService.create(config)
     this.differSuscription = this.configDiffer.events.subscribe(event => {
       this.configChanged = true
     })
+    if (this.fontList.indexOf(config.fontFamily) < 0) {
+      config.fontFamily = this.fontList[0]
+      this.saveCatalogConfig()
+    }
   }
 
   saveCatalogConfig(data?: any) {
