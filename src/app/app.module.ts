@@ -7,6 +7,7 @@ import { ComponentsModule, AppMaterialModule } from "components";
 import { AppComponent } from './app.component';
 import { RoutingModule } from "./core/routing.module";
 import { SVGComponentsModule } from "ng-svg/components";
+import { MatIconModule, MatIconRegistry } from '@angular/material';
 
 @NgModule({
   declarations: [
@@ -15,6 +16,7 @@ import { SVGComponentsModule } from "ng-svg/components";
   imports: [
     BrowserModule,
     CommonModule,
+    MatIconModule,
     BrowserAnimationsModule,
     ComponentsModule,
     AppMaterialModule,

@@ -1,4 +1,5 @@
 .ctrl-box {
+  position: relative;
   margin-right: 16px;
   order: 0;
   flex: 0 0 auto;
@@ -12,8 +13,9 @@
     transition-duration: 600ms;
   }
   > .remove {
-    flex: 0 0 auto;
-    align-self: flex-end;
+    position: absolute;
+    top: 1px;
+    right: 1px;
   }
   &.on > * {
     transform: translateX(0%);

@@ -93,12 +93,12 @@ const routes: Routes = [
             <IAppRoute>{
                 path: 'list', component: ListComponent,
                 label: 'Motifs',
-                icon: 'th-list'
+                icon: 'view_comfy'
             },
             <IAppRoute>{
                 path: 'catalog', component: CatalogComponent,
                 label: 'Catalogue',
-                icon: 'book-open'
+                icon: 'library_books'
             },
             <IAppRoute>{
                 path: 'print', component: PrintComponent,
@@ -108,7 +108,7 @@ const routes: Routes = [
             <IAppRoute>{
                 path: 'config', component: ConfigComponent, canDeactivate: [AppGuard],
                 label: 'Config',
-                icon: 'cogs'
+                icon: 'settings'
             },
             {
                 path: '',
