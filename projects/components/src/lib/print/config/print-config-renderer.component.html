@@ -1,12 +1,14 @@
 <div class="ctrl-box content raised pad-16 br-4 on mat-form-field-auto">
     <div [class.deletable]="deletable" class="fa-round-box medium remove warn delete-config" matRipple
         matRippleCentered>
-        <fa-icon (click)="removeItem.next(item)" icon="times-circle"></fa-icon>
+        <i (click)="removeItem.next(item)" class="material-icons">
+            highlight_off
+        </i>
     </div>
-    <mat-form-field>    
+    <mat-form-field>
         <mat-select placeholder="Taille en mm" [(ngModel)]="item.size" (ngModelChange)="sizeChange.next(item)">
             <mat-option *ngFor="let size of sizeProvider" [value]="size">
-                {{size}}    
+                {{size}}
             </mat-option>
         </mat-select>
     </mat-form-field>
