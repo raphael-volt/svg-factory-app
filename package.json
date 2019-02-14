@@ -16,7 +16,7 @@
     "build:app": "ng build --prod --base-href=./",
     "build:app:electron": "ng build --prod --base-href=./ && npm run electron",
     "build:all": "npm run build:lib && npm run build:app",
-    "build:web": "ng build && http-server -p 4220 dist/svg-factory-app/",
+    "build:web": "ng build --vendor-source-map=false --source-map=false --base-href=/svg-app/",
     "build:watch": "ng build --prod --watch",
     "build:electron": "npm run build:all && npm run electron",
     "build:install": "rm -rf node_modules/ && warn install && npm run build:all",
