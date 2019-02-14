@@ -32,13 +32,12 @@ export class FormControllerBase<T> extends ErrorController implements OnDestroy,
 
     ngOnChanges(changes: SimpleChanges) {
         if (changes.data) {
-            this.patch()
+            this.patch(changes.data.currentValue)
         }
     }
 
-    private patch() {
+    protected patch(data: any) {
         if (this.formGroup) {
-            const data = this.data ? this.data : {}
             this.formGroup.patchValue(data)
             this.formGroup.updateValueAndValidity()
         }
@@ -48,23 +47,26 @@ export class FormControllerBase<T> extends ErrorController implements OnDestroy,
         const group = this.formBuilder.group(controlsConfig)
         this.changeSubscription = group.valueChanges.subscribe(value => {
             if (group.valid) {
-                Object.assign(this.data, value)
-                this.valueChanges(this.data)
+                this.valueChanges(value)
+                this.notifyValueChanges(this.data)
             }
         })
         this.statusSubscription = group.statusChanges.subscribe(value => {
             this.statusChanges(value)
         })
         this.formGroup = group
-        this.patch()
+        this.patch(this.data)
+    }
+    protected valueChanges(change: any) {
+        Object.assign(this.data, change)
     }
 
-    protected valueChanges(value: T) {
+    protected notifyValueChanges(value: T) {
         this.change.emit(value)
     }
     protected statusChanges(value) {
         const valid = (value == "VALID")
-        if(this.valid != valid) {
+        if (this.valid != valid) {
             this.valid = valid
             this.status.next(valid)
         }

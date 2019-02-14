@@ -14,7 +14,19 @@ export class DrawStyleEditorComponent extends FormControllerBase<DrawStyle> {
     return {
       fill: ['', [colorValidator()]],
       stroke: ['', [colorValidator()]],
-      strokeWidth: ['', [numberValidator()]]
+      "strokeWidth": ['', [numberValidator()]]
     }
+  }
+  protected patch(data) {
+    super.patch({
+      fill:data.fill,
+      stroke: data.stroke,
+      "strokeWidth": data["stroke-width"]
+    })
+  }
+  protected valueChanges(change) {
+    change["stroke-width"] = change.strokeWidth
+    delete change.strokeWidth
+    super.valueChanges(change)
   }
 }
