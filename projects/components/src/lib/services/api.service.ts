@@ -1,5 +1,5 @@
 import { Injectable, isDevMode } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams, HttpInterceptor, HttpRequest, HttpHandler, HttpEvent } from "@angular/common/http";
+import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { map, catchError } from "rxjs/operators";
 import { Observable, Observer } from "rxjs";
 import { LocalStorage } from "@ngx-pwa/local-storage";
@@ -21,6 +21,7 @@ export interface IUser {
   login: string
   password: string
   api: string
+  connected: boolean
 }
 
 @Injectable({
@@ -40,7 +41,7 @@ export class ApiService {
   private _authData: string
 
   get logedIn(): boolean {
-    return this._logedIn
+    return this.user ? this.user.connected:false
   }
   private setAuthdata(user: IUser) {
     if (!this._logedIn) {
@@ -67,20 +68,10 @@ export class ApiService {
           obs.next(this._logedIn)
           obs.complete()
         }
-        if (isDevMode) {
-
-        }
         this.storage.getItem<IUser>("user").subscribe(
           (user: IUser) => {
             if (!user) {
-              if (isDevMode) {
-                user = {
-                  api: "http://localhost:4280",
-                  login: "user",
-                  password: "password"
-                }
-              }
-              else return done()
+              return done()
             }
             this.login(user)
               .subscribe(done, done)
@@ -120,7 +111,8 @@ export class ApiService {
     this.setAuthdata(user)
     const done = (value: any): any => {
       this._authorizing = false
-      this.setAuthdata(this._user)
+      if(this._user)
+        this.setAuthdata(this._user)
       return value
     }
     return this.get({

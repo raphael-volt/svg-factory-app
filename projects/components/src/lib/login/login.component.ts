@@ -17,7 +17,8 @@ export class LoginComponent implements OnInit {
   user: IUser = {
     login: "",
     password: "",
-    api: ""
+    api: "",
+    connected: false
   }
 
   ngOnInit() {
@@ -29,6 +30,7 @@ export class LoginComponent implements OnInit {
     this.http.login(this.user)
       .subscribe(
         success => {
+          this.user.connected = true
           this.error = null
           this.dialogRef.close(true)
         },
