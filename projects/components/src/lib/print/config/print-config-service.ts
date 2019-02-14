@@ -445,12 +445,14 @@ export class PrintConfigService {
         }
         if (!afterDraw)
             throw new Error("Invalide drawing style")
+        afterDraw()
         let pageY: number = 0
         const pathData: PathData = new PathData()
         let matrix: Matrix
         for (const tfm of this.currentUseTransforms) {
             if (pageY != tfm.offsetY) {
                 doc.addPage()
+                afterDraw()
                 pageY = tfm.offsetY
             }
             matrix = tfm.matrix.clone()
