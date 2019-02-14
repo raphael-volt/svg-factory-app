@@ -26,6 +26,9 @@
 
   /* Support for IE. */
   font-feature-settings: 'liga';
+  &.button {
+    cursor: pointer;
+  }
 }
 
 html {

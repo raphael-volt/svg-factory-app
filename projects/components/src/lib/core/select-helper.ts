@@ -28,8 +28,8 @@ export class SelectHelper<T> {
     }
 
     public checkEvent = (event: MouseEvent, item: T): T[] => {
-
-        return this.check(item, event.ctrlKey, event.shiftKey)
+        
+        return this.check(item, event.ctrlKey || event.metaKey, event.shiftKey)
     }
 
     public check(item: T, ctrlKey: boolean, shiftKey: boolean): T[] {

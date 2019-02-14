@@ -196,7 +196,7 @@ export class PrintConfigService {
         if (!ref)
             ref = this.getSymbolRef(use)
         const transforms = this.transforms
-
+        
         transforms.push({
             useRef: this.cloneUse(use, ref),
             use: use,
@@ -242,14 +242,15 @@ export class PrintConfigService {
     }
 
     private sortTransforms() {
+        /*
         this.transforms.sort((a: PrintConfigTransform, b: PrintConfigTransform) => {
+            
             if (a.item.size > b.item.size) {
                 return -1
             }
             if (a.item.size < b.item.size) {
                 return 1
             }
-            // same size
             if (a.item == b.item) {
                 if (!a.item.mirrored && b.mirrored) {
                     return -1
@@ -257,10 +258,11 @@ export class PrintConfigService {
                 if (a.item.mirrored && !b.mirrored) {
                     return 1
                 }
+                return 0
             }
             return 0
         })
-
+*/
     }
 
     private getSymbolRef(use: Use): ISymbolRef {
