@@ -21,7 +21,7 @@
     "build:electron": "npm run build:all && npm run electron",
     "build:install": "rm -rf node_modules/ && warn install && npm run build:all",
     "electron": "electron .",
-    "electron:pkg": "electron-packager . --overwrite"
+    "darwin:pkg": "electron-packager . --out=release-build --overwrite --platform=darwin --arch=x64 --icon=src/assets/icons/1024X1024.icns"
   },
   "private": true,
   "dependencies": {

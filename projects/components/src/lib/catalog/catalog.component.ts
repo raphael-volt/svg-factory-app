@@ -29,7 +29,9 @@ export class CatalogComponent implements OnDestroy {
   ) {
 
     pdfService.loadEmbededFonts()
-    this.fontList = pdfService.fontList
+    this.fontList = pdfService.fontList.filter(name=>{
+      return name.indexOf("Material Icons") == -1
+    })
 
     if (storage.catalog)
       this.setCatalogConfig(storage.catalog)
