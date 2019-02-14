@@ -1,7 +1,6 @@
 import { Component, EventEmitter } from '@angular/core';
 import { ApiService, IUser } from "../services/api.service";
 import { SymbolService } from "../services/symbol.service";
-import { Subscription } from "rxjs";
 import { FormBuilder, ValidatorFn, AbstractControl, Validators } from "@angular/forms";
 import { FormControllerBase } from '../form-controllers/form-controller-base';
 
@@ -30,9 +29,10 @@ export class ConfigComponent extends FormControllerBase<IUser> {
   constructor(
     private symbols: SymbolService,
     private api: ApiService,
-    private fb: FormBuilder
+    fb: FormBuilder
   ) {
     super(fb)
+    this.data = api.user
   }
   protected createControlsConfig() {
     return {
@@ -41,27 +41,9 @@ export class ConfigComponent extends FormControllerBase<IUser> {
       api: [0, [Validators.required, urlValidator()]]
     }
   }
-  private validSub: Subscription
   connected: boolean = false
   connectedChange: EventEmitter<boolean> = new EventEmitter<boolean>()
-  ngOnInit() {
-    super.ngOnInit()
-    this.data = this.api.user
-    this.setConnected(true)
-    this.validSub = this.formGroup.statusChanges.subscribe(
-      status => {
-        this.canConnect = status == "VALID"
-      }
-    )
-    this.canConnect = true
-  }
-  canConnect: boolean = false
   
-  ngOnDestroy() {
-    super.ngOnDestroy()
-    this.validSub.unsubscribe()
-  }
-
   private setConnected(value: boolean) {
     this.connected = value
     this.connectedChange.emit(value)

@@ -5,7 +5,7 @@
         <label>Configuration Serveur</label>
         <div class="form-item">
           <mat-form-field>
-            <input matInput required [(ngModel)]="data.login" placeholder="Login" formControlName="login">
+            <input matInput required placeholder="Login" formControlName="login">
           </mat-form-field>
           <mat-error *ngIf="formGroup.controls.login.invalid">
             {{getErrorMessage(formGroup.controls.login)}}
@@ -13,7 +13,7 @@
         </div>
         <div class="form-item">
           <mat-form-field>
-            <input matInput required type="password" [(ngModel)]="data.password" placeholder="Mot de passe"
+            <input matInput required type="password" placeholder="Mot de passe"
               formControlName="password">
           </mat-form-field>
           <mat-error *ngIf="formGroup.controls.password.invalid">
@@ -22,14 +22,14 @@
         </div>
         <div class="form-item">
           <mat-form-field>
-            <input matInput required [(ngModel)]="data.api" placeholder="Api url" formControlName="api">
+            <input matInput required placeholder="Api url" formControlName="api">
           </mat-form-field>
           <mat-error *ngIf="formGroup.controls.api.invalid">
             {{getErrorMessage(formGroup.controls.api)}}
           </mat-error>
         </div>
         <div class="form-item">
-          <button color="accent" class="save-button" [disabled]="!canConnect" mat-raised-button (click)="login()">Envoyer</button>
+          <button color="accent" class="save-button" [disabled]="!valid" mat-raised-button (click)="login()">Envoyer</button>
         </div>
       </div>
     </div>
