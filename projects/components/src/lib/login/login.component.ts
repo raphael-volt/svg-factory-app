@@ -1,52 +1,38 @@
-import { Component, OnInit } from '@angular/core';
-import { ApiService, IUser } from "../services/api.service";
+import { Component } from '@angular/core';
+import { IUser } from "../services/api.service";
 import { MatDialogRef } from "@angular/material";
-import { HttpErrorResponse } from "@angular/common/http";
+import { AuthService } from '../services/auth-service'
+import { HttpErrorResponse } from '@angular/common/http';
 @Component({
   selector: 'login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent {
 
   constructor(
-    private http: ApiService,
+    private auth: AuthService,
     private dialogRef: MatDialogRef<LoginComponent>
-  ) { }
-
-  user: IUser = {
-    login: "",
-    password: "",
-    api: "",
-    connected: false
+  ) {
+    this.user = auth.user
   }
 
-  ngOnInit() {
-  }
+  user: IUser
 
   error: string
 
   send() {
-    this.http.login(this.user)
+    const sub = this.auth.login(this.user)
       .subscribe(
         success => {
-          this.user.connected = true
-          this.error = null
+          sub.unsubscribe()
           this.dialogRef.close(true)
         },
         (error: HttpErrorResponse) => {
-          switch (error.status) {
-            case 404:
-              this.error = "L'API est inaccessible ( n'autorise pas la connexion )."
-              break;
-            case 401:
-              this.error = "Login ou mot de passe invalide."
-              break;
-
-            default:
-              this.error = error.statusText
-              break;
-          }
+          if (error.status == 401)
+            this.error = "Login ou mot de passe incorect."
+          else 
+            this.error = "Erreur serveur."
         }
       )
   }

@@ -39,9 +39,11 @@ import { DrawStyleEditorComponent } from './form-controllers/draw-style-editor/d
 import { LayoutEditorComponent } from './form-controllers/layout-editor/layout-editor.component';
 import { TextStyleEditorComponent } from './form-controllers/text-style-editor/text-style-editor.component';
 import { PageRowEditorComponent } from './form-controllers/page-row-editor/page-row-editor.component';
-
+import { UserEditorComponent, FormErrorDirective } from './form-controllers/user-editor/user-editor.component';
 
 import { SymbolNamePipe } from './symbol-list/symbol-name.pipe';
+import { AuthService } from './services/auth-service';
+import { ApiGuard } from './services/api-guard';
 
 @NgModule({
   declarations: [
@@ -51,7 +53,7 @@ import { SymbolNamePipe } from './symbol-list/symbol-name.pipe';
     SymbolListComponent, SymbolListBaseComponent,
     ConfigComponent, PathEditorComponent, SymbolSelectorComponent, 
     PathListComponent, SymbolNamePipe, CatalogComponent,
-    MarginsEditorComponent, DrawStyleEditorComponent, LayoutEditorComponent, TextStyleEditorComponent, PageRowEditorComponent, 
+    UserEditorComponent, FormErrorDirective, MarginsEditorComponent, DrawStyleEditorComponent, LayoutEditorComponent, TextStyleEditorComponent, PageRowEditorComponent, 
     CatalogPreviewComponent, SVGNSDirective, 
     PrintComponent, 
     PrintPreviewComponent, 
@@ -75,9 +77,12 @@ import { SymbolNamePipe } from './symbol-list/symbol-name.pipe';
     AppMaterialModule
   ],
   providers: [
+    AuthService,
     SymbolService, 
     ConfigService,
     ApiService,
+    ApiGuard,
+    AuthService,
     PrintConfigService
   ],
   entryComponents: [

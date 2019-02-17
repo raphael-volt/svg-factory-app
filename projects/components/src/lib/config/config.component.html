@@ -1,37 +1,13 @@
-<div class="h-box">
+<div class="h-box main">
   <div class="h-item content pad-8 controls-container">
-    <div class="controls h-item content">
-      <div #form="ngForm" [formGroup]="formGroup" class="form-item-group border content border br-4 pad-8">
-        <label>Configuration Serveur</label>
-        <div class="form-item">
-          <mat-form-field>
-            <input matInput required placeholder="Login" formControlName="login">
-          </mat-form-field>
-          <mat-error *ngIf="formGroup.controls.login.invalid">
-            {{getErrorMessage(formGroup.controls.login)}}
+    <user-editor [sendButton]="true" (submit)="editorSubmit($event)" [data]="auth.user">
+      <form-error *ngIf="errorMessage">
+        <div class="form-item" style="width:180px">
+          <mat-error>
+              {{errorMessage}}
           </mat-error>
         </div>
-        <div class="form-item">
-          <mat-form-field>
-            <input matInput required type="password" placeholder="Mot de passe"
-              formControlName="password">
-          </mat-form-field>
-          <mat-error *ngIf="formGroup.controls.password.invalid">
-            {{getErrorMessage(formGroup.controls.password)}}
-          </mat-error>
-        </div>
-        <div class="form-item">
-          <mat-form-field>
-            <input matInput required placeholder="Api url" formControlName="api">
-          </mat-form-field>
-          <mat-error *ngIf="formGroup.controls.api.invalid">
-            {{getErrorMessage(formGroup.controls.api)}}
-          </mat-error>
-        </div>
-        <div class="form-item">
-          <button color="accent" class="save-button" [disabled]="!valid" mat-raised-button (click)="login()">Envoyer</button>
-        </div>
-      </div>
-    </div>
+      </form-error>
+    </user-editor>
   </div>
 </div>

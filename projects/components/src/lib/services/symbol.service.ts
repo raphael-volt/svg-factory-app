@@ -38,7 +38,7 @@ export class SymbolService {
   public config: SymbolConfig
   constructor(
     private configService: ConfigService,
-    private http: ApiService,
+    private api: ApiService,
     private factory: FactoryService) {
 
     const config = configService.symbolConfig
@@ -121,7 +121,7 @@ export class SymbolService {
     }
   }
   refresh(): Observable<SVGSymbol[]> {
-    return this.http.get<SVGSymbol[]>().pipe(
+    return this.api.get<SVGSymbol[]>().pipe(
       map(symbols => {
         this._populating = false
         this._symbols = symbols
@@ -136,6 +136,7 @@ export class SymbolService {
       return
     this._populating = true
     const done = (symbols: SVGSymbol[]) => {
+      this.factory.clear()
       this.factory.addStyles(this.pathStyle)
       this._symbols = []
       for (const s of symbols) {
@@ -145,7 +146,7 @@ export class SymbolService {
       this._populating = false
       this.populatedChange.emit(true)
     }
-    let sub: Subscription = this.http.get<SVGSymbol[]>().subscribe(
+    let sub: Subscription = this.api.get<SVGSymbol[]>().subscribe(
       symbols => {
         sub.unsubscribe()
         if (this.factory.initialized)
@@ -176,12 +177,12 @@ export class SymbolService {
 
 
   getById(id: string): Observable<SVGSymbol> {
-    return this.http.get<SVGSymbol>({ params: { id: id } })
+    return this.api.get<SVGSymbol>({ params: { id: id } })
   }
 
   update(symbol: SVGSymbol): Observable<boolean> {
     const s = cloneSymbolForSave(symbol)
-    return this.http.put(s).pipe(
+    return this.api.put(s).pipe(
       map(response => {
         return true;
       }))
@@ -227,7 +228,7 @@ export class SymbolService {
 
   add(symbol: SVGSymbol, notifyChange: boolean = true): Observable<ISymbol> {
     const s = cloneSymbolForSave(symbol)
-    return this.http.post<SVGSymbol>(s).pipe(
+    return this.api.post<SVGSymbol>(s).pipe(
       map(result => {
         symbol.id = result.id
         const data = this.registerSymbol(symbol)
@@ -238,7 +239,7 @@ export class SymbolService {
   }
 
   delete(symbol: SVGSymbol): Observable<boolean> {
-    return this.http.delete<SVGSymbol>({ params: { id: String(symbol.id) } }).pipe(
+    return this.api.delete<SVGSymbol>({ params: { id: String(symbol.id) } }).pipe(
       map(result => {
         const i = this._symbols.indexOf(symbol)
         this._symbols.splice(i, 1)

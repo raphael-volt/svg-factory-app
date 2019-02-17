@@ -1,8 +1,8 @@
-import { Injectable, isDevMode } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
-import { map, catchError } from "rxjs/operators";
-import { Observable, Observer } from "rxjs";
-import { LocalStorage } from "@ngx-pwa/local-storage";
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders, HttpParams, HttpResponse } from "@angular/common/http";
+import { AuthService } from './auth-service';
+import { map } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 
 export interface HTTPRequestOptions {
   headers?: HttpHeaders | {
@@ -31,120 +31,38 @@ export class ApiService {
 
   constructor(
     private http: HttpClient,
-    private storage: LocalStorage
+    private auth: AuthService
   ) { }
-  
-  private url: string
-  private _authorizing: boolean = false
-  private _logedIn: boolean = false
 
-  private _authData: string
-
-  get logedIn(): boolean {
-    return this.user ? this.user.connected:false
-  }
-  private setAuthdata(user: IUser) {
-    if (!this._logedIn) {
-      if (!this._authorizing)
-        throw "Authorization not validated"
-    }
-    this.url = user.api
-    this._authData = "Basic " + btoa(`${user.login}:${user.password}`)
+  private get url(): string {
+    return this.auth.user.api
   }
 
   private updateHeaders(options: HTTPRequestOptions) {
-    if (!options)
-      options = {}
-    if (!options.headers)
-        options.headers = {}
-    options.headers["X-Auth"] = this._authData
-    return options
+    return this.auth.headers(options)
   }
 
-  checkCookie(): Observable<boolean> {
-    return Observable.create(
-      (obs: Observer<boolean>) => {
-        const done = (arg?: any) => {
-          obs.next(this._logedIn)
-          obs.complete()
-        }
-        this.storage.getItem<IUser>("user").subscribe(
-          (user: IUser) => {
-            if (!user) {
-              return done()
-            }
-            this.login(user)
-              .subscribe(done, done)
-          }
-        )
-      }
-    )
+  private map = <T>(event: HttpResponse<T>):T => {
+    return event.body
+  }
+  private pipe = <T>(obs:Observable<HttpResponse<T>>) => {
+    return obs.pipe(map(this.map))
   }
 
-  private _user: IUser
-  get user(): IUser {
-    return this._user
-  }
-  login(user: IUser) {
-    this._authorizing = true
-    this.setAuthdata(user)
-    return this.get({
-      params: {
-        login: "1"
-      }
-    }).pipe(
-      map(result => {
-        this._authorizing = false
-        this._logedIn = true
-        this.storage.setItemSubscribe("user", user)
-        this._user = user
-        return true
-      },
-        catchError(error => {
-          this._authorizing = false
-          return error
-        }))
-    )
+  get<T>(options?: HTTPRequestOptions): Observable<T> {
+    return this.http.get<T>(this.url, this.updateHeaders(options)) as Observable<any>
   }
 
-  loginCheck(user: IUser) {
-    this.setAuthdata(user)
-    const done = (value: any): any => {
-      this._authorizing = false
-      if(this._user)
-        this.setAuthdata(this._user)
-      return value
-    }
-    return this.get({
-      params: {
-        login: "1"
-      }
-    }).pipe(
-      map(
-        done,
-        catchError(done)
-      )
-    )
-  }
-
-  get<T>(options?: HTTPRequestOptions) {
-    options = this.updateHeaders(options)
-    return this.http.get<T>(this.url, options)
-  }
-
-  post<T>(body: T, options?: HTTPRequestOptions) {
-    options = this.updateHeaders(options)
-    return this.http.post<T>(this.url, body, options)
+  post<T>(body: T, options?: HTTPRequestOptions): Observable<T> {
+    return this.http.post<T>(this.url, body, this.updateHeaders(options)) as Observable<any>
   }
 
   put<T>(body: T, options?: HTTPRequestOptions) {
-    options = this.updateHeaders(options)
-    return this.http.put<T>(this.url, body, options)
+    return this.http.put<T>(this.url, body, this.updateHeaders(options))
   }
 
   delete<T>(options?: HTTPRequestOptions) {
-    options = this.updateHeaders(options)
-    return this.http.delete(this.url, options)
+    return this.http.delete(this.url, this.updateHeaders(options))
   }
 
 }
