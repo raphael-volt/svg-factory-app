@@ -2,12 +2,11 @@ import { Component, Input, OnChanges, SimpleChanges, ViewChild, ElementRef, Afte
 import { ICatalogConfig } from '../../services/config.service';
 import { Use, ISymbol, SVGStyleCollection, DrawStyle, NS_SVG, NONE, NON_SCALING_STROKE, TextStyle, Path, NS_XLINK, stringifyStyles } from 'ng-svg/core';
 import { SymbolService } from '../../services/symbol.service';
-import { Subscription, Observable, Observer } from 'rxjs';
+import { Subscription, Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { TspdfService, mm2px, getLayoutSizes, PDFWrapper, PDFDocument } from 'tspdf';
-import { encodeFont } from '../../core/font-encoder';
 import { IRect, Matrix, Coord, PathData } from 'ng-svg/geom';
-import { style } from '@angular/animations';
+import { callLater } from '../../core/call-later';
 
 const PATH_SELECTOR: string = "st0"
 const TEXT_SELECTOR: string = "st1"
@@ -69,6 +68,7 @@ export class CatalogPreviewComponent implements OnChanges, AfterViewInit {
   @Input()
   config: ICatalogConfig = null
 
+  styleSheet: SVGStyleCollection
   pageWidth: number
   pageHeight: number
 
@@ -90,8 +90,6 @@ export class CatalogPreviewComponent implements OnChanges, AfterViewInit {
     if (changes.config && this.config)
       this.update()
   }
-  fontCss: string = ""
-  stylesCss: string = ""
   viewBox: Use
   symbolsCollection: ISymbol[]
   pages: RectDesc[]
@@ -108,19 +106,14 @@ export class CatalogPreviewComponent implements OnChanges, AfterViewInit {
   update() {
     if (this._initializedFlag == false || !this.config)
       return
+    
     if (!this._elemntsCreated)
       this.createElements()
     this.updateStyles()
     if (this.fontChanged) {
-      const sub = this.updateFont().subscribe(
-        success => {
-          sub.unsubscribe()
-          this.updateDiplayList()
-        }
-      )
+      this.updateFont()
     }
-    else
-      this.updateDiplayList()
+    this.updateDiplayList()
   }
 
   private _elemntsCreated: boolean = false
@@ -177,41 +170,30 @@ export class CatalogPreviewComponent implements OnChanges, AfterViewInit {
     styles[RECT_SELECTOR] = drawStyle
 
     let textStyle: TextStyle = {
-      "font-family": `"${config.fontFamily + FONT_SUFIX}"`,
+      "font-family": config.fontFamily,
       "font-size": config.fontSize + PT,
       "fill": config.textColor
     }
     styles[TEXT_SELECTOR] = textStyle
 
-    this.stylesCss = stringifyStyles(styles)
+    this.styleSheet = styles
   }
 
   private get fontChanged(): boolean {
     const config = this.config
     return this._font != config.fontFamily
   }
-
+  embedFont: string
   private _font: string
-  private updateFont(): Observable<boolean> {
+  private updateFont() {
     const config = this.config
     this._font = config.fontFamily
-    const fontName: string = config.fontFamily + FONT_SUFIX
-    const url = this.pdfService.getFont(config.fontFamily).url
-    return encodeFont(url).pipe(
-      map(
-        data64 => {
-          this.fontCss = `
+    const font = this.pdfService.getFont(config.fontFamily)
+    this.embedFont = `
 @font-face {
-  font-family: '${fontName}';
-  src: url('data:application/font-ttf;base64,${data64}');
-  font-style: normal;
-  font-weight: normal;
+  ${font.cssText}
 }
 `
-          return true
-        }
-      )
-    )
   }
 
   private _updateDisplayListFlag: boolean = false
@@ -226,6 +208,7 @@ export class CatalogPreviewComponent implements OnChanges, AfterViewInit {
     }
   }
   private measureText: (text: string) => IRect
+  private reqAnim: boolean = false
   private updateDiplayList() {
     if (!this.svg) {
       this._updateDisplayListFlag = true
@@ -450,7 +433,7 @@ export class CatalogPreviewComponent implements OnChanges, AfterViewInit {
     for (collection of collections) {
       pages.push({ y: y })
       for (row of collection.rows) {
-        if(row != lastRow){
+        if (row != lastRow) {
           this.spaceBetween(config.left, rowDesc.row[0], row)
         }
         else {

@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { PrintConfigTransform, PrintConfig, PrintConfigItem } from './print-config';
-import { Use, ISymbol, stringifyStyles, DrawStyleCollection, NONE, checkValue } from 'ng-svg/core';
+import { Use, ISymbol, stringifyStyles, DrawStyleCollection, NONE, checkValue, SVGStyleCollection } from 'ng-svg/core';
 import { ConfigService, IPrintConfig } from '../../services/config.service';
 import { mm2px, getLayoutSizes, PDFWrapper, PDFDocument } from 'tspdf';
 import { SymbolService } from '../../services/symbol.service';
@@ -48,7 +48,7 @@ export class PrintConfigService {
     }
     public pageWidth: number = 0
     public pageHeight: number = 0
-    public cssStyle: string = ""
+    public styleSheet: SVGStyleCollection
     public readonly rectClass: string = RECT_SELECTOR
 
     private _config: IPrintConfig
@@ -297,7 +297,7 @@ export class PrintConfigService {
                 stroke: "#666",
                 "stroke-width": "1pt"
             }
-            this.cssStyle = stringifyStyles(collection)
+            this.styleSheet = collection
         }
     }
 

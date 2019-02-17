@@ -10,8 +10,7 @@
   <div class="h-item f-w">
     <div class="main">
       <svg #svg svgNS [svgViewBox]="service.viewBox">
-        <defs>
-          <style [svgStyle]="service.cssStyle"></style>
+        <defs [styleSheet]="service.styleSheet">
           <symbol *ngFor="let s of service.symbols" [svgSymbol]="s">
             <path *ngFor="let p of s.paths" nonScalingStroke [svgPath]="p" />
           </symbol>
