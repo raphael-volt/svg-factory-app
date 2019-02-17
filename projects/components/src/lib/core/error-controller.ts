@@ -7,10 +7,12 @@ export class ErrorController {
           return "no error"
         let messages = []
         for (let k in control.errors) {
-          const e: ValidationErrors = control.errors[k]
+          const e: any = control.errors[k]
           if (k == "required")
             k = "requis"
-          if (e.value)
+          if(typeof e == "string")
+            messages.push(e)
+          else if (e.value)
             messages.push(k + ":" + e.value)
           else
             messages.push(k)
