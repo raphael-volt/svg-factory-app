@@ -27,12 +27,12 @@ export class CatalogComponent implements OnDestroy {
     pdfService: TspdfService,
     private differService: DepthDifferService
   ) {
-
     pdfService.loadEmbededFonts()
+    
     this.fontList = pdfService.fontList.filter(name=>{
       return name.indexOf("Material Icons") == -1
     })
-
+    
     if (storage.catalog)
       this.setCatalogConfig(storage.catalog)
     else {
@@ -41,7 +41,6 @@ export class CatalogComponent implements OnDestroy {
         this.setCatalogConfig(config)
       })
     }
-
   }
 
   private setCatalogConfig(config: ICatalogConfig) {
@@ -81,10 +80,6 @@ export class CatalogComponent implements OnDestroy {
       .subscribe(success => {
         sub.unsubscribe()
       })
-  }
-
-  saveSVG() {
-    this.preview.saveSVG("catalog.svg")
   }
 
   ngOnDestroy() {

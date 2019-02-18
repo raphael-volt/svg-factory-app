@@ -2,7 +2,6 @@
   <div class="h-item content pad-8 controls-container">
     <div class="button-container">
       <button color="accent" mat-raised-button (click)="savePDF()">Créer PDF</button>
-      <button color="accent" mat-raised-button (click)="saveSVG()">Créer SVG</button>
     </div>
     <layout-editor [data]="config" (change)="saveCatalogConfig($event)"></layout-editor>
     <margins-editor [data]="config.margins" (change)="saveCatalogConfig($event)"></margins-editor>

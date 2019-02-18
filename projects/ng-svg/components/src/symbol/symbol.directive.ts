@@ -5,10 +5,11 @@ import { ISymbol } from "ng-svg/core";
   host: {
     '[attr.id]':'svgSymbol.id',
     '[attr.viewBox]':'svgSymbol.viewBox',
+    '[attr.overflow]':'"visible"'
   }
 })
 export class SymbolDirective {
-
+  
   @Input()
   svgSymbol: ISymbol
   constructor() { }

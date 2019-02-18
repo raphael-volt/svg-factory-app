@@ -41,14 +41,17 @@ const checkValue = (value: string): string => {
         return NONE
     return value
 }
-const stringifyStyles = (coll: DrawStyle | TextStyle) => {
+const stringifyStyle = (style: DrawStyle | TextStyle) => {
+    const l: string[] = []
+    for(const k in style) {
+        l.push(`${k}:${checkValue(style[k])}`)
+    }
+    return l.join(";")
+}
+const stringifyStyles = (coll: SVGStyleCollection) => {
     let css: string[] = []
-    let row: string[]
     for (const a in coll) {
-        row = []
-        for (const k in coll[a])
-            row.push(`${k}:${checkValue(coll[a][k])}`)
-        css.push(`.${a} {${row.join(";")}}`)
+        css.push(`.${a} {${stringifyStyle(coll[a])}}`)
     }
     return css.join("\r\n")
 }
@@ -84,6 +87,6 @@ export interface ISymbol {
 
 
 export {
-    stringifyStyles, checkValue,
+    stringifyStyles, stringifyStyle, checkValue,
     NS_SVG, NS_XLINK, NONE, NON_SCALING_STROKE 
 }

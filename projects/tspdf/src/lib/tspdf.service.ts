@@ -7,7 +7,8 @@ export interface IFont {
   data?: string | ArrayBuffer
   url?: string
   weight?: string,
-  style?: string
+  style?: string,
+  cssText?: string
 }
 export interface IFontCollection {
   [name: string]: IFont
@@ -76,11 +77,15 @@ export class TspdfService {
           if (rule.type == FONT_FACE_TYPE) {
             s = rule.style
             const font: IFont = {}
+            const ff = s.getPropertyValue('font-family')
+            const fs = s.getPropertyValue('font-style')
+            const fw = s.getPropertyValue('font-weight')
             font.url = getFontUrl(s.getPropertyValue("src"))
             if (font.url !== undefined) {
-              font.name = s.fontFamily
-              font.weight = s.fontWeight || 'normal'
-              font.style = s.fontStyle || 'normal'
+              font.cssText = s.cssText
+              font.name = ff
+              font.weight = fw || 'normal'
+              font.style = fs || 'normal'
               fonts[font.name] = font
             }
           }

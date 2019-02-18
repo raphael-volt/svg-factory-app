@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, Input } from '@angular/core';
 import { FactoryService } from "../factory.service";
-import { ISymbol, DrawStyleCollection, NONE, stringifyStyles } from "ng-svg/core";
+import { ISymbol, DrawStyleCollection, NONE, stringifyStyles, SVGStyleCollection } from "ng-svg/core";
+import { SvgStyleSheetDirective } from '../style/svg-style-sheet.directive';
 
 @Component({
   selector: 'svg-defs',
@@ -9,7 +10,8 @@ import { ISymbol, DrawStyleCollection, NONE, stringifyStyles } from "ng-svg/core
 })
 export class SvgDefsComponent implements OnInit {
 
-  css: string = ""
+  @ViewChild(SvgStyleSheetDirective)
+  sheet: SvgStyleSheetDirective
   symbols: ISymbol[] = []
   constructor(public factory: FactoryService) {
     factory.registerDefs(this)
@@ -18,19 +20,31 @@ export class SvgDefsComponent implements OnInit {
   ngOnInit() {
   }
 
-  private stylesCollection: DrawStyleCollection[] = []
+  private stylesCollection: SVGStyleCollection[] = []
 
   addStyles(styles: DrawStyleCollection) {
-    this.stylesCollection.push(styles)
-    this.updateCss()
+    const l = this.stylesCollection
+    if(l.indexOf(styles) == -1) {
+      this.stylesCollection.push(styles)
+      this.updateCss()
+    }
   }
+
+  clear() {
+    this.stylesCollection.length = 0
+  }
+
+  styleSheet: SVGStyleCollection
 
   updateCss() {
     let css: string[] = []
+    let sheet: SVGStyleCollection = {}
     for (const coll of this.stylesCollection) {
-      css.push(stringifyStyles(coll))
+      for( const a in coll) {
+        sheet[a] = coll[a]
+      }
     }
-    this.css = css.join("\r\n")
+    this.styleSheet = sheet
   }
 
 }

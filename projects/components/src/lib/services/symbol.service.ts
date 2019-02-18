@@ -136,7 +136,6 @@ export class SymbolService {
       return
     this._populating = true
     const done = (symbols: SVGSymbol[]) => {
-      this.factory.clear()
       this.factory.addStyles(this.pathStyle)
       this._symbols = []
       for (const s of symbols) {
