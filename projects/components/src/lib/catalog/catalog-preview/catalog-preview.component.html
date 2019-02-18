@@ -1,6 +1,6 @@
 <div class="main">
   <svg #svg svgNS [svgViewBox]="viewBox">
-    <defs [styleSheet]="styleSheet" [embedFont]="embedFont">
+    <defs [styleSheet]="styleSheet">
       <symbol *ngFor="let s of symbolsCollection" [svgSymbol]="s">
         <path *ngFor="let p of s.paths" nonScalingStroke [svgPath]="p"/>
       </symbol>

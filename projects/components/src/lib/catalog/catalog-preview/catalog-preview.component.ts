@@ -110,9 +110,6 @@ export class CatalogPreviewComponent implements OnChanges, AfterViewInit {
     if (!this._elemntsCreated)
       this.createElements()
     this.updateStyles()
-    if (this.fontChanged) {
-      this.updateFont()
-    }
     this.updateDiplayList()
   }
 
@@ -179,23 +176,6 @@ export class CatalogPreviewComponent implements OnChanges, AfterViewInit {
     this.styleSheet = styles
   }
 
-  private get fontChanged(): boolean {
-    const config = this.config
-    return this._font != config.fontFamily
-  }
-  embedFont: string
-  private _font: string
-  private updateFont() {
-    const config = this.config
-    this._font = config.fontFamily
-    const font = this.pdfService.getFont(config.fontFamily)
-    this.embedFont = `
-@font-face {
-  ${font.cssText}
-}
-`
-  }
-
   private _updateDisplayListFlag: boolean = false
   @ViewChild('svg')
   svgRef: ElementRef
@@ -224,27 +204,6 @@ export class CatalogPreviewComponent implements OnChanges, AfterViewInit {
 
     this.currentItemCollection = this.createRows()
     this.svg.removeChild(textDrawer)
-  }
-
-  public saveSVG(filename) {
-    // @TODO angular injection should not be present, 
-    // so svg must be created with document.createElement 
-    const data = this.svg.outerHTML
-    const file = new Blob([data], { type: "image/svg+xml" })
-    if (window.navigator.msSaveOrOpenBlob) // IE10+
-      window.navigator.msSaveOrOpenBlob(file, filename)
-    else { // Others
-      const a: HTMLAnchorElement = document.createElement("a")
-      const url: string = URL.createObjectURL(file)
-      a.href = url
-      a.download = filename
-      document.body.appendChild(a)
-      a.click()
-      setTimeout(() => {
-        document.body.removeChild(a)
-        window.URL.revokeObjectURL(url)
-      }, 0)
-    }
   }
 
   public savePDF(filename: string): Observable<boolean> {

@@ -17,25 +17,24 @@ export interface IAppRoute extends Route {
 const routes: Routes = [
     {
         path: '',
-        canActivate: [ApiGuard],
         children: [
             <IAppRoute>{
-                path: 'list', component: ListComponent,
+                path: 'list', component: ListComponent, canActivate: [ApiGuard],
                 label: 'Motifs',
                 icon: 'view_comfy'
             },
             <IAppRoute>{
-                path: 'catalog', component: CatalogComponent,
+                path: 'catalog', component: CatalogComponent, canActivate: [ApiGuard],
                 label: 'Catalogue',
                 icon: 'library_books'
             },
             <IAppRoute>{
-                path: 'print', component: PrintComponent,
+                path: 'print', component: PrintComponent, canActivate: [ApiGuard],
                 label: 'Imprimer',
                 icon: 'print'
             },
             <IAppRoute>{
-                path: 'config', component: ConfigComponent, canDeactivate: [ApiGuard],
+                path: 'config', component: ConfigComponent, canDeactivate: [ApiGuard], canActivate: [ApiGuard],
                 label: 'Serveur',
                 icon: 'settings'
             },

@@ -69,6 +69,22 @@ $app-theme: mat-light-theme($app-primary, $app-accent, $app-warn);
   font-family: mat-font-family($config);
   color: $theme-color;
   font-size: mat-font-size($config, body-1);
+
+  print {
+    .mat-horizontal-stepper-header-container {
+      min-height: 72px;
+      .mat-stepper-horizontal-line {
+        flex: 0 1 auto;
+      }
+    }
+    .mat-horizontal-content-container {
+      overflow: hidden;
+      overflow-y: auto;
+      padding: 0;
+      border-top: $header-border;
+    }
+  }
+
   .header-border {
     border: $header-border;
   }
@@ -163,7 +179,4 @@ $app-theme: mat-light-theme($app-primary, $app-accent, $app-warn);
 }
 .light {
   @include color-theme($app-theme);
-}
-.light print-symbols .mat-horizontal-stepper-header-container {
-  display: inline-flex;
 }
