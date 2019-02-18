@@ -22,7 +22,7 @@
     <mat-step fxFlex="100"  fxLayout="column" label="Configuration">
       <print-config [selectedSymbols]="selectedSymbols" #prinConfig></print-config>
     </mat-step>
-    <mat-step label="Preview" fxFlex="100"  fxLayout="column">
+    <mat-step label="Aperçu" fxFlex="100"  fxLayout="column">
       <print-preview [configs]="prinConfig.configs"></print-preview>
     </mat-step>
   </mat-horizontal-stepper>
