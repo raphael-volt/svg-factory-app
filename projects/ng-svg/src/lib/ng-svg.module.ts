@@ -6,6 +6,8 @@ import { SVGComponentsModule } from "ng-svg/components";
   imports: [
     SVGComponentsModule
   ],
-  exports: []
+  exports: [
+    SVGComponentsModule
+  ]
 })
 export class NgSvgModule { }

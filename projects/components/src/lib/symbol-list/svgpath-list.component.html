@@ -2,7 +2,7 @@
     <div class="symbol-list-item" *ngFor="let s of symbols" matRipple matRippleCentered [class.selected]="isSelected(s)"
         (click)="symbolClick($event, s)">
         <div class="svg-box">
-            <path-renderer [svgPath]="s"></path-renderer>
+            <path-renderer [svgPath]="s" [pathStyle]="pathStyle"></path-renderer>
         </div>
     </div>
 </div>
