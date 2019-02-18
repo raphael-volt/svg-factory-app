@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Output, Input, OnDestroy } from '@angular/core';
 import { SelectHelper } from "../core/select-helper";
 import { SymbolService } from "../services/symbol.service";
-import { Use } from 'ng-svg/core';
+import { Use, DrawStyle } from 'ng-svg/core';
 import { SVGPath } from 'ng-svg/geom';
 import { Subscription } from 'rxjs';
 
@@ -57,6 +57,20 @@ export class ListBase<T> {
   styleUrls: ['./symbol-list.component.scss']
 })
 export class PathListComponent extends ListBase<SVGPath>{
+  pathStyle: DrawStyle
+  constructor(public service: SymbolService) {
+    super()
+    if(service.populated)
+      this.pathStyle = service.config.pathStyle
+    else {
+      const sub = service.populatedChange.subscribe(populated=>{
+        if(populated) {
+          this.pathStyle = service.config.pathStyle
+          sub.unsubscribe()
+        }
+      })
+    }
+  }
 }
 
 @Component({

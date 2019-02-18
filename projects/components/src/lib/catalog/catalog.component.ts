@@ -1,16 +1,17 @@
-import { Component, ViewChild, OnDestroy } from '@angular/core';
+import { Component, ViewChild, OnDestroy, OnInit } from '@angular/core';
 import { ConfigService, ICatalogConfig } from '../services/config.service';
 import { TspdfService } from 'tspdf';
 import { CatalogPreviewComponent } from './catalog-preview/catalog-preview.component';
 import { DepthDifferService, DepthDiffer } from 'change-detection';
 import { Subscription } from 'rxjs';
+import { callLater } from '../core/call-later';
 
 @Component({
   selector: 'catalog',
   templateUrl: './catalog.component.html',
   styleUrls: ['./catalog.component.scss']
 })
-export class CatalogComponent implements OnDestroy {
+export class CatalogComponent implements OnDestroy, OnInit {
 
   @ViewChild(CatalogPreviewComponent)
   preview: CatalogPreviewComponent
@@ -21,7 +22,7 @@ export class CatalogComponent implements OnDestroy {
   private configDiffer: DepthDiffer<ICatalogConfig>
   private differSuscription: Subscription
   private configChanged: boolean = false
-
+  hasData: boolean = false
   constructor(
     private storage: ConfigService,
     pdfService: TspdfService,
@@ -33,8 +34,15 @@ export class CatalogComponent implements OnDestroy {
       return name.indexOf("Material Icons") == -1
     })
     
-    if (storage.catalog)
-      this.setCatalogConfig(storage.catalog)
+  }
+
+  ngOnInit() {
+    const storage = this.storage
+    if (storage.catalog) {
+      callLater(()=>{
+        this.setCatalogConfig(storage.catalog)
+      })
+    }
     else {
       const sub = storage.getCatalog().subscribe((config: ICatalogConfig) => {
         sub.unsubscribe()
@@ -42,7 +50,6 @@ export class CatalogComponent implements OnDestroy {
       })
     }
   }
-
   private setCatalogConfig(config: ICatalogConfig) {
     this.config = config
     this.configChanged = true

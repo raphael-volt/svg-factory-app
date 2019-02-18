@@ -108,7 +108,6 @@ export class ColorSelectorComponent implements OnInit, OnChanges, OnDestroy {
       $event: event,
       color: null
     })
-    this.onAccept.emit(event)
   }
   handleValueChange({ data, $event }) {
     this.handleChange(data, $event);

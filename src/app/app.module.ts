@@ -7,7 +7,7 @@ import { ComponentsModule, AppMaterialModule } from "components";
 import { AppComponent } from './app.component';
 import { RoutingModule } from "./core/routing.module";
 import { SVGComponentsModule } from "ng-svg/components";
-import { MatIconModule, MatIconRegistry } from '@angular/material';
+import { MatIconModule } from '@angular/material';
 
 @NgModule({
   declarations: [
@@ -26,7 +26,7 @@ import { MatIconModule, MatIconRegistry } from '@angular/material';
   exports: [
     AppMaterialModule
   ],
-  providers:   [],
+  providers: [],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

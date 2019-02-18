@@ -1,7 +1,7 @@
 <svg>
-  <defs [styleSheet]="styleSheet">
+  <defs>
     <symbol *ngFor="let s of symbols" [svgSymbol]="s">
-      <path *ngFor="let p of s.paths" [svgPath]="p" nonScalingStroke/>
+      <path *ngFor="let p of s.paths" [svgAttr]="symbolPathStyle"  [svgPath]="p" nonScalingStroke/>
     </symbol>
   </defs>
 </svg>

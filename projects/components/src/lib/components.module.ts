@@ -74,7 +74,8 @@ import { ApiGuard } from './services/api-guard';
     SVGComponentsModule
   ],
   exports: [
-    AppMaterialModule
+    AppMaterialModule, 
+    NgSvgModule
   ],
   providers: [
     AuthService,

@@ -10,14 +10,14 @@
   <div class="h-item f-w">
     <div class="main">
       <svg #svg svgNS [svgViewBox]="service.viewBox">
-        <defs [styleSheet]="service.styleSheet">
+        <defs>
           <symbol *ngFor="let s of service.symbols" [svgSymbol]="s">
-            <path *ngFor="let p of s.paths" nonScalingStroke [svgPath]="p" />
+            <path *ngFor="let p of s.paths" [svgAttr]="service.config.style" [svgPath]="p" />
           </symbol>
         </defs>
         <g id="rect">
           <rect *ngFor="let p of service.pages" x="0" [attr.y]="p.y" [attr.width]="service.pageWidth" [attr.height]="service.pageHeight"
-            [attr.class]="service.rectClass" />
+          [svgAttr]="rectStyle" />
         </g>
         <g id="use">
           <use *ngFor="let t of service.transforms" [svgUse]="t.useRef" />

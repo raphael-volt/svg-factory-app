@@ -15,7 +15,7 @@
     "ld": "ngh ld",
     "debug": "ng test --source-map=true",
     "build:lib": "ngh ld && ngh build",
-    "build:app": "npm run ls && ng build --prod --base-href=./",
+    "build:app": "npm run ld && ng build --prod --base-href=./",
     "build:app:electron": "npm run build:app && npm run electron",
     "build:all": "npm run build:lib && npm run build:app",
     "build:web": "npm run ls && ng build --prod --source-map=false --base-href=/svg-app/",
