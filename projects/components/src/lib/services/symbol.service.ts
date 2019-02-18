@@ -28,8 +28,6 @@ const PATH_CLASS: string = "path"
 })
 export class SymbolService {
 
-  public pathStyle: DrawStyleCollection = {}
-
   private _symbols: SVGSymbol[] = []
 
   public populated: boolean = false
@@ -57,11 +55,10 @@ export class SymbolService {
 
   private setSymbolConfig(value: SymbolConfig) {
     this.config = value
-    this.pathStyle[PATH_CLASS] = value.pathStyle
+    this.factory.setPathStyle(value.pathStyle)
   }
 
   updateStyle() {
-    this.factory.updateStyles()
     this.configService.saveSymbolConfig()
   }
 
@@ -136,7 +133,6 @@ export class SymbolService {
       return
     this._populating = true
     const done = (symbols: SVGSymbol[]) => {
-      this.factory.addStyles(this.pathStyle)
       this._symbols = []
       for (const s of symbols) {
         this.registerSymbol(s)

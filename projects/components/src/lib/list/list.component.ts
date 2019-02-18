@@ -32,8 +32,8 @@ export class ListComponent {
   constructor(
     private dialog: MatDialog,
     public service: SymbolService,
-    private symbolService:SymbolService) {
-      this.style = service.config.pathStyle
+    private symbolService: SymbolService) {
+    this.style = service.config.pathStyle
   }
   style: DrawStyle
 
@@ -51,16 +51,16 @@ export class ListComponent {
     this.sending = true
     const items = this.selectedItems.slice()
     this.selectedItems = []
-    let sub:Subscription
-    const next = ()=>{
-      if(items.length) {
+    let sub: Subscription
+    const next = () => {
+      if (items.length) {
         const u = items.shift()
-        
+
         sub = this.symbolService.delete(this.service.getSymbolTargetByRef(u.href))
-        .subscribe(v=>{
-          sub.unsubscribe()
-          next()
-        })
+          .subscribe(v => {
+            sub.unsubscribe()
+            next()
+          })
       }
       else {
         this.sending = false
@@ -106,8 +106,12 @@ export class ListComponent {
     this.sending = true
     const sub = ref.afterClosed().subscribe((items: SVGPath[]) => {
       sub.unsubscribe()
-      this.service.registerPathCollection(items)
-        .subscribe(done, done)
+      if (items && items.length)
+        this.service.registerPathCollection(items)
+          .subscribe(done, done)
+      else {
+        done(true)
+      }
     })
 
   }

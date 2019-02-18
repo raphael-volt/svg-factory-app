@@ -9,7 +9,7 @@ import { Use } from "ng-svg/core";
     '[attr.transform]':'svgUse.transform',
     '[attr.x]':'svgUse.x',
     '[attr.y]':'svgUse.y',
-    '[attr.style]':'"overflow: visible"'
+    '[style.overflow]':'"visible"'
   }
 })
 export class UseDirective {

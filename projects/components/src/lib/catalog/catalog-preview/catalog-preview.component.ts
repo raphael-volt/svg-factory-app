@@ -1,18 +1,14 @@
 import { Component, Input, OnChanges, SimpleChanges, ViewChild, ElementRef, AfterViewInit, Directive } from '@angular/core';
 import { ICatalogConfig } from '../../services/config.service';
-import { Use, ISymbol, SVGStyleCollection, DrawStyle, NS_SVG, NONE, NON_SCALING_STROKE, TextStyle, Path, NS_XLINK, stringifyStyles } from 'ng-svg/core';
+import { Use, ISymbol, DrawStyle, NS_SVG, NONE, NON_SCALING_STROKE, TextStyle, Path, NS_XLINK } from 'ng-svg/core';
 import { SymbolService } from '../../services/symbol.service';
-import { Subscription, Observable, of } from 'rxjs';
+import { Subscription, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { TspdfService, mm2px, getLayoutSizes, PDFWrapper, PDFDocument } from 'tspdf';
 import { IRect, Matrix, Coord, PathData } from 'ng-svg/geom';
 import { callLater } from '../../core/call-later';
 
-const PATH_SELECTOR: string = "st0"
-const TEXT_SELECTOR: string = "st1"
-const RECT_SELECTOR: string = "st2"
 const SYMBOL_PREFIX: string = "sym"
-const FONT_SUFIX: string = "-embeded"
 const PT: string = "pt"
 
 interface TextDesc { text: string, transform: string }
@@ -68,12 +64,12 @@ export class CatalogPreviewComponent implements OnChanges, AfterViewInit {
   @Input()
   config: ICatalogConfig = null
 
-  styleSheet: SVGStyleCollection
   pageWidth: number
   pageHeight: number
+  pathStyle: DrawStyle
+  rectStyle: DrawStyle
+  textStyle: TextStyle
 
-  textClass = TEXT_SELECTOR
-  rectClass = RECT_SELECTOR
   constructor(private service: SymbolService, private pdfService: TspdfService) {
     if (service.populated)
       this.initializedChange(true)
@@ -91,10 +87,14 @@ export class CatalogPreviewComponent implements OnChanges, AfterViewInit {
       this.update()
   }
   viewBox: Use
-  symbolsCollection: ISymbol[]
+  symbolsCollection: ISymbol[] = []
   pages: RectDesc[]
   uses: Use[]
   textes: TextDesc[]
+
+  private _uses: Use[] = []
+  private _textes: TextDesc[] = []
+
   private _initializedFlag: boolean = false
 
   private initializedChange(populated: boolean) {
@@ -106,23 +106,25 @@ export class CatalogPreviewComponent implements OnChanges, AfterViewInit {
   update() {
     if (this._initializedFlag == false || !this.config)
       return
-    
+
     if (!this._elemntsCreated)
       this.createElements()
-    this.updateStyles()
-    this.updateDiplayList()
+    else {
+      this.updateStyles()
+      this.updateDiplayList()
+    }
   }
 
   private _elemntsCreated: boolean = false
+
   private createElements() {
     const symbols: ISymbol[] = []
-    const uses: Use[] = []
-    const textes: any[] = []
+    const uses: Use[] = this._uses
+    const textes: any[] = this._textes
     let id: number = 1
     for (const s of this.service.symbols) {
       const symClone: ISymbol = Object.assign({}, this.service.getSymbol(s))
       symClone.paths = [Object.assign({}, symClone.paths[0])]
-      symClone.paths[0].class = PATH_SELECTOR
       const use: Use = {
         width: s.width.toString(),
         height: s.height.toString()
@@ -135,45 +137,66 @@ export class CatalogPreviewComponent implements OnChanges, AfterViewInit {
       uses.push(use)
       symbols.push(symClone)
     }
-    this.textes = textes
-    this.uses = uses
-    this.pages = []
-    this.symbolsCollection = symbols
     this._elemntsCreated = true
+
+    if (this.symbolsCollection.length) {
+      this.symbolsCollection.length = 0
+    }
+    callLater(()=>{
+      this.symbolsCollection.push(...symbols)
+      this.updateStyles()
+      this.updateDiplayList()
+    })
   }
 
   private updateStyles() {
     const config = this.config
-    const styles: SVGStyleCollection = {}
-    styles[PATH_SELECTOR] = Object.assign({}, config.style)
-    let drawStyle: DrawStyle = styles[PATH_SELECTOR]
-    if (drawStyle["stroke-width"] && drawStyle["stroke-width"] != NONE)
-      drawStyle["stroke-width"] = drawStyle["stroke-width"] + PT
-    if (!drawStyle["fill"]) {
-      drawStyle["fill"] = NONE
+    let dStyle: DrawStyle = Object.assign({}, config.style)
+    const sw = dStyle["stroke-width"]
+    if (sw && sw != NONE) {
+      const n = parseFloat(sw)
+      if (n <= 0) {
+        dStyle["stroke-width"] = NONE
+      }
     }
-    if (!drawStyle["stroke"]) {
-      drawStyle["stroke"] = NONE
-      drawStyle["stroke-width"] = NONE
-    }
-    drawStyle["vector-effect"] = NON_SCALING_STROKE
+    if (dStyle["stroke-width"] == NONE)
+      dStyle["stroke"] = NONE
 
-    drawStyle = {
+    if (!dStyle["fill"]) {
+      dStyle["fill"] = NONE
+    }
+    if (dStyle["fill"] == NONE && dStyle["stroke"] == NONE) {
+      dStyle["fill"] = "#000000"
+    }
+    dStyle["vector-effect"] = NON_SCALING_STROKE
+    let drawStyle = this.pathStyle
+    if (!drawStyle) {
+      this.pathStyle = dStyle
+    }
+    else
+      Object.assign(drawStyle, dStyle)
+    dStyle = {
       "fill": "none",
       "stroke": "#666666",
       "stroke-width": ".5" + PT,
       "vector-effect": NON_SCALING_STROKE
     }
-    styles[RECT_SELECTOR] = drawStyle
+    drawStyle = this.rectStyle
+    if (!drawStyle) {
+      this.rectStyle = dStyle
+    }
+    else
+      Object.assign(drawStyle, dStyle)
 
     let textStyle: TextStyle = {
       "font-family": config.fontFamily,
       "font-size": config.fontSize + PT,
       "fill": config.textColor
     }
-    styles[TEXT_SELECTOR] = textStyle
-
-    this.styleSheet = styles
+    if (!this.textStyle)
+      this.textStyle = textStyle
+    else
+      Object.assign(this.textStyle, textStyle)
   }
 
   private _updateDisplayListFlag: boolean = false
@@ -189,22 +212,211 @@ export class CatalogPreviewComponent implements OnChanges, AfterViewInit {
   }
   private measureText: (text: string) => IRect
   private reqAnim: boolean = false
+  private firstUpdate: boolean = false
   private updateDiplayList() {
     if (!this.svg) {
       this._updateDisplayListFlag = true
       return
     }
+
+    const firstUpdate = this.firstUpdate
     const textDrawer: SVGTextElement = document.createElementNS(NS_SVG, 'text') as SVGTextElement
-    textDrawer.classList.add(TEXT_SELECTOR)
+    const style = this.textStyle
+    if (style) {
+      for (const k in style) {
+        textDrawer.setAttribute(k, style[k])
+      }
+    }
     this.svg.appendChild(textDrawer)
     this.measureText = (text: string) => {
       textDrawer.textContent = text
       return textDrawer.getBBox()
     }
 
-    this.currentItemCollection = this.createRows()
+    this.currentItemCollection = this.createRows(firstUpdate)
     this.svg.removeChild(textDrawer)
   }
+
+
+  private currentItemCollection: RowItemCollection[]
+
+  private createRows(firstUpdate: boolean = false): RowItemCollection[] {
+    const config: Config2pix = new Config2pix(this.config)
+    this.pageWidth = config.width
+    this.pageHeight = config.height
+    const rowDesc = this.calculateRowSizes(config)
+
+    const maxX: number = rowDesc.row[0] + config.left
+    const yInc: number = rowDesc.row[1] + config.rowGap
+    let r: IRect
+    let s: number
+    let m: Matrix = new Matrix()
+    let x: number = config.left
+    let y: number = config.top
+    const ig: number = config.itemGap
+    const tp: number = config.textPadding
+    const symbols = this.symbolsCollection
+    const textes = firstUpdate ? this.textes : this._textes
+    const uses = firstUpdate ? this.uses : this._uses
+
+    const rowItems: RowItem[] = uses.map((use: Use, index: number) => {
+      const symbol = symbols[index]
+      const bounds: IRect = { width: +use.width, height: +use.height, x: 0, y: 0 }
+      const s = rowDesc.height / bounds.height
+      return <RowItem>{
+        symbol: symbol,
+        scale: s,
+        bbox: bounds,
+        text: textes[index],
+        use: use,
+        index: index,
+        bounds: { x: 0, y: 0, width: bounds.width * s, height: bounds.height * s, }
+      }
+    })
+    let collections: RowItemCollection[] = []
+    let collection: RowItemCollection
+    let item: RowItem
+    let row: RowItem[]
+    let count: number = 0
+
+    while (rowItems.length) {
+      if (!collection) {
+        row = []
+        collection = {
+          rows: [row]
+        }
+        collections.push(collection)
+        x = config.left
+        y = config.top
+        count = 0
+      }
+      item = rowItems[0]
+      item.bounds.y = y
+      if (x + ig + item.bounds.width <= maxX) {
+        row.push(rowItems.shift())
+        x += ig + item.bounds.width
+      }
+      else {
+        count++
+        if (count >= config.numRows) {
+          collection = null
+        }
+        else {
+          row = []
+          collection.rows.push(row)
+          y += yInc
+          x = config.left
+        }
+      }
+    }
+    let bb: IRect
+    y = 0
+    const pages: any[] = []
+    let td: TextDesc
+    const lastRow = row
+    for (collection of collections) {
+      pages.push({ y: y })
+      for (row of collection.rows) {
+        if (row != lastRow) {
+          this.spaceBetween(config.left, rowDesc.row[0], row)
+        }
+        else {
+          this.spaceGap(config.left, ig, row)
+        }
+        for (item of row) {
+          td = item.text
+          s = item.scale
+          r = item.bounds
+          m.identity().scale(s, s).translate(r.x, r.y + y)
+          item.use.transform = m.toCSS()
+          bb = this.measureText(td.text)
+          m.identity()
+            .translate(-bb.x - bb.width / 2, -bb.y)
+            .translate(r.x + r.width / 2, r.y + r.height + tp + y)
+          td.transform = m.toCSS()
+        }
+      }
+      y += config.height
+    }
+    const svgH = `${config.height * collections.length}`
+    const vb = {
+      width: config.width.toString(),
+      height: svgH
+    }
+    if (!firstUpdate) {
+
+      this.viewBox = vb
+      this.textes = textes.slice()
+      this.uses = uses.slice()
+      this.pages = pages
+      this._textes.length = 0
+      this._uses.length = 0
+      this.firstUpdate = true
+    }
+    else {
+      Object.assign(this.viewBox, vb)
+      this.pages.length = 0
+      this.pages.push(...pages)
+    }
+    return collections
+  }
+
+  private calculateRowSizes(config: Config2pix): { height: number, row: Coord } {
+    const nr = config.numRows
+    const tp = config.textPadding
+    const pl = config.left
+    const pr = config.right
+    const pt = config.top
+    const pb = config.bottom
+    const rg = config.rowGap
+    const pw: number = config.width
+    const ph: number = config.height
+
+    const bb = this.measureText("XXXyyy")
+    const th: number = bb.height + tp
+    const result: { height: number, row: Coord } = {
+      height: 0,
+      row: [
+        pw - pl - pr,
+        (ph - pt - pb - (nr - 1) * rg) / nr
+      ]
+    }
+    result.height = result.row[1] - th
+    return result
+  }
+
+  private spaceGap(x: number, gap: number, items: RowItem[]) {
+    let i: RowItem
+    let b: IRect
+    for (i of items) {
+      b = i.bounds
+      b.x = x
+      x += b.width + gap
+    }
+  }
+  private spaceBetween(x: number, width: number, items: RowItem[]) {
+    if (items.length < 1)
+      return false
+    let i: RowItem
+    let b: IRect
+    if (items.length < 2) {
+      b = items[0].bounds
+      b.x = x + (width - b.width) / 2
+      return true
+    }
+
+    let totalWidth: number = 0
+    for (i of items)
+      totalWidth += i.bounds.width
+    const d = (width - totalWidth) / (items.length - 1)
+    for (i of items) {
+      b = i.bounds
+      b.x = x
+      x += b.width + d
+    }
+    return true
+  }
+
 
   public savePDF(filename: string): Observable<boolean> {
     const srv = this.pdfService
@@ -312,170 +524,6 @@ export class CatalogPreviewComponent implements OnChanges, AfterViewInit {
         }
       )
     )
-  }
-
-  private currentItemCollection: RowItemCollection[]
-
-  private createRows(): RowItemCollection[] {
-    const config: Config2pix = new Config2pix(this.config)
-    this.pageWidth = config.width
-    this.pageHeight = config.height
-    const rowDesc = this.calculateRowSizes(config)
-
-    const maxX: number = rowDesc.row[0] + config.left
-    const yInc: number = rowDesc.row[1] + config.rowGap
-    let r: IRect
-    let s: number
-    let m: Matrix = new Matrix()
-    let x: number = config.left
-    let y: number = config.top
-    const ig: number = config.itemGap
-    const tp: number = config.textPadding
-    const symbols = this.symbolsCollection
-    const textes = this.textes
-    const uses = this.uses
-    const rowItems: RowItem[] = uses.map((use: Use, index: number) => {
-      const symbol = symbols[index]
-      const bounds: IRect = { width: +use.width, height: +use.height, x: 0, y: 0 }
-      const s = rowDesc.height / bounds.height
-      return <RowItem>{
-        symbol: symbol,
-        scale: s,
-        bbox: bounds,
-        text: textes[index],
-        use: use,
-        index: index,
-        bounds: { x: 0, y: 0, width: bounds.width * s, height: bounds.height * s, }
-      }
-    })
-    let collections: RowItemCollection[] = []
-    let collection: RowItemCollection
-    let item: RowItem
-    let row: RowItem[]
-    let count: number = 0
-
-    while (rowItems.length) {
-      if (!collection) {
-        row = []
-        collection = {
-          rows: [row]
-        }
-        collections.push(collection)
-        x = config.left
-        y = config.top
-        count = 0
-      }
-      item = rowItems[0]
-      item.bounds.y = y
-      if (x + ig + item.bounds.width <= maxX) {
-        row.push(rowItems.shift())
-        x += ig + item.bounds.width
-      }
-      else {
-        count++
-        if (count >= config.numRows) {
-          collection = null
-        }
-        else {
-          row = []
-          collection.rows.push(row)
-          y += yInc
-          x = config.left
-        }
-      }
-    }
-    let bb: IRect
-    y = 0
-    const pages: any[] = []
-    let td: TextDesc
-    const lastRow = row
-    for (collection of collections) {
-      pages.push({ y: y })
-      for (row of collection.rows) {
-        if (row != lastRow) {
-          this.spaceBetween(config.left, rowDesc.row[0], row)
-        }
-        else {
-          this.spaceGap(config.left, ig, row)
-        }
-        for (item of row) {
-          td = item.text
-          s = item.scale
-          r = item.bounds
-          m.identity().scale(s, s).translate(r.x, r.y + y)
-          item.use.transform = m.toCSS()
-          bb = this.measureText(td.text)
-          m.identity()
-            .translate(-bb.x - bb.width / 2, -bb.y)
-            .translate(r.x + r.width / 2, r.y + r.height + tp + y)
-          td.transform = m.toCSS()
-        }
-      }
-      y += config.height
-    }
-    const svgH = `${config.height * collections.length}`
-    this.viewBox = {
-      width: config.width.toString(),
-      height: svgH
-    }
-    this.pages = pages
-    return collections
-  }
-
-  private calculateRowSizes(config: Config2pix): { height: number, row: Coord } {
-    const nr = config.numRows
-    const tp = config.textPadding
-    const pl = config.left
-    const pr = config.right
-    const pt = config.top
-    const pb = config.bottom
-    const rg = config.rowGap
-    const pw: number = config.width
-    const ph: number = config.height
-
-    const bb = this.measureText("XXXyyy")
-    const th: number = bb.height + tp
-    const result: { height: number, row: Coord } = {
-      height: 0,
-      row: [
-        pw - pl - pr,
-        (ph - pt - pb - (nr - 1) * rg) / nr
-      ]
-    }
-    result.height = result.row[1] - th
-    return result
-  }
-
-  private spaceGap(x: number, gap: number, items: RowItem[]) {
-    let i: RowItem
-    let b: IRect
-    for (i of items) {
-      b = i.bounds
-      b.x = x
-      x += b.width + gap
-    }
-  }
-  private spaceBetween(x: number, width: number, items: RowItem[]) {
-    if (items.length < 1)
-      return false
-    let i: RowItem
-    let b: IRect
-    if (items.length < 2) {
-      b = items[0].bounds
-      b.x = x + (width - b.width) / 2
-      return true
-    }
-
-    let totalWidth: number = 0
-    for (i of items)
-      totalWidth += i.bounds.width
-    const d = (width - totalWidth) / (items.length - 1)
-    for (i of items) {
-      b = i.bounds
-      b.x = x
-      x += b.width + d
-    }
-    return true
   }
 }
 @Directive({

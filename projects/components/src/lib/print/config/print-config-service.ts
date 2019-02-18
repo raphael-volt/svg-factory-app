@@ -52,7 +52,6 @@ export class PrintConfigService {
     public readonly rectClass: string = RECT_SELECTOR
 
     private _config: IPrintConfig
-
     get config() {
         return this._config
     }

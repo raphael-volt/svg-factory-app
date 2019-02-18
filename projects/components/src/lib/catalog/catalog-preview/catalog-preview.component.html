@@ -1,15 +1,15 @@
 <div class="main">
   <svg #svg svgNS [svgViewBox]="viewBox">
-    <defs [styleSheet]="styleSheet">
+    <defs>
       <symbol *ngFor="let s of symbolsCollection" [svgSymbol]="s">
-        <path *ngFor="let p of s.paths" nonScalingStroke [svgPath]="p"/>
+        <path *ngFor="let p of s.paths" [svgAttr]="pathStyle" [svgPath]="p"/>
       </symbol>
     </defs>
     <g id="rect">
-      <rect *ngFor="let p of pages" x="0" [attr.y]="p.y" [attr.width]="pageWidth" [attr.height]="pageHeight" [attr.class]="rectClass" />
+      <rect *ngFor="let p of pages" x="0" [svgAttr]="rectStyle" [attr.y]="p.y" [attr.width]="pageWidth" [attr.height]="pageHeight"/>
     </g>
     <g id="text">
-      <text *ngFor="let t of textes" [attr.class]="textClass" [attr.transform]="t.transform">{{t.text}}</text>
+      <text *ngFor="let t of textes" [svgAttr]="textStyle" [attr.transform]="t.transform">{{t.text}}</text>
     </g>
     <g id="use">
       <use *ngFor="let u of uses" [svgUse]="u" />
