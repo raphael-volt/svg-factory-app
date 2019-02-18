@@ -401,6 +401,10 @@ export class PrintConfigService {
         this.pages = pages
         this.currentUseTransforms = items
     }
+    public clear() {
+        this.symbols.length = 0
+        this.transforms.length = 0
+    }
     savePDF(filename: string) {
         const config = new Config2pix(this.config)
         const style = this.config.style
@@ -420,48 +424,46 @@ export class PrintConfigService {
         if (strokeWidth != NONE)
             strokeWidth = Number(strokeWidth)
 
-        let afterDraw: () => void
+        let beforeDraw: () => PDFDocument
         const setlineWidth = () => {
             if (strokeWidth != NONE) {
                 doc.lineWidth(strokeWidth)
             }
         }
         if (strokeColor != NONE && fillColor != NONE)
-            afterDraw = () => {
+            beforeDraw = () => {
                 setlineWidth()
-                doc.fillAndStroke(fillColor, strokeColor)
+                return doc.fillAndStroke(fillColor, strokeColor)
             }
         else {
             if (fillColor != NONE)
-                afterDraw = () => {
-                    doc.fill(fillColor)
+                beforeDraw = () => {
+                    return doc.fill(fillColor)
                 }
             else if (strokeColor != NONE) {
-                afterDraw = () => {
+                beforeDraw = () => {
                     setlineWidth()
-                    doc.stroke(strokeColor)
+                    return doc.stroke(strokeColor)
                 }
             }
         }
-        if (!afterDraw)
+        if (!beforeDraw)
             throw new Error("Invalide drawing style")
-        afterDraw()
         let pageY: number = 0
         const pathData: PathData = new PathData()
         let matrix: Matrix
         for (const tfm of this.currentUseTransforms) {
             if (pageY != tfm.offsetY) {
                 doc.addPage()
-                afterDraw()
                 pageY = tfm.offsetY
             }
             matrix = tfm.matrix.clone()
             matrix.translate(0, -tfm.offsetY)
             pathData.data = tfm.pathData
             pathData.transform(matrix)
-            doc.path(pathData.data)
+            beforeDraw()
+            .path(pathData.data)
         }
-        afterDraw()
         pdf.save(filename)
     }
 }

@@ -1,5 +1,5 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { PrintConfig, PrintConfigTransform } from '../config/print-config';
+import { Component, OnDestroy, Input } from '@angular/core';
+import { PrintConfig } from '../config/print-config';
 import { PrintConfigService } from '../config/print-config-service';
 
 @Component({
@@ -7,7 +7,7 @@ import { PrintConfigService } from '../config/print-config-service';
   templateUrl: './print-preview.component.html',
   styleUrls: ['./print-preview.component.scss']
 })
-export class PrintPreviewComponent{
+export class PrintPreviewComponent implements OnDestroy{
 
   @Input()
   configs: PrintConfig[]
@@ -15,5 +15,8 @@ export class PrintPreviewComponent{
 
   savePDF() {
     this.service.savePDF("imprimer.pdf")
+  }
+  ngOnDestroy() {
+    this.service.clear()
   }
 }
