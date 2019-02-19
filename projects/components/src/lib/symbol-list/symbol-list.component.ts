@@ -1,32 +1,41 @@
-import { Component, EventEmitter, Output, Input, OnDestroy } from '@angular/core';
+import { Component, EventEmitter, Output, Input, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
 import { SelectHelper } from "../core/select-helper";
 import { SymbolService } from "../services/symbol.service";
 import { Use, DrawStyle } from 'ng-svg/core';
 import { SVGPath } from 'ng-svg/geom';
 import { Subscription } from 'rxjs';
 
-export class ListBase<T> {
+export class ListBase<T> implements OnChanges{
   protected selectHelper: SelectHelper<T> = new SelectHelper<T>()
   private _symbols: T[]
   @Output()
   symbolsChange: EventEmitter<T[]> = new EventEmitter<T[]>()
-  get symbols(): T[] {
-    return this.selectHelper.collection
-  }
+
   @Input()
   set symbols(value: T[]) {
     this.selectHelper.collection = value
     this.symbolsChange.emit(value)
   }
-
+  get symbols(): T[] {
+    return this.selectHelper.collection
+  }
+  
+  private _selectedItems: T[]
   @Output()
   selectedItemsChange: EventEmitter<T[]> = new EventEmitter<T[]>()
+  @Input()
+  set selectedItems(value: T[]) {
+    this._selectedItems = value
+    this.selectedItemsChange.emit(value)
+  }
   get selectedItems(): T[] {
     return this.selectHelper.selectedItems
   }
-  @Input()
-  set selectedItems(value: T[]) {
-    this.selectHelper.selectedItems = value
+
+  ngOnChanges(changes:SimpleChanges) {
+    if(changes.selectedItems) {
+      this.selectHelper.selectedItems = this._selectedItems
+    }
   }
   get hasSelection() {
     return this.selectHelper.hasSelection
