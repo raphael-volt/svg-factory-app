@@ -77,8 +77,8 @@ export class SelectHelper<T> {
 
     private setSelectedItems(value: T[]) {
         const l = this.selectedItems
-        const args = [0, l.length].concat(<any>value)
-        l.splice.apply(l, args)
+        l.length = 0
+        l.push(...value)
         return l
     }
 
