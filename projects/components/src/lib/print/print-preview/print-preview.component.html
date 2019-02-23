@@ -20,7 +20,7 @@
           [svgAttr]="rectStyle" />
         </g>
         <g id="use">
-          <use *ngFor="let t of service.transforms" [svgUse]="t.useRef" />
+          <use *ngFor="let u of service.useCollection" [svgUse]="u" />
         </g>
       </svg>
     </div>
