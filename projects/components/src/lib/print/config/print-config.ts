@@ -32,6 +32,7 @@ export interface PrintConfig {
 }
 
 export interface PrintConfigTransform {
+    config: PrintConfig
     useRef: Use
     use: Use
     item: PrintConfigItem

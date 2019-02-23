@@ -1,10 +1,25 @@
 import { Injectable } from "@angular/core";
-import { PrintConfigTransform, PrintConfig, PrintConfigItem } from './print-config';
-import { Use, ISymbol, stringifyStyles, DrawStyleCollection, NONE, checkValue, SVGStyleCollection } from 'ng-svg/core';
+import { PrintConfig, PrintConfigItem } from './print-config';
+import { Use, ISymbol, DrawStyleCollection, NONE, checkValue, SVGStyleCollection } from 'ng-svg/core';
 import { ConfigService, IPrintConfig } from '../../services/config.service';
 import { mm2px, getLayoutSizes, PDFWrapper, PDFDocument } from 'tspdf';
 import { SymbolService } from '../../services/symbol.service';
 import { getViewBox, IRect, Matrix, PathData } from 'ng-svg/geom';
+import * as maxrectsPacker from "maxrects-packer";
+
+const MaxRectsPacker = maxrectsPacker.MaxRectsPacker;
+
+interface ConfigRec extends IRect {
+    id?: any
+    data: {
+        index?: number
+        config: PrintConfig,
+        items: {
+            target: PrintConfigItem,
+            matrix: Matrix
+        }[]
+    }
+};
 
 const PATH_SELECTOR: string = "print"
 const RECT_SELECTOR: string = "page-rect"
@@ -27,19 +42,17 @@ const cloneSymbol = (s: ISymbol): ISymbolRef => {
     }
 }
 
-type UseTransform = {
-    pathData: string
-    use: Use
-    rect: IRect
-    matrix: Matrix
-    offsetY: number
-}
 type PageRect = { y: number }
 
+export type UseItem = {
+    config: PrintConfig
+    use: Use
+    matrix: Matrix
+}
 @Injectable()
 export class PrintConfigService {
 
-    public readonly transforms: PrintConfigTransform[] = []
+    public useCollection: Use[] = []
     public pages: PageRect[] = []
     public readonly symbols: ISymbolRef[] = []
     public readonly viewBox: Use = {
@@ -55,6 +68,10 @@ export class PrintConfigService {
     get config() {
         return this._config
     }
+
+    private _configRects: ConfigRec[]
+    private _printConfigs: PrintConfig[] = []
+
     constructor(
         private symbolService: SymbolService,
         private storage: ConfigService) {
@@ -73,336 +90,59 @@ export class PrintConfigService {
     saveConfig(type: "layout" | "style" | "margins") {
         this.storage.savePrintSubscribe()
         const layoutChanged = type != 'style'
-        this.invalidateDisplayList(layoutChanged)
+        this._invalidateDisplayList(layoutChanged)
     }
 
+
+
+
     configRemoved(config: PrintConfig) {
-        const s = this.symbolService.getSymbolByRef(config.use.href)
-        const sref = this.symbols.find((ref: ISymbolRef, index: number) => {
-            if (ref.refId == s.id) {
-                this.symbols.splice(index, 1)
-                return true
-            }
-            return false
-        })
-        this.removeUseTransforms(config.use)
-        this.invalidateDisplayList()
+        const i = this._printConfigs.indexOf(config)
+        if (i > -1) {
+            this.symbols.splice(i, 1)
+            this._printConfigs.splice(i, 1)
+        }
+        this._invalidateDisplayList()
     }
 
     configAdded(config: PrintConfig) {
-        const s = this.symbolService.getSymbolByRef(config.use.href)
-        const ref = cloneSymbol(s)
-        this.symbols.push(ref)
-        for (const item of config.items)
-            this.itemAdded(config, item, ref)
-        this.invalidateDisplayList()
+        const i = this._printConfigs.indexOf(config)
+        if (i < 0) {
+            const s = this.symbolService.getSymbolByRef(config.use.href)
+            const ref = cloneSymbol(s)
+            this.symbols.push(ref)
+            this._printConfigs.push(config)
+        }
+        this._invalidateDisplayList()
     }
 
     itemRemoved(config: PrintConfig, item: PrintConfigItem) {
-        const transforms = this.transforms
-        const l = this.getUseTransforms(config.use)
-        for (const item of l) {
-            transforms.splice(transforms.indexOf(item), 1)
-        }
-        this.invalidateDisplayList()
+        this._invalidateDisplayList()
     }
 
     itemAdded(config: PrintConfig, item: PrintConfigItem, ref?: ISymbolRef) {
-        if (!ref) {
-            ref = this.getSymbolRef(config.use)
-            if (!ref)
-                throw new Error("Symbol ref not found")
-        }
-        for (let i = 0; i < item.numCopies; i++) {
-            this.addTransform(config.use, item, ref)
-        }
-        this.invalidateDisplayList()
+        this._invalidateDisplayList()
     }
 
     itemMirroredChange(config: PrintConfig, item: PrintConfigItem, ref?: ISymbolRef) {
-        if (!ref) {
-            ref = this.getSymbolRef(config.use)
-            if (!ref)
-                throw new Error("Symbol ref not found")
-        }
-        const transforms = this.transforms
-        const currents = this.getItemTransforms(item)
-
-        if (item.mirrored) {
-            let added: PrintConfigTransform[] = []
-            for (const transform of currents) {
-                const i = transforms.indexOf(transform)
-                transforms.splice(i + 1, 0, {
-                    useRef: this.cloneUse(config.use, ref),
-                    use: config.use,
-                    mirrored: true,
-                    item: item
-                })
-            }
-        }
-        else {
-            const removed = currents.filter((transform: PrintConfigTransform) => {
-                return transform.mirrored
-            })
-            while (removed.length)
-                this.spliceItem(removed.shift())
-        }
-        this.invalidateDisplayList()
+        this._invalidateDisplayList()
     }
 
     itemNumCopyChange(config: PrintConfig, item: PrintConfigItem, ref?: ISymbolRef) {
-        if (!ref) {
-            ref = this.getSymbolRef(config.use)
-            if (!ref)
-                throw new Error("Symbol ref not found")
-        }
-        const currents = this.getItemTransforms(item)
-        const items = currents.filter((transform: PrintConfigTransform) => {
-            return !transform.mirrored
-        })
-        const mirrored = item.mirrored ? currents.filter((transform: PrintConfigTransform) => {
-            return transform.mirrored
-        }) : null
-        let numItems: number = items.length
-        let i: number
-        let numCopies: number = item.numCopies
-        if (numItems < numCopies) {
-            for (i = numItems; i < numCopies; i++) {
-                this.addTransform(config.use, item, ref)
-            }
-        }
-        else {
-            while (numItems > numCopies) {
-                this.spliceItem(currents.pop())
-                if (mirrored) {
-                    this.spliceItem(mirrored.pop())
-                }
-                numItems--
-            }
-        }
-        this.invalidateDisplayList()
+        this._invalidateDisplayList()
     }
 
     itemSizeChange() {
-        this.invalidateDisplayList()
+        this._invalidateDisplayList()
     }
 
     stylesChanged() {
-        this.invalidateDisplayList(false)
+        this._invalidateDisplayList(false)
     }
 
-    private addTransform(use: Use, item: PrintConfigItem, ref?: ISymbolRef) {
-        if (!ref)
-            ref = this.getSymbolRef(use)
-        const transforms = this.transforms
-        
-        transforms.push({
-            useRef: this.cloneUse(use, ref),
-            use: use,
-            mirrored: false,
-            item: item
-        })
-        if (item.mirrored) {
-            transforms.push({
-                useRef: this.cloneUse(use, ref),
-                use: use,
-                mirrored: true,
-                item: item
-            })
-        }
-    }
-
-    private getUseTransforms(use: Use): PrintConfigTransform[] {
-        return this.transforms.filter(
-            (i: PrintConfigTransform, j: number) => {
-                return i.use == use
-            }
-        )
-    }
-
-    private getItemTransforms(item: PrintConfigItem): PrintConfigTransform[] {
-        return this.transforms.filter(
-            (i: PrintConfigTransform, j: number) => {
-                return i.item == item
-            }
-        )
-    }
-
-    private removeUseTransforms(use: Use) {
-        const removed = this.getUseTransforms(use)
-        while (removed.length) {
-            this.spliceItem(removed.shift())
-        }
-    }
-
-    private spliceItem(item: PrintConfigTransform) {
-        const transforms = this.transforms
-        transforms.splice(transforms.indexOf(item), 1)
-    }
-
-    private sortTransforms() {
-        /*
-        this.transforms.sort((a: PrintConfigTransform, b: PrintConfigTransform) => {
-            
-            if (a.item.size > b.item.size) {
-                return -1
-            }
-            if (a.item.size < b.item.size) {
-                return 1
-            }
-            if (a.item == b.item) {
-                if (!a.item.mirrored && b.mirrored) {
-                    return -1
-                }
-                if (a.item.mirrored && !b.mirrored) {
-                    return 1
-                }
-                return 0
-            }
-            return 0
-        })
-*/
-    }
-
-    private getSymbolRef(use: Use): ISymbolRef {
-        const id = use.href.slice(1)
-        return this.symbols.find((s: ISymbolRef) => {
-            return s.refId == id
-        })
-    }
-
-    private cloneUse(use: Use, ref?: ISymbolRef): Use {
-        if (!ref)
-            ref = this.getSymbolRef(use)
-        if (!ref)
-            return null
-        return {
-            href: `#${ref.id}`,
-            width: use.width,
-            height: use.height
-        }
-    }
-
-    private invalidateDisplayList(layoutChanged: boolean = true) {
-        if (layoutChanged) {
-            this.sortTransforms()
-            this.updateTransforms()
-        }
-        else {
-            const collection: DrawStyleCollection = {}
-            collection[PATH_SELECTOR] = this.config.style
-            collection[RECT_SELECTOR] = {
-                fill: NONE,
-                stroke: "#666",
-                "stroke-width": "1pt"
-            }
-            this.styleSheet = collection
-        }
-    }
-
-    private getViewBox(data: string): IRect {
-        const l = getViewBox(data)
-        let i = 0
-        return {
-            x: l[i++],
-            y: l[i++],
-            width: l[i++],
-            height: l[i]
-        }
-    }
-
-    private currentUseTransforms: UseTransform[]
-
-    private updateTransforms() {
-        const items: UseTransform[] = this.transforms.map(transform => {
-            const sym = this.getSymbolRef(transform.use)
-            const vb = this.getViewBox(sym.viewBox)
-            const s: number = mm2px(transform.item.size) / vb.height
-            const matrix: Matrix = new Matrix()//(1, 0, 0, 1, -(vb.x + vb.width / 2), -(vb.y + vb.height / 2))
-            const rect: IRect = { x: 0, y: 0, width: vb.width * s, height: vb.height * s }
-            matrix.translate(-(vb.x + vb.width / 2), -(vb.y + vb.height / 2))
-            // const ms: number = transform.mirrored ? -1 : 1
-            if (transform.mirrored)
-                matrix.scale(-1, 1)
-            matrix.scale(s, s)
-                .translate(rect.width / 2, rect.height / 2)
-            return {
-                pathData: sym.paths[0].d,
-                use: transform.useRef,
-                rect: rect,
-                matrix: matrix,
-                offsetY: 0
-            }
-        })
-        const config = new Config2pix(this.config)
-        const pw: number = config.width
-        const ph: number = config.height
-        this.pageWidth = pw
-        this.pageHeight = ph
-        const maxX: number = pw - config.right
-        const maxY: number = ph - config.bottom
-        const gap = config.itemGap
-        let py: number = 0
-        let x: number = config.left
-        let y: number = config.top
-        const pages: PageRect[] = []
-        let pr: PageRect
-        let tfm: UseTransform
-        let rect: IRect
-        let rowHeight: number
-        const addPage = () => {
-            pr = { y: py }
-            pages.push(pr)
-            x = config.left
-            y = config.top
-            rowHeight = 0
-        }
-        const setTransform = () => {
-            tfm.offsetY = py
-            tfm.matrix.translate(x, y + py)
-            tfm.use.transform = tfm.matrix.toCSS()
-            x += rect.width + gap
-            if (rowHeight < rect.height)
-                rowHeight = rect.height
-        }
-        const n: number = items.length
-        var i: number
-        for (i = 0; i < n; i++) {
-            if (!pr)
-                addPage()
-
-            tfm = items[i]
-            rect = tfm.rect
-            if (x + rect.width <= maxX) {
-                if (y + rect.height <= maxY)
-                    setTransform()
-                else {
-                    py += ph
-                    addPage()
-                    setTransform()
-                }
-            }
-            else {
-                y += gap + rowHeight
-                rowHeight = 0
-                x = config.left
-                if (y + rect.height <= maxY)
-                    setTransform()
-                else {
-                    py += ph
-                    addPage()
-                    setTransform()
-                }
-            }
-        }
-        this.viewBox.width = pw.toString()
-        this.viewBox.height = (py + ph).toString()
-        this.pages = pages
-        this.currentUseTransforms = items
-    }
-    public clear() {
+    clear() {
         this.symbols.length = 0
-        this.transforms.length = 0
+        this._printConfigs.length = 0
     }
     savePDF(filename: string) {
         const config = new Config2pix(this.config)
@@ -417,6 +157,8 @@ export class PrintConfigService {
             size: [config.width, config.height]
         })
         const doc: PDFDocument = pdf.document
+        const left: number = config.left
+        const top: number = config.top
         let strokeColor: any = checkValue(style["stroke"])
         let fillColor: any = checkValue(style["fill"])
         let strokeWidth: any = checkValue(style["stroke-width"])
@@ -425,14 +167,11 @@ export class PrintConfigService {
 
         let beforeDraw: () => PDFDocument
         const setlineWidth = () => {
-            if (strokeWidth != NONE) {
-                doc.lineWidth(strokeWidth)
-            }
+            return doc.lineWidth(strokeWidth)
         }
         if (strokeColor != NONE && fillColor != NONE)
             beforeDraw = () => {
-                setlineWidth()
-                return doc.fillAndStroke(fillColor, strokeColor)
+                return setlineWidth().fillAndStroke(fillColor, strokeColor)
             }
         else {
             if (fillColor != NONE)
@@ -441,29 +180,214 @@ export class PrintConfigService {
                 }
             else if (strokeColor != NONE) {
                 beforeDraw = () => {
-                    setlineWidth()
-                    return doc.stroke(strokeColor)
+                    return setlineWidth().stroke(strokeColor)
                 }
             }
         }
         if (!beforeDraw)
             throw new Error("Invalide drawing style")
-        let pageY: number = 0
-        const pathData: PathData = new PathData()
-        let matrix: Matrix
-        for (const tfm of this.currentUseTransforms) {
-            if (pageY != tfm.offsetY) {
-                doc.addPage()
-                pageY = tfm.offsetY
-            }
-            matrix = tfm.matrix.clone()
-            matrix.translate(0, -tfm.offsetY)
-            pathData.data = tfm.pathData
-            pathData.transform(matrix)
-            beforeDraw()
-            .path(pathData.data)
+        let rects: ConfigRec[] = this._configRects
+        let pageIndex: number = 0
+        let drawers: { [id: string]: PathData } = {}
+        let s: ISymbol
+        for (const c of this._printConfigs) {
+            s = this.getSymbolByConfig(c)
+            drawers[s.id] = new PathData(s.paths[0].d)
         }
+        for (const r of rects) {
+            if (r.data.index != pageIndex) {
+                pageIndex = r.data.index
+                doc.addPage()
+            }
+            s = this.getSymbolByConfig(r.data.config)
+            for (const item of r.data.items) {
+                beforeDraw()
+                    .path(drawers[s.id].serialize(
+                        item.matrix.clone().translate(left + r.x, top + r.y)
+                    ))
+                beforeDraw()
+            }
+        }
+
         pdf.save(filename)
+    }
+
+    private getSymbolByConfig(config: PrintConfig): ISymbolRef {
+        const i = this._printConfigs.indexOf(config)
+        if (i > -1) {
+            return this.symbols[i]
+        }
+        return null
+    }
+
+    private getSymbolRef(use: Use): ISymbolRef {
+        const id = use.href.slice(1)
+        return this.symbols.find((s: ISymbolRef) => {
+            return s.refId == id
+        })
+    }
+
+    private _invalidateDisplayList(layoutChanged: boolean = true) {
+        if (layoutChanged) {
+            this._updateTransforms()
+        }
+        else {
+            const collection: DrawStyleCollection = {}
+            collection[PATH_SELECTOR] = this.config.style
+            collection[RECT_SELECTOR] = {
+                fill: NONE,
+                stroke: "#666",
+                "stroke-width": "1pt"
+            }
+            this.styleSheet = collection
+        }
+    }
+
+    private _getViewBox(data: string): IRect {
+        const l = getViewBox(data)
+        let i = 0
+        return {
+            x: l[i++],
+            y: l[i++],
+            width: l[i++],
+            height: l[i]
+        }
+    }
+
+    private _updateTransforms() {
+        const config = new Config2pix(this.config)
+        const pw: number = config.width
+        const ph: number = config.height
+        this.pageWidth = pw
+        this.pageHeight = ph
+        const left: number = config.left
+        const top: number = config.top
+        const gap = config.itemGap
+        let x: number
+        let y: number
+        let py: number = 0
+        let m: Matrix
+        const aw = pw - config.left - config.right
+        const ah = ph - config.top - config.bottom
+        const pages: PageRect[] = []
+
+        let useCollection: Use[] = []
+        let rects: ConfigRec[] = this._createConfigsRects(gap)
+        if(! rects.length)
+            return
+        let id: number = 0
+        for (const r of rects) {
+            r.id = id++
+        }
+        
+        let packerRect = rects.slice()
+        packerRect.sort((a, b)=>{
+            return (a.width * a.height) - (b.width * b.height)
+        })
+
+        let packer = new MaxRectsPacker(aw, ah, gap, {
+            smart: true,
+            pot: false,
+            square: false
+        })
+        id = 0
+        let result: ConfigRec[] = []
+        packer.addArray(packerRect) 
+        packer.bins.forEach(bin => {
+            for(const r of bin.rects)
+                r.data.index = id
+            result.push(...bin.rects)
+            id ++
+        })
+
+        id = 0
+        pages.push({ y: py })
+        let sym: ISymbolRef
+        let use: Use
+        let vb: IRect
+        for (const r of result ) {
+            if (r.data.index != id) {
+                id = r.data.index
+                py += ph
+                pages.push({ y: py })
+            }
+            x = left + r.x
+            y = py + top + r.y
+            sym = this.getSymbolByConfig(r.data.config)
+            vb = this._getViewBox(sym.viewBox)
+            for (const item of r.data.items) {
+                m = item.matrix.clone()
+                m.translate(x, y)
+                useCollection.push({
+                    href: "#" + sym.id,
+                    width: vb.width.toString(),
+                    height: vb.height.toString(),
+                    transform: m.toCSS()
+                })
+            }
+        }
+        this._configRects = result
+
+        this.pages = pages
+        this.viewBox.width = pw.toString()
+        this.viewBox.height = (py + ph).toString()
+        this.useCollection = useCollection
+    }
+
+    private _createConfigsRects(gap: number = 0) {
+        let rects: ConfigRec[] = []
+        let configRects: ConfigRec[]
+        let sym: ISymbolRef
+        let vb: IRect
+        let s: number
+        let matrix: Matrix
+        let rect: IRect
+        let configRec: ConfigRec
+        let i: number
+        let m: Matrix
+        for (const config of this._printConfigs) {
+            sym = this.getSymbolRef(config.use)
+            vb = this._getViewBox(sym.viewBox)
+            configRects = []
+            for (const item of config.items) {
+                matrix = new Matrix()
+                matrix.translate(-(vb.x + vb.width / 2), -(vb.y + vb.height / 2))
+                s = mm2px(item.size) / vb.height
+                rect = { x: 0, y: 0, width: vb.width * s, height: vb.height * s }
+                for (i = 0; i < item.numCopies; i++) {
+                    m = matrix.clone()
+                    configRec = {
+                        width: rect.width,
+                        height: rect.height,
+                        x: 0, y: 0,
+                        data: {
+                            index: 0,
+                            config: config,
+                            items: [
+                                {
+                                    target: item,
+                                    matrix: m
+                                }
+                            ]
+                        }
+                    }
+
+                    if (item.mirrored) {
+                        configRec.data.items[1] = {
+                            target: item,
+                            matrix: m.clone().scale(-1, 1).scale(s, s)
+                                .translate(rect.width / 2 + rect.width + gap, rect.height / 2)
+                        }
+                        configRec.width += (rect.width + gap)
+                    }
+                    m.scale(s, s)
+                        .translate(rect.width / 2, rect.height / 2)
+                    configRects.push(configRec)
+                }
+            }
+            rects.push(...configRects)
+        }
+        return rects
     }
 }
 
