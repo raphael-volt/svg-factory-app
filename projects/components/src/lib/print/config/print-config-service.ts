@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { PrintConfig, PrintConfigItem } from './print-config';
 import { Use, ISymbol, DrawStyleCollection, NONE, checkValue, SVGStyleCollection } from 'ng-svg/core';
 import { ConfigService, IPrintConfig } from '../../services/config.service';
-import { mm2px, getLayoutSizes, PDFWrapper, PDFDocument } from 'tspdf';
+import { LayoutUtils, PDFWrapper, PDFDocument } from 'tspdf';
 import { SymbolService } from '../../services/symbol.service';
 import { getViewBox, IRect, Matrix, PathData } from 'ng-svg/geom';
 import * as maxrectsPacker from "maxrects-packer";
@@ -75,6 +75,8 @@ export class PrintConfigService {
     constructor(
         private symbolService: SymbolService,
         private storage: ConfigService) {
+
+        this.createProviders()
         const config = storage.print
         if (config) {
             this._config = config
@@ -85,6 +87,35 @@ export class PrintConfigService {
                 sub.unsubscribe()
             })
         }
+    }
+
+    public symbolSizeProvider: number[]
+    public numCopyProvider: number[]
+    defaultPrintConfigItem(): PrintConfigItem {
+        return {
+            size: this.symbolSizeProvider[0],
+            mirrored: true,
+            numCopies: 1
+        }
+    }
+    private createProviders() {
+        const MIN_SYMBOL_SIZE: number = 40
+        const SYMBOL_SIZE_INCREMENT: number = 10
+        const NUM_SYMBOL_SIZE: number = 6
+        const NUM_COPY_MAX: number = 10
+        const symbolSizeProvider: number[] = []
+        const numCopyProvider: number[] = []
+
+        let i: number
+        for (i = 0; i <= NUM_SYMBOL_SIZE; i++) {
+            symbolSizeProvider[i] = MIN_SYMBOL_SIZE + SYMBOL_SIZE_INCREMENT * i
+        }
+        i = 1
+        while (i <= NUM_COPY_MAX) {
+            numCopyProvider.push(i++)
+        }
+        this.symbolSizeProvider = symbolSizeProvider
+        this.numCopyProvider = numCopyProvider
     }
 
     saveConfig(type: "layout" | "style" | "margins") {
@@ -145,6 +176,7 @@ export class PrintConfigService {
         this._printConfigs.length = 0
     }
     savePDF(filename: string) {
+        console.log('PrintConfigService.savePDF')
         const config = new Config2pix(this.config)
         const style = this.config.style
         const pdf: PDFWrapper = new PDFWrapper({
@@ -273,15 +305,15 @@ export class PrintConfigService {
 
         let useCollection: Use[] = []
         let rects: ConfigRec[] = this._createConfigsRects(gap)
-        if(! rects.length)
+        if (!rects.length)
             return
         let id: number = 0
         for (const r of rects) {
             r.id = id++
         }
-        
+
         let packerRect = rects.slice()
-        packerRect.sort((a, b)=>{
+        packerRect.sort((a, b) => {
             return (a.width * a.height) - (b.width * b.height)
         })
 
@@ -292,12 +324,12 @@ export class PrintConfigService {
         })
         id = 0
         let result: ConfigRec[] = []
-        packer.addArray(packerRect) 
+        packer.addArray(packerRect)
         packer.bins.forEach(bin => {
-            for(const r of bin.rects)
+            for (const r of bin.rects)
                 r.data.index = id
             result.push(...bin.rects)
-            id ++
+            id++
         })
 
         id = 0
@@ -305,7 +337,7 @@ export class PrintConfigService {
         let sym: ISymbolRef
         let use: Use
         let vb: IRect
-        for (const r of result ) {
+        for (const r of result) {
             if (r.data.index != id) {
                 id = r.data.index
                 py += ph
@@ -345,6 +377,7 @@ export class PrintConfigService {
         let configRec: ConfigRec
         let i: number
         let m: Matrix
+        const mm2px = LayoutUtils.mm2px
         for (const config of this._printConfigs) {
             sym = this.getSymbolRef(config.use)
             vb = this._getViewBox(sym.viewBox)
@@ -401,13 +434,13 @@ class Config2pix {
     itemGap: number
     constructor(config: IPrintConfig) {
         this.itemGap = config.itemGap
-
+        const mm2px = LayoutUtils.mm2px
         this.left = mm2px(config.margins.left)
         this.right = mm2px(config.margins.right)
         this.top = mm2px(config.margins.top)
         this.bottom = mm2px(config.margins.bottom)
 
-        const sizes = getLayoutSizes(config.format, config.orientation)
+        const sizes = LayoutUtils.getLayoutSizes(config.format, config.orientation)
         this.width = sizes[0]
         this.height = sizes[1]
 
