@@ -56,7 +56,7 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "2mb",
+                  "maximumWarning": "4mb",
                   "maximumError": "5mb"
                 }
               ]
@@ -343,41 +343,6 @@
             "tsConfig": [
               "projects/tinycolor/tsconfig.lib.json",
               "projects/tinycolor/tsconfig.spec.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
-          }
-        }
-      }
-    },
-    "rects-packer": {
-      "root": "projects/rects-packer",
-      "sourceRoot": "projects/rects-packer/src",
-      "projectType": "library",
-      "prefix": "lib",
-      "architect": {
-        "build": {
-          "builder": "@angular-devkit/build-ng-packagr:build",
-          "options": {
-            "tsConfig": "projects/rects-packer/tsconfig.lib.json",
-            "project": "projects/rects-packer/ng-package.json"
-          }
-        },
-        "test": {
-          "builder": "@angular-devkit/build-angular:karma",
-          "options": {
-            "main": "projects/rects-packer/src/test.ts",
-            "tsConfig": "projects/rects-packer/tsconfig.spec.json",
-            "karmaConfig": "projects/rects-packer/karma.conf.js"
-          }
-        },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": [
-              "projects/rects-packer/tsconfig.lib.json",
-              "projects/rects-packer/tsconfig.spec.json"
             ],
             "exclude": [
               "**/node_modules/**"
