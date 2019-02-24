@@ -1,0 +1,10 @@
+version: '2'
+services:
+  app:
+    container_name: svg-factory-prod
+    image: rvolt/dev-stack:lamp
+    ports:
+      - 4210:80
+    volumes:
+      - ./dist/svg-factory-app:/var/www/html:rw
+    restart: 'always'
