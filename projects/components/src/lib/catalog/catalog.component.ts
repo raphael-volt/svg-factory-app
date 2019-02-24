@@ -4,7 +4,6 @@ import { TspdfService } from 'tspdf';
 import { CatalogPreviewComponent } from './catalog-preview/catalog-preview.component';
 import { DepthDifferService, DepthDiffer } from 'change-detection';
 import { Subscription } from 'rxjs';
-import { callLater } from '../core/call-later';
 
 @Component({
   selector: 'catalog',
@@ -39,9 +38,9 @@ export class CatalogComponent implements OnDestroy, OnInit {
   ngOnInit() {
     const storage = this.storage
     if (storage.catalog) {
-      callLater(()=>{
+      setTimeout(()=>{
         this.setCatalogConfig(storage.catalog)
-      })
+      }, 10)
     }
     else {
       const sub = storage.getCatalog().subscribe((config: ICatalogConfig) => {

@@ -1,7 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatStep, MatStepper } from '@angular/material';
 import { AbstractControl, FormControl } from '@angular/forms';
-import { callLater } from '../core/call-later';
 import { SymbolListComponent } from '../symbol-list/symbol-list.component';
 import { Use } from 'ng-svg/core';
 
@@ -56,9 +55,9 @@ export class PrintComponent implements OnInit {
   reset() {
     this.selectionChanged(this.symbolList.symbols.slice(0, 20))
     this.selectionCtrl.updateValueAndValidity()
-    callLater(() => {
+    setTimeout(() => {
       this.stepper.selectedIndex = 0
-    })
+    }, 10)
 
   }
 
