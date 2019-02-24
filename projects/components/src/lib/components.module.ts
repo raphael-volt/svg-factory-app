@@ -3,7 +3,6 @@ import { CommonModule } from "@angular/common";
 import { HttpClientModule } from "@angular/common/http";
 import { AppMaterialModule } from "./services/app-material.module";
 import { NgSvgModule } from "ng-svg";
-
 import { TspdfModule } from "tspdf";
 import { CommonModule as _CommonModule } from "common";
 import { SVGComponentsModule } from "ng-svg/components";
@@ -75,7 +74,8 @@ import { ApiGuard } from './services/api-guard';
   ],
   exports: [
     AppMaterialModule, 
-    NgSvgModule
+    NgSvgModule,
+    SVGComponentsModule
   ],
   providers: [
     AuthService,
