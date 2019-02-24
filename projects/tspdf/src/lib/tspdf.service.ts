@@ -1,6 +1,19 @@
 import { Injectable } from '@angular/core';
 import { PDFWrapper, PDFDocumentOptions } from "./tspdf.model";
 import { Observable, Observer } from "rxjs";
+import { HttpClient } from '@angular/common/http';
+
+const CSS_URL = /url\((.*?)\)/
+const RM_Q = /^['|"](.*?)['|"]$/
+
+const getFontUrl = (str: string): string | undefined => {
+  if (CSS_URL.test(str)) {
+    const match = CSS_URL.exec(str)
+    str = match[1]
+    return str.replace(RM_Q, '$1')
+  }
+  return undefined
+}
 
 export interface IFont {
   name?: string
@@ -19,7 +32,9 @@ export interface IFontCollection {
 export class TspdfService {
 
   fontMap: IFontCollection = {}
-  constructor() { }
+  constructor(
+    private http: HttpClient
+  ) { }
 
   get fontList(): string[] {
     const names = []
@@ -47,17 +62,19 @@ export class TspdfService {
       }
       const error = (e?: any) => {
         sub.unsubscribe()
-        if (e)
+        if (e) {
+          console.log('TspdfService.loadFontData ERROR', e)
           observer.error(e)
+        }
       }
-      let sub = fontXHR(font.url).subscribe(
-        data => {
-          error()
-          observer.next(data)
-          observer.complete()
-        },
-        error
-      )
+      let sub = this.http.get(font.url, {
+        responseType: "arraybuffer"
+      }).subscribe(data => {
+        error()
+        observer.next(data)
+        observer.complete()
+      },
+      error)
     })
   }
   getFont(name: string): IFont | undefined {
@@ -94,44 +111,4 @@ export class TspdfService {
     }
     return this.fontMap
   }
-}
-const CSS_URL = /url\((.*?)\)/
-const RM_Q = /^['|"](.*?)['|"]$/
-const fontXHR = (url: string): Observable<ArrayBuffer> => {
-  return Observable.create(
-    (obs: Observer<ArrayBuffer>) => {
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', url, true);
-      xhr.responseType = 'arraybuffer';
-
-      xhr.onload = (e) => {
-        if (xhr.status == 200) {
-          obs.next(xhr.response)
-          obs.complete()
-        }
-      };
-      xhr.onerror = obs.error
-      xhr.send()
-    }
-  )
-}
-const fontReader = (file: File): Observable<ArrayBuffer> => {
-  return Observable.create(
-    (obs: Observer<ArrayBuffer>) => {
-      const fr: FileReader = new FileReader()
-      fr.onloadend = (e) => {
-        obs.next(<ArrayBuffer>fr.result)
-        obs.complete()
-      }
-      fr.readAsArrayBuffer(file)
-    }
-  )
-}
-const getFontUrl = (str: string): string | undefined => {
-  if (CSS_URL.test(str)) {
-    const match = CSS_URL.exec(str)
-    str = match[1]
-    return str.replace(RM_Q, '$1')
-  }
-  return undefined
 }
