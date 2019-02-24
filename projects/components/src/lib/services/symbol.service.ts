@@ -4,8 +4,8 @@ import { map } from 'rxjs/operators';
 import { ApiService } from "./api.service";
 import { SVGSymbol, cloneSymbolForSave, SymbolConfig } from "../core/symbol";
 import { FactoryService } from "ng-svg/components";
-import { DrawStyleCollection, ISymbol, Use } from 'ng-svg/core';
-import { Matrix, PathData, IRect, parseSVG, SVGPath, split, getViewBox } from 'ng-svg/geom'
+import { ISymbol, Use } from 'ng-svg/core';
+import { Matrix, PathData, IRect, SVGPath, getViewBox, builder } from 'ng-svg/geom'
 import { ConfigService } from "./config.service";
 export const provideSymbolService = () => {
   return {
@@ -62,7 +62,7 @@ export class SymbolService {
     this.configService.saveSymbolConfig()
   }
 
-  getSymbolTargetByRef(href:string): SVGSymbol {
+  getSymbolTargetByRef(href: string): SVGSymbol {
     return this.getSymbolTarget(this.getSymbolByRef(href))
   }
   getSymbolTarget(s: ISymbol): SVGSymbol {
@@ -250,7 +250,7 @@ export class SymbolService {
    * @returns SVGPath[]
    */
   findPath(svg: string): SVGPath[] {
-    const pathCollection: SVGPath[] = parseSVG(svg, this.config.viewBox.width)
+    const pathCollection: SVGPath[] = builder.parseSVG(svg, this.config.viewBox.width)
     for (const p of pathCollection) {
       p.className = PATH_CLASS
     }
@@ -302,7 +302,7 @@ export class SymbolService {
    */
   parseSVG(svg: string): Observable<ISymbol[]> {
     return Observable.create((obs: Observer<ISymbol[]>) => {
-      const pathCollection: SVGPath[] = parseSVG(svg, this.config.viewBox.width)
+      const pathCollection: SVGPath[] = builder.parseSVG(svg, this.config.viewBox.width)
       const pathData: PathData = new PathData()
       let path: SVGPath
       let result: ISymbol[] = []

@@ -1,5 +1,4 @@
-import { PathCommand, serialize, transformPathData, 
-    getCommandsTransformBounds, cloneCommandsCollections, SVGPath, PathCommandCollection
+import { PathDataUtils, SVGPath, PathCommandCollection
 } from './path-data.core';
 import { Rect } from './rect';
 import { Matrix } from './matrix';
@@ -18,7 +17,7 @@ export class PathData implements SVGPath{
     }
 
     public get data(): string {
-        return serialize(this.commands, this.digits)
+        return PathDataUtils.serialize(this.commands, this.digits)
     }
 
     public set data(value: string) {
@@ -26,20 +25,20 @@ export class PathData implements SVGPath{
     }
 
     transform(matrix: Matrix): Rect {
-        return transformPathData(this, matrix)
+        return PathDataUtils.transformPathData(this, matrix)
     }
 
     getTransformBounds(matrix: Matrix): Rect {
-        return getCommandsTransformBounds(this.commands, matrix)
+        return PathDataUtils.getCommandsTransformBounds(this.commands, matrix)
     }
 
     serialize(matrix: Matrix): string {
-        return serialize(this.commands, this.digits, matrix)
+        return PathDataUtils.serialize(this.commands, this.digits, matrix)
     }
     
     clone() : PathData {
         const clone: PathData = new PathData()
-        clone.commands = cloneCommandsCollections(this.commands)
+        clone.commands = PathDataUtils.cloneCommandsCollections(this.commands)
         clone.bounds.copyFrom(this.bounds)
         return clone
     }
