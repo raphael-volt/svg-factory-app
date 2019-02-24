@@ -1,5 +1,5 @@
 <div class="controls h-item content">
-  <div #form="ngForm" [formGroup]="formGroup" class="form-item-group content pad-8" [class.br-4]="border" [class.border]="border">
+  <form #form="ngForm" [formGroup]="formGroup" class="form-item-group content pad-8" [class.br-4]="border" [class.border]="border">
     <label>Connexion API</label>
     <ng-content select="form-error"></ng-content>
     <div class="form-item">
@@ -12,7 +12,7 @@
     </div>
     <div class="form-item">
       <mat-form-field>
-        <input matInput required placeholder="Login" formControlName="login">
+        <input matInput autocomplete="username" required placeholder="Login" formControlName="login">
       </mat-form-field>
       <mat-error *ngIf="formGroup.controls.login.invalid">
         {{getErrorMessage(formGroup.controls.login)}}
@@ -20,7 +20,7 @@
     </div>
     <div class="form-item">
       <mat-form-field>
-        <input matInput required type="password" placeholder="Mot de passe" formControlName="password">
+        <input matInput required  autocomplete="current-password" type="password" placeholder="Mot de passe" formControlName="password">
       </mat-form-field>
       <mat-error *ngIf="formGroup.controls.password.invalid">
         {{getErrorMessage(formGroup.controls.password)}}
@@ -29,5 +29,5 @@
     <div class="form-item" *ngIf="sendButton">
       <button color="accent" class="save-button" [disabled]="!valid" mat-raised-button (click)="submit.next(data)">Envoyer</button>
     </div>
-  </div>
+  </form>
 </div>
