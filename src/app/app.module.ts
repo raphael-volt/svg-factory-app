@@ -3,11 +3,9 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from "@angular/common";
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-import { ComponentsModule, AppMaterialModule } from "components";
+import { ComponentsModule } from "components";
 import { AppComponent } from './app.component';
 import { RoutingModule } from "./core/routing.module";
-import { SVGComponentsModule } from "ng-svg/components";
-import { MatIconModule } from '@angular/material';
 
 @NgModule({
   declarations: [
@@ -16,15 +14,12 @@ import { MatIconModule } from '@angular/material';
   imports: [
     BrowserModule,
     CommonModule,
-    MatIconModule,
     BrowserAnimationsModule,
     ComponentsModule,
-    AppMaterialModule,
-    RoutingModule,
-    SVGComponentsModule
+    RoutingModule
   ],
   exports: [
-    AppMaterialModule
+    ComponentsModule
   ],
   providers: [],
   bootstrap: [AppComponent]
