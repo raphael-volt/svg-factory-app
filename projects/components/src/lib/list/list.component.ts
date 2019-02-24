@@ -103,12 +103,13 @@ export class ListComponent {
         alert(result)
       }
     }
-    this.sending = true
     const sub = ref.afterClosed().subscribe((items: SVGPath[]) => {
       sub.unsubscribe()
-      if (items && items.length)
+      if (items && items.length){
+        this.sending = true
         this.service.registerPathCollection(items)
-          .subscribe(done, done)
+            .subscribe(done, done)
+      }
       else {
         done(true)
       }
