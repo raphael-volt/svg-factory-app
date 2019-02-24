@@ -18,11 +18,11 @@
     "build:app": "npm run ld && ng build --prod --base-href=./",
     "build:app:electron": "npm run build:app && npm run electron",
     "build:all": "npm run build:lib && npm run build:app",
-    "build:web": "npm run ls && ng build --prod --source-map=false --base-href=/svg-app/",
+    "build:web": "npm run ld && ng build --prod --source-map=false --base-href=/svg-app/",
     "build:serve": "ng build --prod --base-href=/ && npm run http-server",
     "build:watch": "ng build --prod --watch",
     "build:electron": "npm run build:all && npm run electron",
-    "build:install": "rm -rf node_modules/ && warn install && npm run build:all",
+    "build:install": "rm -rf node_modules/ && npm i && npm run build:all",
     "http-server": "http-server dist/svg-factory-app/ -p 4290",
     "electron": "electron .",
     "darwin:pkg": "electron-packager . --out=release-build --overwrite --platform=darwin --arch=x64 --icon=src/assets/icons/1024X1024.icns"

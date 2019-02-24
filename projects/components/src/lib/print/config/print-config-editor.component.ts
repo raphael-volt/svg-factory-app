@@ -1,6 +1,5 @@
-import { Component, Input, EventEmitter, OnChanges, SimpleChanges, ViewEncapsulation, Output } from "@angular/core";
-import { symbolSizeProvider, numCopyProvider, PrintConfigItem, PrintConfig, defaultPrintConfigItem } from './print-config';
-import { Use } from 'ng-svg/core';
+import { Component, Input, EventEmitter, ViewEncapsulation, Output } from "@angular/core";
+import { PrintConfigItem, PrintConfig } from './print-config';
 import { PrintConfigService } from './print-config-service';
 
 @Component({
@@ -16,7 +15,7 @@ export class PrintConfigEditorComponent {
         private service: PrintConfigService
     ) {}
     addEditor() {
-        this.item.items.push(defaultPrintConfigItem())
+        this.item.items.push(this.service.defaultPrintConfigItem())
     }
     removeEditor(item: PrintConfigItem) {
         const items = this.item.items
@@ -50,7 +49,7 @@ export class PrintConfigRendererComponent {
     
     @Input()
     item: PrintConfigItem
-
+    
     @Output()
     removeItem: EventEmitter<PrintConfigItem> = new EventEmitter<PrintConfigItem>()
     @Output()
@@ -60,8 +59,13 @@ export class PrintConfigRendererComponent {
     @Output()
     mirroredChange: EventEmitter<PrintConfigItem> = new EventEmitter<PrintConfigItem>()
     
-    sizeProvider: number[] = symbolSizeProvider
-    copyProvider: number[] = numCopyProvider
+    sizeProvider: number[]
+    copyProvider: number[]
+    constructor(
+        service: PrintConfigService
+    ) { 
+        this.sizeProvider = service.symbolSizeProvider
+        this.copyProvider = service.numCopyProvider
+    }
 
-    constructor() {}
 }

@@ -1,8 +1,8 @@
 import { Component, OnInit, Input, DoCheck, IterableDiffer, IterableDiffers, IterableChanges, IterableChangeRecord } from '@angular/core';
 import { Use } from 'ng-svg/core';
-import { PrintConfig, defaultPrintConfigItem } from './print-config';
-import { symbolSizeProvider } from "./print-config";
+import { PrintConfig } from "./print-config";
 import { PrintConfigService } from './print-config-service';
+
 @Component({
   selector: 'print-config',
   templateUrl: './print-config.component.html',
@@ -17,7 +17,6 @@ export class PrintConfigComponent implements OnInit, DoCheck {
   private _symbols: Use[] = []
   private _symbolsDiffer: IterableDiffer<Use>
 
-  private readonly defaultSize = symbolSizeProvider[0]
   constructor(
     private service: PrintConfigService,
     differs: IterableDiffers
@@ -41,7 +40,7 @@ export class PrintConfigComponent implements OnInit, DoCheck {
     this.service.configRemoved(config)
   }
   addEditor(config: PrintConfig) {
-    const item = defaultPrintConfigItem()
+    const item = this.service.defaultPrintConfigItem()
     config.items.push(item)
     this.service.itemAdded(config, item)
   }
@@ -57,13 +56,13 @@ export class PrintConfigComponent implements OnInit, DoCheck {
     const configs = this.configs
     let config: PrintConfig
     changes.forEachAddedItem((record: IterableChangeRecord<Use>) => {
-      if(this.hasConfig(record.item.href)) {
+      if (this.hasConfig(record.item.href)) {
         return
       }
       config = {
         use: record.item,
         items: [
-          defaultPrintConfigItem()
+          this.service.defaultPrintConfigItem()
         ]
       }
       configs.push(config)

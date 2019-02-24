@@ -1,12 +1,11 @@
-import { Component, Input, OnChanges, SimpleChanges, ViewChild, ElementRef, AfterViewInit, Directive } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, ViewChild, ElementRef, AfterViewInit, Directive, OnDestroy, OnInit } from '@angular/core';
 import { ICatalogConfig } from '../../services/config.service';
 import { Use, ISymbol, DrawStyle, NS_SVG, NONE, NON_SCALING_STROKE, TextStyle, Path, NS_XLINK } from 'ng-svg/core';
 import { SymbolService } from '../../services/symbol.service';
 import { Subscription, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { TspdfService, mm2px, getLayoutSizes, PDFWrapper, PDFDocument } from 'tspdf';
+import { TspdfService, LayoutUtils, PDFWrapper, PDFDocument } from 'tspdf';
 import { IRect, Matrix, Coord, PathData } from 'ng-svg/geom';
-import { callLater } from '../../core/call-later';
 
 const SYMBOL_PREFIX: string = "sym"
 const PT: string = "pt"
@@ -37,6 +36,7 @@ class Config2pix {
   height: number
   itemGap: number
   constructor(config: ICatalogConfig) {
+    const mm2px = LayoutUtils.mm2px
     this.textPadding = mm2px(config.textPadding)
     this.rowGap = mm2px(config.rowGap)
     this.itemGap = mm2px(config.itemGap)
@@ -46,7 +46,7 @@ class Config2pix {
     this.top = mm2px(config.margins.top)
     this.bottom = mm2px(config.margins.bottom)
 
-    const sizes = getLayoutSizes(config.format, config.orientation)
+    const sizes = LayoutUtils.getLayoutSizes(config.format, config.orientation)
     this.width = sizes[0]
     this.height = sizes[1]
 
@@ -59,7 +59,7 @@ class Config2pix {
   templateUrl: './catalog-preview.component.html',
   styleUrls: ['./catalog-preview.component.css']
 })
-export class CatalogPreviewComponent implements OnChanges, AfterViewInit {
+export class CatalogPreviewComponent implements OnChanges, AfterViewInit, OnDestroy, OnInit {
 
   @Input()
   config: ICatalogConfig = null
@@ -70,24 +70,31 @@ export class CatalogPreviewComponent implements OnChanges, AfterViewInit {
   rectStyle: DrawStyle
   textStyle: TextStyle
 
+  private populateSub: Subscription
+
   constructor(private service: SymbolService, private pdfService: TspdfService) {
+
+  }
+  ngOnDestroy() {
+    if (this.populateSub)
+      this.populateSub.unsubscribe()
+  }
+  ngOnInit() {
+    const service = this.service
+    this.populateSub = service.populatedChange.subscribe(
+      symbols => {
+        this.initializedChange(true)
+      }
+    )
     if (service.populated)
       this.initializedChange(true)
-    else {
-      const sub: Subscription = service.populatedChange.subscribe(
-        symbols => {
-          sub.unsubscribe()
-          this.initializedChange(true)
-        }
-      )
-    }
   }
   ngOnChanges(changes: SimpleChanges) {
     if (changes.config && this.config)
       this.update()
   }
   viewBox: Use
-  symbolsCollection: ISymbol[] = []
+  symbolsCollection: ISymbol[]
   pages: RectDesc[]
   uses: Use[]
   textes: TextDesc[]
@@ -138,15 +145,11 @@ export class CatalogPreviewComponent implements OnChanges, AfterViewInit {
       symbols.push(symClone)
     }
     this._elemntsCreated = true
-
-    if (this.symbolsCollection.length) {
-      this.symbolsCollection.length = 0
-    }
-    callLater(()=>{
-      this.symbolsCollection.push(...symbols)
+    setTimeout(() => {
+      this.symbolsCollection = symbols
       this.updateStyles()
       this.updateDiplayList()
-    })
+    }, 10)
   }
 
   private updateStyles() {
@@ -220,7 +223,7 @@ export class CatalogPreviewComponent implements OnChanges, AfterViewInit {
     }
 
     const firstUpdate = this.firstUpdate
-    const textDrawer: SVGTextElement = document.createElementNS(NS_SVG, 'text') as SVGTextElement
+    const textDrawer: SVGTextElement = document.createElementNS(NS_SVG, 'text') as any
     const style = this.textStyle
     if (style) {
       for (const k in style) {
@@ -242,6 +245,7 @@ export class CatalogPreviewComponent implements OnChanges, AfterViewInit {
 
   private createRows(firstUpdate: boolean = false): RowItemCollection[] {
     const config: Config2pix = new Config2pix(this.config)
+    console.log('createRows', Math.round(config.width), Math.round(config.height))
     this.pageWidth = config.width
     this.pageHeight = config.height
     const rowDesc = this.calculateRowSizes(config)
@@ -447,26 +451,22 @@ export class CatalogPreviewComponent implements OnChanges, AfterViewInit {
           if (strokeWidth != undefined)
             strokeWidth = Number(strokeWidth)
 
-          let afterDraw: () => void
+          let afterDraw: () => PDFDocument
           const setlineWidth = () => {
-            if (strokeWidth != undefined) {
-              doc.lineWidth(strokeWidth)
-            }
+            return doc.lineWidth(strokeWidth)
           }
           if (strokeColor && fillColor)
             afterDraw = () => {
-              setlineWidth()
-              doc.fillAndStroke(fillColor, strokeColor)
+              return setlineWidth().fillAndStroke(fillColor, strokeColor)
             }
           else {
             if (fillColor)
               afterDraw = () => {
-                doc.fill(fillColor)
+                return doc.fill(fillColor)
               }
             else {
               afterDraw = () => {
-                setlineWidth()
-                doc.stroke(strokeColor)
+                return setlineWidth().stroke(strokeColor)
               }
             }
           }
@@ -484,28 +484,29 @@ export class CatalogPreviewComponent implements OnChanges, AfterViewInit {
           let symbol: ISymbol
           let path: Path
           let b: IRect
-          const drawer: PathData = new PathData()
+          let drawer: PathData
           let addPage: boolean = false
           let text: string
 
+          const pathMap: { [id: string]: PathData } = {}
           for (const collection of collections) {
             if (addPage) {
               doc.addPage()
             }
             addPage = true
-            // draw symbols
-
             for (let row of collection.rows) {
               for (let i of row) {
                 symbol = i.symbol
-                path = symbol.paths[0]
+                if (pathMap[symbol.id] == undefined) {
+                  path = symbol.paths[0]
+                  pathMap[symbol.id] = new PathData(path.d)
+                }
+                drawer = pathMap[symbol.id]
                 doc.moveTo(0, 0)
                 b = i.bounds
                 m.identity().scale(i.scale, i.scale).translate(b.x, b.y)
-                drawer.data = path.d
-                drawer.transform(m)
-
-                doc.path(drawer.data)
+                const d = drawer.serialize(m)
+                afterDraw().path(d)
                 afterDraw()
 
                 text = i.text.text
