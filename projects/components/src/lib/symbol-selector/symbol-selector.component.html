@@ -2,7 +2,7 @@
   <div class="v-item f-h">
     <path-list #list [symbols]="pathCollection"></path-list>
   </div>
-  <div class="v-item pad-8 toolbar" *ngIf="list">
+  <div class="v-item pad-8 toolbar">
     <button mat-raised-button color="accent" (click)="list.selectAll()">Sélectionner tous</button>
     <button mat-raised-button color="accent" (click)="list.unselect()">Déselectionner</button>
     <button mat-raised-button color="accent" (click)="close()">Valider</button>
