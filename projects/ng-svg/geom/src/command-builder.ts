@@ -36,6 +36,7 @@ export class CommandBuilder {
         if (!svgSegs) {
             return result
         }
+        this.commands = []
         const points: number[] = strings2numbers(svgSegs)
         const start: Coord = points.splice(0, 2) as Coord
         let n: number = points.length
