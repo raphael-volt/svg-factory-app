@@ -39,6 +39,8 @@ export class CommandBuilder {
         if (!svgSegs) {
             return result
         }
+
+        this.commands = []
         const points: number[] = strings2numbers(svgSegs)
         const start: Coord = points.splice(0, 2) as Coord
         let n: number = points.length
@@ -289,7 +291,7 @@ export class CommandBuilder {
         n = children.length
         for (i = 0; i < n; i++) {
             svgElement = children.item(i)
-            pathData = builder.parsePolygon(svgElement.getAttribute("d"), null)
+            pathData = builder.parsePolygon(svgElement.getAttribute("points"), null)
             result.push(pathData)
         }
         let sy: number
