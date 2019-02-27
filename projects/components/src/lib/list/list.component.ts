@@ -1,5 +1,5 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
-import { MatDialog } from "@angular/material";
+import { Component, ElementRef, ViewChild, OnInit, OnDestroy } from '@angular/core';
+import { MatDialog, MatButton } from "@angular/material";
 import { PathEditorComponent } from "../path-editor/path-editor.component";
 import { Use, DrawStyle } from 'ng-svg/core';
 import { SymbolService } from '../services/symbol.service';
@@ -19,10 +19,13 @@ const dialogConfig = {
   templateUrl: './list.component.html',
   styleUrls: ['./list.component.scss']
 })
-export class ListComponent {
+export class ListComponent implements OnInit, OnDestroy {
 
   @ViewChild("file")
   fileRef: ElementRef
+  @ViewChild('importButton')
+  importButton: MatButton
+  
   hasSelection: boolean = false
   selectedItems: Use[]
   selectionChanged(items: Use[]) {
@@ -71,8 +74,14 @@ export class ListComponent {
   }
 
   import() {
-    const file: HTMLInputElement = this.fileRef.nativeElement
-    file.click()
+    if(! this._pastFlag) {
+      const file: HTMLInputElement = this.fileRef.nativeElement
+      file.click()
+    }
+    else {
+      this.openSelector(this._pastData)
+      this._pastData = null
+    }
   }
 
   inputChange(event) {
@@ -88,14 +97,18 @@ export class ListComponent {
     i.value = ''
   }
   private inputFileLoaded = (event: Event) => {
-
-    const ref = this.dialog.open(SymbolSelectorComponent, dialogConfig)
     const reader = <FileReader>event.target
     reader.removeEventListener("loadend", this.inputFileLoaded)
-    ref.componentInstance.pathCollection = this.service.findPath(<string>(reader.result))
+    this.openSelector(<string>(reader.result))
+  }
+
+  private openSelector = (svgData: string) => {
+    const ref = this.dialog.open(SymbolSelectorComponent, dialogConfig)
+    ref.componentInstance.pathCollection = this.service.findPath(svgData)
     ref.componentInstance.selectAll()
     const done = (result) => {
       this.sending = false
+      this._pastFlag = false
       if (sub)
         sub.unsubscribe()
       if (result !== true) {
@@ -105,15 +118,51 @@ export class ListComponent {
     }
     const sub = ref.afterClosed().subscribe((items: SVGPath[]) => {
       sub.unsubscribe()
-      if (items && items.length){
+      if (items && items.length) {
         this.sending = true
         this.service.registerPathCollection(items)
-            .subscribe(done, done)
+          .subscribe(done, done)
       }
       else {
         done(true)
       }
     })
+
+  }
+
+  ngOnInit() {
+    document.addEventListener("paste", this.clipBoardHandler)
+  }
+  ngOnDestroy() {
+    document.removeEventListener("paste", this.clipBoardHandler)
+  }
+
+
+  private _pastFlag:boolean = false
+  private _pastData:string
+
+  private clipBoardHandler = (event: ClipboardEvent) => {
+    const items = event.clipboardData.items
+    const n = items.length
+    let item
+    for (let i = 0; i < n; i++) {
+      item = items[i]
+      if (item.kind == "string") {
+        break
+      }
+      item = null
+    }
+    if (! this._pastFlag && item && ! event.defaultPrevented) {
+      this._pastFlag = true
+      event.preventDefault()
+      event.stopImmediatePropagation()
+      const ref = this.importButton
+      const t = this
+      item.getAsString((value)=>{
+        t._pastData = value
+        ref._elementRef.nativeElement.click()
+      })
+    }
 
   }
 }

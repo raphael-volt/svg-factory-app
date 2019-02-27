@@ -2,7 +2,7 @@
   <div class="h-item content pad-8 controls-container">
     <button color="accent" [disabled]="!hasSelection" mat-raised-button (click)="edit()">Modifier</button>
     <button color="accent" [disabled]="!hasSelection" mat-raised-button (click)="delete()">Supprimer</button>
-    <button color="accent" mat-raised-button (click)="import()">Importer</button>
+    <button #importButton color="accent" mat-raised-button (click)="import()">Importer</button>
     <input #file type="file" accept=".svg" (change)="inputChange($event)">
     <draw-style-editor [data]="style" (change)="styleChanged($event)"></draw-style-editor>
   </div>
