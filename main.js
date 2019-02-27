@@ -1,7 +1,25 @@
 var path = require('path')
 // Modules to control application life and create native browser window
-const { app, BrowserWindow } = require('electron')
-
+const { app, BrowserWindow, Menu } = require('electron')
+if (process.platform === 'darwin') {
+  // Create our menu entries so that we can use MAC shortcuts
+  Menu.setApplicationMenu(Menu.buildFromTemplate([
+    {
+      label: 'Edit',
+      submenu: [
+        { role: 'undo' },
+        { role: 'redo' },
+        { type: 'separator' },
+        { role: 'cut' },
+        { role: 'copy' },
+        { role: 'paste' },
+        { role: 'pasteandmatchstyle' },
+        { role: 'delete' },
+        { role: 'selectall' }
+      ]
+    }
+  ]));
+}
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
