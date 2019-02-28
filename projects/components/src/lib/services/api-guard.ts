@@ -6,6 +6,7 @@ import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { Observable, Observer } from 'rxjs';
 import { SymbolService } from './symbol.service';
 import { Injectable } from '@angular/core';
+import { BusyIndicatorComponent } from '../busy-indicator/busy-indicator.component';
 @Injectable()
 export class ApiGuard {
 
@@ -29,6 +30,7 @@ export class ApiGuard {
         nextState?: RouterStateSnapshot): Observable<boolean> | boolean {
         const auth = this.auth
         const sym = this.sym
+        let busy: BusyIndicatorComponent
         if (auth.logged && sym.populated)
             return true
         const logginRoute = currentRoute.children.find(route => {
@@ -38,11 +40,13 @@ export class ApiGuard {
         })
 
         const activate = (succes, obs: Observer<boolean>) => {
+            if(busy)
+                busy.close()
             obs.next(succes)
             obs.complete()
         }
         const loadSymbols = (obs: Observer<boolean>) => {
-            if (sym.populated)
+            if (sym.populated) 
                 return activate(true, obs)
 
             const sub = sym.populatedChange
@@ -53,18 +57,25 @@ export class ApiGuard {
             sym.populate()
         }
 
+        const createBusy = ()=>{
+            return BusyIndicatorComponent.open(this._dialog, "spinner")
+        }
+
         return Observable.create((obs: Observer<boolean>) => {
             if (logginRoute)
                 return activate(true, obs)
             if (!auth.logged) {
+                busy = createBusy()
                 let sub = auth.check().subscribe(logged => {
                     sub.unsubscribe()
                     if (logged) {
                         return loadSymbols(obs)
                     }
-
+                    busy.close()
+                    busy = null
                     sub = this.dialog().subscribe(logged => {
                         sub.unsubscribe()
+                        busy = createBusy()
                         loadSymbols(obs)
                     })
                 })

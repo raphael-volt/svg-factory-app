@@ -1,8 +1,9 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { MatDialogRef } from "@angular/material";
-import { Matrix, Rect, IRect, PathData } from "ng-svg/geom";
-import { Use, ISymbol } from "ng-svg/core";
+import { MatDialogRef, MatDialog } from "@angular/material";
+import { Matrix, IRect } from "ng-svg/geom";
+import { Use } from "ng-svg/core";
 import { SymbolService } from '../services/symbol.service';
+import { BusyIndicatorComponent } from '../busy-indicator/busy-indicator.component';
 
 const hyp = (width: number, height: number) => {
   return Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2))
@@ -48,7 +49,8 @@ export class PathEditorComponent implements OnInit {
 
   constructor(
     private service: SymbolService,
-    private dialogRef: MatDialogRef<PathEditorComponent>
+    private dialogRef: MatDialogRef<PathEditorComponent>,
+    private dialog:MatDialog
   ) {
 
   }
@@ -116,14 +118,17 @@ export class PathEditorComponent implements OnInit {
     const use = this.symbols[this.currentIndex]
     const symbol = this.service.getSymbolByRef(use.href)
     const matrix = this.currentMatrix(use2Rect(use))
-    const r = this.service.setTransform(symbol, matrix)
-    use.width = r.width.toString()
-    use.height = r.height.toString()
-    this.currentIndex ++
-    if(this.currentIndex < this.symbols.length)
-      this.initTransform()
-    else 
-      this.cancel()
+    const busy = BusyIndicatorComponent.open(this.dialog, "spinner")
+    const r = this.service.setTransform(symbol, matrix, true, success=>{
+      busy.close()
+      use.width = r.width.toString()
+      use.height = r.height.toString()
+      this.currentIndex ++
+      if(this.currentIndex < this.symbols.length)
+        this.initTransform()
+      else 
+        this.cancel()
+    })
   }
 
   cancel() {

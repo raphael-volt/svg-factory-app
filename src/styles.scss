@@ -127,6 +127,34 @@ div {
   margin-left: 8px;
 }
 
-.modal-panel > .mat-dialog-container  {
+$shadow: 3px 3px 2px rgba(0, 0, 0, .4);
+@mixin drop-shadow-filter() {
+  filter: drop-shadow($shadow)
+}
+@mixin drop-shadow() {
+  box-shadow: $shadow
+}
+.backdrop-buzy { 
+  opacity: 0;
+}
+
+.modal-buzy {
+  background: none;
+}
+.modal-buzy {
+  > .mat-dialog-container {
+    box-shadow: none;
+    background: none;
+    overflow: hidden;
+    .spinner svg {
+        @include drop-shadow-filter()
+    }
+    .bar mat-progress-bar{
+      @include drop-shadow();
+      height: 6px
+    }
+  }
+}
+.modal-panel > .mat-dialog-container, .modal-buzy > .mat-dialog-container  {
   padding: 0;
 }

@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams, HttpResponse } from "@angular/common/http";
+import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { AuthService } from './auth-service';
-import { map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 
 export interface HTTPRequestOptions {
@@ -40,13 +39,6 @@ export class ApiService {
 
   private updateHeaders(options: HTTPRequestOptions) {
     return this.auth.headers(options)
-  }
-
-  private map = <T>(event: HttpResponse<T>):T => {
-    return event.body
-  }
-  private pipe = <T>(obs:Observable<HttpResponse<T>>) => {
-    return obs.pipe(map(this.map))
   }
 
   get<T>(options?: HTTPRequestOptions): Observable<T> {
