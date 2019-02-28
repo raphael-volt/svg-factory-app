@@ -66,7 +66,7 @@ export class SelectHelper<T> {
             const ci: number = collection.indexOf(item)
             const l: T[] = li < ci ?
                 collection.slice(li, ci + 1) :
-                collection.slice(ci, li).reverse()
+                collection.slice(ci, li + 1).reverse()
             if (ctrlKey)
                 this.append(l)
             else
