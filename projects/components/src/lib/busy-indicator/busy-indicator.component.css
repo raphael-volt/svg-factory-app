@@ -1,0 +1,12 @@
+.progress-container {
+    position: relative;
+    overflow: hidden;
+    padding: 10px;
+}
+.progress-container.spinner {
+    width: 120px;
+    height: 120px;
+}
+.progress-container.bar {
+    width: 220px;
+}

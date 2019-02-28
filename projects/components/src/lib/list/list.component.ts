@@ -6,14 +6,8 @@ import { SymbolService } from '../services/symbol.service';
 import { SymbolSelectorComponent } from '../symbol-selector/symbol-selector.component';
 import { SVGPath } from 'ng-svg/geom';
 import { Subscription } from 'rxjs';
-
-const dialogConfig = {
-  disableClose: true,
-  width: "80%",
-  height: "80%",
-  autoFocus: false,
-  panelClass: "modal-panel"
-}
+import { dialogConfig } from "../core/dialog-config";
+import { BusyIndicatorComponent } from '../busy-indicator/busy-indicator.component';
 @Component({
   selector: 'symbol-list',
   templateUrl: './list.component.html',
@@ -25,7 +19,7 @@ export class ListComponent implements OnInit, OnDestroy {
   fileRef: ElementRef
   @ViewChild('importButton')
   importButton: MatButton
-  
+
   hasSelection: boolean = false
   selectedItems: Use[]
   selectionChanged(items: Use[]) {
@@ -45,6 +39,8 @@ export class ListComponent implements OnInit, OnDestroy {
   }
   edit() {
     const ref = this.dialog.open(PathEditorComponent, dialogConfig)
+    const items = this.selectedItems.slice()
+    const service = this.symbolService
     ref.componentInstance.symbols = this.selectedItems
   }
 
@@ -55,6 +51,7 @@ export class ListComponent implements OnInit, OnDestroy {
     const items = this.selectedItems.slice()
     this.selectedItems = []
     let sub: Subscription
+    const busy: BusyIndicatorComponent = BusyIndicatorComponent.open(this.dialog, "bar", items.length)
     const next = () => {
       if (items.length) {
         const u = items.shift()
@@ -62,19 +59,20 @@ export class ListComponent implements OnInit, OnDestroy {
         sub = this.symbolService.delete(this.service.getSymbolTargetByRef(u.href))
           .subscribe(v => {
             sub.unsubscribe()
+            busy.progress++
             next()
           })
       }
       else {
         this.sending = false
+        busy.close()
       }
-
     }
     next()
   }
 
   import() {
-    if(! this._pastFlag) {
+    if (!this._pastFlag) {
       const file: HTMLInputElement = this.fileRef.nativeElement
       file.click()
     }
@@ -111,8 +109,7 @@ export class ListComponent implements OnInit, OnDestroy {
       this._pastFlag = false
       if (sub)
         sub.unsubscribe()
-      if (result !== true) {
-        console.log(result)
+      if (typeof result !== "number") {
         alert(result)
       }
     }
@@ -120,11 +117,19 @@ export class ListComponent implements OnInit, OnDestroy {
       sub.unsubscribe()
       if (items && items.length) {
         this.sending = true
+        const busy: BusyIndicatorComponent = BusyIndicatorComponent.open(this.dialog, "bar", items.length)
+
         this.service.registerPathCollection(items)
-          .subscribe(done, done)
+          .subscribe(progress => {
+            busy.progress = progress
+            done(progress)
+          }, done,
+            () => {
+              busy.close()
+            })
       }
       else {
-        done(true)
+        done(0)
       }
     })
 
@@ -138,8 +143,8 @@ export class ListComponent implements OnInit, OnDestroy {
   }
 
 
-  private _pastFlag:boolean = false
-  private _pastData:string
+  private _pastFlag: boolean = false
+  private _pastData: string
 
   private clipBoardHandler = (event: ClipboardEvent) => {
     const items = event.clipboardData.items
@@ -152,13 +157,13 @@ export class ListComponent implements OnInit, OnDestroy {
       }
       item = null
     }
-    if (! this._pastFlag && item && ! event.defaultPrevented) {
+    if (!this._pastFlag && item && !event.defaultPrevented) {
       this._pastFlag = true
       event.preventDefault()
       event.stopImmediatePropagation()
       const ref = this.importButton
       const t = this
-      item.getAsString((value)=>{
+      item.getAsString((value) => {
         t._pastData = value
         ref._elementRef.nativeElement.click()
       })

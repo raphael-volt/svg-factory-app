@@ -5,7 +5,8 @@ import {
     MatButtonModule, MatButtonToggleModule, MatToolbarModule, MatRippleModule,
     MatDialogModule, MatCardModule, MatInputModule,
     MatRadioModule, MatFormFieldModule,
-    MatSelectModule, MatStepperModule, MatSlideToggleModule, MatIconModule
+    MatSelectModule, MatStepperModule, MatSlideToggleModule, MatIconModule,
+    MatProgressBarModule, MatProgressSpinnerModule
 } from '@angular/material';
 import { MatTabsModule } from '@angular/material/tabs';
 @NgModule({
@@ -14,7 +15,7 @@ import { MatTabsModule } from '@angular/material/tabs';
         MatButtonModule, MatButtonToggleModule, MatToolbarModule, MatTabsModule, MatRippleModule,
         MatDialogModule, MatCardModule, MatInputModule,
         MatRadioModule, MatFormFieldModule, MatSelectModule, MatStepperModule, MatSlideToggleModule,
-        MatIconModule,
+        MatIconModule, MatProgressBarModule, MatProgressSpinnerModule,
         FormsModule, ReactiveFormsModule
     ],
     exports: [
@@ -22,7 +23,7 @@ import { MatTabsModule } from '@angular/material/tabs';
         MatButtonModule, MatButtonToggleModule, MatToolbarModule, MatTabsModule, MatRippleModule,
         MatDialogModule, MatCardModule, MatInputModule,
         MatRadioModule, MatFormFieldModule, MatSelectModule, MatStepperModule, MatSlideToggleModule,
-        MatIconModule,
+        MatIconModule, MatProgressBarModule, MatProgressSpinnerModule,
         FormsModule, ReactiveFormsModule
     ]
 })

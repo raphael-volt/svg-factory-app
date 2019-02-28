@@ -1,0 +1,4 @@
+<div [ngClass]="containerClass">
+    <mat-progress-spinner color="accent" [value]="percent" [mode]="progressMode" *ngIf="indicatorType=='spinner'"></mat-progress-spinner>
+    <mat-progress-bar color="accent" [value]="percent" [mode]="progressMode" *ngIf="indicatorType=='bar'"></mat-progress-bar>
+</div>

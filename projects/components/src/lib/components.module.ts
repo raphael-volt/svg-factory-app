@@ -43,6 +43,7 @@ import { UserEditorComponent, FormErrorDirective } from './form-controllers/user
 import { SymbolNamePipe } from './symbol-list/symbol-name.pipe';
 import { AuthService } from './services/auth-service';
 import { ApiGuard } from './services/api-guard';
+import { BusyIndicatorComponent } from './busy-indicator/busy-indicator.component';
 
 @NgModule({
   declarations: [
@@ -57,7 +58,7 @@ import { ApiGuard } from './services/api-guard';
     PrintComponent, 
     PrintPreviewComponent, 
     PrintConfigComponent, 
-    PrintConfigEditorComponent, PrintConfigRendererComponent
+    PrintConfigEditorComponent, PrintConfigRendererComponent, BusyIndicatorComponent
   ],
   imports: [
     CommonModule,
@@ -89,7 +90,8 @@ import { ApiGuard } from './services/api-guard';
   entryComponents: [
     LoginComponent,
     PathEditorComponent,
-    SymbolSelectorComponent
+    SymbolSelectorComponent, 
+    BusyIndicatorComponent
   ]
 })
 export class ComponentsModule { }

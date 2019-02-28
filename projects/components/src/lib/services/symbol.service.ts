@@ -183,7 +183,7 @@ export class SymbolService {
       }))
   }
 
-  setTransform(symbol: ISymbol, matrix: Matrix, save: boolean = true): IRect {
+  setTransform(symbol: ISymbol, matrix: Matrix, save: boolean = true, callBack?: (success: boolean) => void): IRect {
     const path = symbol.paths[0]
     const pathData: PathData = new PathData(path.d)
     let r = pathData.transform(matrix)
@@ -209,6 +209,8 @@ export class SymbolService {
         }
       ).subscribe(result => {
         s.unsubscribe()
+        if (callBack)
+          callBack(result)
       })
     }
     return r
@@ -261,7 +263,7 @@ export class SymbolService {
    * @param collection SVGPath[]
    */
   registerPathCollection(collection: SVGPath[]) {
-    return Observable.create((observer: Observer<Boolean>) => {
+    return Observable.create((observer: Observer<number>) => {
       const pathData: PathData = new PathData()
       let count: number = 0
       const next = () => {
@@ -275,6 +277,7 @@ export class SymbolService {
           }, false).subscribe(
             symbol => {
               count++
+              observer.next(count)
               sub.unsubscribe()
               next()
             },
@@ -287,7 +290,7 @@ export class SymbolService {
           )
         }
         else {
-          observer.next(true)
+          observer.next(count)
           observer.complete()
           this.populatedChange.emit(true)
         }
