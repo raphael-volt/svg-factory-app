@@ -53,6 +53,10 @@ export class SymbolService {
     }
   }
 
+  getSymbolPathCollection(id: string): SVGPathElement[] {
+    return this.factory.getSymbolPathCollection(id)
+  }
+
   private setSymbolConfig(value: SymbolConfig) {
     this.config = value
     this.factory.setPathStyle(value.pathStyle)

@@ -44,6 +44,7 @@ import { SymbolNamePipe } from './symbol-list/symbol-name.pipe';
 import { AuthService } from './services/auth-service';
 import { ApiGuard } from './services/api-guard';
 import { BusyIndicatorComponent } from './busy-indicator/busy-indicator.component';
+import { PriceCalculatorComponent } from './price-calculator/price-calculator.component';
 
 @NgModule({
   declarations: [
@@ -58,7 +59,7 @@ import { BusyIndicatorComponent } from './busy-indicator/busy-indicator.componen
     PrintComponent, 
     PrintPreviewComponent, 
     PrintConfigComponent, 
-    PrintConfigEditorComponent, PrintConfigRendererComponent, BusyIndicatorComponent
+    PrintConfigEditorComponent, PrintConfigRendererComponent, BusyIndicatorComponent, PriceCalculatorComponent
   ],
   imports: [
     CommonModule,

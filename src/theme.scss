@@ -70,7 +70,7 @@ $app-theme: mat-light-theme($app-primary, $app-accent, $app-warn);
   color: $theme-color;
   font-size: mat-font-size($config, body-1);
 
-  print {
+  print, price-calculator {
     .mat-horizontal-stepper-header-container {
       min-height: 72px;
       .mat-stepper-horizontal-line {
