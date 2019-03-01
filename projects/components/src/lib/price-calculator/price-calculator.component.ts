@@ -6,11 +6,13 @@ import { PathData } from 'ng-svg/geom';
 import { SymbolListComponent } from '../symbol-list/symbol-list.component';
 
 import { MatSort, MatTableDataSource } from '@angular/material';
+import { path2poly } from 'projects/ng-svg/geom/src/path2poly';
 
 interface SymbolItem {
   use: Use
   holes: number
   length: number
+  area: number
 }
 @Component({
   selector: 'price-calculator',
@@ -21,8 +23,7 @@ export class PriceCalculatorComponent extends SteppertController implements Afte
 
   @ViewChild(MatSort) sort: MatSort;
 
-  displayedColumns = ['use', 'length', 'holes'];
-  // dataSource: { use: Use, holes: number, length: number }[]
+  displayedColumns = ['use', 'length', 'holes', 'area']
 
   constructor(private service: SymbolService) {
     super()
@@ -59,7 +60,9 @@ export class PriceCalculatorComponent extends SteppertController implements Afte
       const p = sym.paths[0]
       pathData.data = p.d
       const pe = coll[0]
+      const polygons = path2poly.getPolygons(pathData.commands)
       return {
+        area: Math.round(path2poly.getPolygonsArea(polygons)),
         use: use,
         holes: pathData.commands.length - 1,
         length: Math.round(pe.getTotalLength())
