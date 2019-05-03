@@ -14,6 +14,7 @@ import { ApiService } from "./services/api.service";
 import { PrintConfigService } from "./print/config/print-config-service";
 import { ConfigService } from "./services/config.service";
 import { SymbolService } from './services/symbol.service';
+import { SymbolAreaService } from './services/symbol-area.service';
 
 import { SymbolListComponent, SymbolListBaseComponent, PathListComponent } from './symbol-list/symbol-list.component';
 
@@ -86,7 +87,8 @@ import { PriceCalculatorComponent } from './price-calculator/price-calculator.co
     ApiService,
     ApiGuard,
     AuthService,
-    PrintConfigService
+    PrintConfigService, 
+    SymbolAreaService
   ],
   entryComponents: [
     LoginComponent,

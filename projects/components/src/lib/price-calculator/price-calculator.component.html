@@ -33,21 +33,35 @@
         <!-- Length Column -->
         <ng-container matColumnDef="length">
           <th mat-header-cell *matHeaderCellDef mat-sort-header> Longueur tracé </th>
-          <td mat-cell *matCellDef="let element"> {{element.length}} </td>
+          <td mat-cell *matCellDef="let element"> {{element.detail.totalLength}} </td>
         </ng-container>
 
         <!-- Num holes Column -->
         <ng-container matColumnDef="holes">
           <th mat-header-cell *matHeaderCellDef mat-sort-header> Nombre de trous </th>
-          <td mat-cell *matCellDef="let element"> {{element.holes}} </td>
+          <td mat-cell *matCellDef="let element"> {{element.detail.holes}} </td>
         </ng-container>
 
-        <!-- Area Column -->
-        <ng-container matColumnDef="area">
+        <!-- Area total Column -->
+        <ng-container matColumnDef="areaTotal">
           <th mat-header-cell *matHeaderCellDef mat-sort-header> Surface </th>
-          <td mat-cell *matCellDef="let element"> {{element.area}} </td>
+          <td mat-cell *matCellDef="let element"> {{element.detail.area.total}} </td>
         </ng-container>
-
+        <!-- Area outer Column -->
+        <ng-container matColumnDef="areaOuter">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Surface extèrne </th>
+          <td mat-cell *matCellDef="let element"> {{element.detail.area.outer}} </td>
+        </ng-container>
+        <!-- Area inner Column -->
+        <ng-container matColumnDef="areaInner">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Surface vide </th>
+          <td mat-cell *matCellDef="let element"> {{element.detail.area.inner}} </td>
+        </ng-container>
+        <!-- Area inner/total Column -->
+        <ng-container matColumnDef="areaRatio">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> % Vide </th>
+          <td mat-cell *matCellDef="let element"> {{element.detail.area.ratio}} </td>
+        </ng-container>
         <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
       </table>

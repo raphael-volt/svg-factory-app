@@ -720,7 +720,7 @@ class Polynomial {
         }
         return results;
     }
-    
+
     getQuarticRoots(): number[] {
         var results: number[] = [];
         const coefs = this.coefs
@@ -905,6 +905,12 @@ interface Poly {
 }
 type PolyCollection = Poly[];
 
+export interface PolygonsArea {
+    outer: number
+    inner: number
+    total: number
+    ratio: number
+}
 class Path2Poly {
     private static _instance: Path2Poly
     static getInstance(): Path2Poly {
@@ -925,14 +931,16 @@ class Path2Poly {
         }
         return result
     }
-    
-    getPolygonsArea(polygons: PolyCollection): number {
+
+    getPolygonsArea(polygons: PolyCollection, result?: PolygonsArea): PolygonsArea {
         let a: number = 0
         let i: number
         let n: number
         let c0: Coord
         let c1: Coord
-        let data = polygons.map(poly => {
+        if (!result)
+            result = { inner: 0, outer: 0, total: 0, ratio: 0 }
+        const data = polygons.map(poly => {
             n = poly.points.length - 1
             a = 0
             for (i = 0; i < n; i++) {
@@ -945,9 +953,19 @@ class Path2Poly {
         data.sort((a, b) => b - a)
         n = data.length
         a = data[0]
-        for(i=1; i<n; i++)
+        result.outer = Math.round(a)
+        result.inner = 0
+        for (i = 1; i < n; i++) {
             a -= data[i]
-        return a
+            result.inner += data[i] 
+        }
+
+        result.total = Math.round(a)
+        result.inner = Math.round(result.inner)
+        
+        if (result.inner > 0)
+            result.ratio = Number((result.inner / result.outer * 100).toFixed(2))
+        return result
     }
 
     createPolygon(commands: PathCommand[], minSeg: number = 1): Coord[] {

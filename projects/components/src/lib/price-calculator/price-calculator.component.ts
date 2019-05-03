@@ -1,18 +1,16 @@
 import { SteppertController } from '../core/stepper-controller';
 import { Component, ViewChild, AfterViewInit } from '@angular/core';
-import { Use } from 'ng-svg/core';
+import { Use, ISymbol } from 'ng-svg/core';
 import { SymbolService } from '../services/symbol.service';
-import { PathData } from 'ng-svg/geom';
 import { SymbolListComponent } from '../symbol-list/symbol-list.component';
 
-import { MatSort, MatTableDataSource } from '@angular/material';
-import { path2poly } from 'projects/ng-svg/geom/src/path2poly';
+import { MatSort, MatTableDataSource, MatDialog } from '@angular/material';
+import { SymbolAreaService, SymbolDetail } from '../services/symbol-area.service';
+import { BusyIndicatorComponent } from '../busy-indicator/busy-indicator.component';
 
 interface SymbolItem {
   use: Use
-  holes: number
-  length: number
-  area: number
+  detail: SymbolDetail
 }
 @Component({
   selector: 'price-calculator',
@@ -23,18 +21,37 @@ export class PriceCalculatorComponent extends SteppertController implements Afte
 
   @ViewChild(MatSort) sort: MatSort;
 
-  displayedColumns = ['use', 'length', 'holes', 'area']
-
-  constructor(private service: SymbolService) {
-    super()
-  }
+  displayedColumns = ['use', 'length', 'holes', 'areaTotal', 'areaOuter', 'areaInner', 'areaRatio']
 
   @ViewChild(SymbolListComponent)
   symList: SymbolListComponent
+
+  dataSource: MatTableDataSource<SymbolItem> = new MatTableDataSource()
+
+  constructor(
+    private service: SymbolService,
+    private areaService: SymbolAreaService,
+    private dialog: MatDialog) {
+    super()
+  }
+
   ngOnInit() {
     super.ngOnInit()
   }
   ngAfterViewInit() {
+    this.dataSource.sortingDataAccessor = (item: SymbolItem, property) => {
+      switch(property) {
+        case 'length': return item.detail.totalLength;
+        case 'holes': return item.detail.holes;
+        case 'areaTotal': return item.detail.area.total;
+        case 'areaOuter': return item.detail.area.outer;
+        case 'areaInner': return item.detail.area.inner;
+        case 'areaRatio': return item.detail.area.ratio;
+        
+        default: return item[property];
+      }
+    }
+    this.dataSource.sort = this.sort
     const l = this.symList
     setTimeout(() => {
       l.selectedItems = l.symbols.slice(0, 9)
@@ -46,31 +63,48 @@ export class PriceCalculatorComponent extends SteppertController implements Afte
       }, 500)
     }, 500)
   }
-  dataSource: MatTableDataSource<SymbolItem>;
   selectionChanged(items: Use[]) {
 
     super.selectionChanged(items)
     const service = this.service
-    let pathData: PathData = new PathData()
-    let dataSource = items.map(use => {
-      const sym = service.getSymbolByRef(use.href)
-      const coll = service.getSymbolPathCollection(sym.id)
-      if (!coll || !coll.length)
-      throw new Error("Missing path collection")
-      const p = sym.paths[0]
-      pathData.data = p.d
-      const pe = coll[0]
-      const polygons = path2poly.getPolygons(pathData.commands)
-      return {
-        area: Math.round(path2poly.getPolygonsArea(polygons)),
-        use: use,
-        holes: pathData.commands.length - 1,
-        length: Math.round(pe.getTotalLength())
+
+    const area = this.areaService
+
+    const data: SymbolItem[] = []
+    let symbols: ISymbol[] = []
+    let sym: ISymbol
+    const map: { [i: string]: Use } = {}
+    for (const u of items) {
+      sym = service.getSymbolByRef(u.href)
+      const d = area.getDetail(sym)
+      if (d) {
+        data.push({ use: u, detail: d })
+        continue
       }
-    })
-    this.dataSource = new MatTableDataSource(dataSource);
-    this.dataSource.sort = this.sort;
+      map[sym.id] = u
+      symbols.push(sym)
+    }
+    if (symbols.length) {
+      const busy = BusyIndicatorComponent.open(this.dialog, "bar", symbols.length)
+      const sub = area.createAreas(symbols).subscribe(detail => {
+        busy.progress++
+        data.push({
+          use: map[detail.symbolId],
+          detail: detail
+        })
+      },
+        error => { },
+        () => {
+          this.setDataSource(data)
+          busy.close()
+        })
+    }
+    else
+      this.setDataSource(data)
   }
-  
+
+  private setDataSource(data: SymbolItem[]) {
+    this.dataSource.data = data 
+  }
 }
 
