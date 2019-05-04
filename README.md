@@ -69,28 +69,38 @@ ng b --prod --base-href=/svg-app/ --output-hashing=none
 ```
 
 Building the libraries seems not be required. 
-## Running unit tests
+## Running app tests
 
 Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
 
-Run `ng test my-lib` to only run unit tests of a library.
+Run the vscode configuration `Test` to debug.
 
-Breakpoints are not working in **vs-code** with **chrome-debugger-extension**
+## Running libraries tests
 
-**firefox-debugger-extension** works fine but is very slow...
-
-[angular.json](./angular.json) has been modified to make working the vscode debugger during the tests (work some time...) :
-```json
-{
-    "projects": {
-        "web-app": {
-            "architect": {
-                "test": {
-                    "options": {
-                        "sourceMap": false
-
-```
-
+- #### Execute a library unit tests: 
+    ```bash
+    # testing the components library
+    ng t components
+    ```
+    Run the vscode configuration `Karma components` to debug.
+- #### Execute all libraries unit tests: 
+    ```
+    npm run tl
+    ```
+    Run the vscode configuration `Test` to debug.
+- #### Filtering unit tests
+    Edit [projects/test.js](projects/test.js):
+    ```typescript
+    // only specs in the components library
+    const context = require.context('./components/', true, /\.spec\.ts$/);
+    // single spec
+    const context = require.context('./', true, /symbol-factory\.spec\.ts$/);
+    ```
+    Execute test(s)
+    ```
+    npm run tl
+    ```
+    Run the vscode configuration `Test` to debug.
 
 ## Running end-to-end tests
 

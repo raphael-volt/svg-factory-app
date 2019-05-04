@@ -46,6 +46,7 @@ import { AuthService } from './services/auth-service';
 import { ApiGuard } from './services/api-guard';
 import { BusyIndicatorComponent } from './busy-indicator/busy-indicator.component';
 import { PriceCalculatorComponent } from './price-calculator/price-calculator.component';
+import { FactoryContainerComponent } from './factory-container/factory-container.component';
 
 @NgModule({
   declarations: [
@@ -60,7 +61,7 @@ import { PriceCalculatorComponent } from './price-calculator/price-calculator.co
     PrintComponent, 
     PrintPreviewComponent, 
     PrintConfigComponent, 
-    PrintConfigEditorComponent, PrintConfigRendererComponent, BusyIndicatorComponent, PriceCalculatorComponent
+    PrintConfigEditorComponent, PrintConfigRendererComponent, BusyIndicatorComponent, PriceCalculatorComponent, FactoryContainerComponent
   ],
   imports: [
     CommonModule,

@@ -911,15 +911,14 @@ export interface PolygonsArea {
     total: number
     ratio: number
 }
-class Path2Poly {
-    private static _instance: Path2Poly
+export class Path2Poly {
+    private static _instance: Path2Poly = null
     static getInstance(): Path2Poly {
         const self = Path2Poly
         if (!self._instance)
             self._instance = new Path2Poly()
         return self._instance
     }
-
     private constructor() { }
 
     getPolygons(data: PathCommandCollection, minSeg: number = 1): PolyCollection {
@@ -1085,6 +1084,6 @@ class Path2Poly {
 }
 const path2poly = Path2Poly.getInstance()
 export {
-    Path2Poly, path2poly, Poly, PolyCollection,
+    path2poly, Poly, PolyCollection,
     Point, Intersections, Line, Circle, PolygonPoint
 }

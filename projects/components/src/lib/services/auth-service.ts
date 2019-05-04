@@ -35,7 +35,7 @@ export class AuthService {
     private _checkFlag: boolean
 
     constructor(
-        private storarage: LocalStorage,
+        private storage: LocalStorage,
         private http: HttpClient) { }
 
     check(): Observable<boolean> {
@@ -59,7 +59,7 @@ export class AuthService {
                 obs.next(logged)
                 obs.complete()
             }
-            let sub = this.storarage.getItem(API_USER).subscribe(
+            let sub = this.storage.getItem(API_USER).subscribe(
                 (user: IUser) => {
                     sub.unsubscribe()
                     if (!user)
@@ -113,7 +113,7 @@ export class AuthService {
         if(!user)
             return this.user
         Object.assign(this.user, user)
-        this.storarage.setItemSubscribe(API_USER, user)
+        this.storage.setItemSubscribe(API_USER, user)
         return this.user
     }
 }
