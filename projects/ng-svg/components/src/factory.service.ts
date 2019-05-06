@@ -79,4 +79,7 @@ export class FactoryService {
   getSymbolIndex(symbol: ISymbol): number {
     return this._defComponent.symbols.indexOf(symbol)
   }
+  getSymbolPathCollection(id: string): SVGPathElement[] {
+    return this._defComponent.getSymbolPathCollection(id)
+  }
 }

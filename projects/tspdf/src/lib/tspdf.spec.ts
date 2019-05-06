@@ -1,4 +1,6 @@
-import { getLayoutSizes, px2mm, mm2px } from "./tspdf.model";
+import { LayoutUtils } from "./tspdf.model";
+const A4 = LayoutUtils.getLayoutSizes('A4', 'portrait')
+
 describe('tspdf', () => {
 
     describe('units convertion', () => {
@@ -9,14 +11,14 @@ describe('tspdf', () => {
                 }
             });
         });
-        const A4 = getLayoutSizes('A4')
+        
         it('sould convert px to mm', () => {
-            expect(px2mm(A4[0])).toEqual(210)
-            expect(px2mm(A4[1])).toEqual(297)
+            expect(LayoutUtils.px2mm(A4[0])).toEqual(210)
+            expect(LayoutUtils.px2mm(A4[1])).toEqual(297)
         })
         it('should convert mm to px', () => {
-            expect(mm2px(210)).toEqual(A4[0])
-            expect(mm2px(297)).toEqual(A4[1])
+            expect(LayoutUtils.mm2px(210)).toEqual(A4[0])
+            expect(LayoutUtils.mm2px(297)).toEqual(A4[1])
         })
     })
 })

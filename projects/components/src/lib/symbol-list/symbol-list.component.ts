@@ -31,10 +31,13 @@ export class ListBase<T> implements OnChanges{
   get selectedItems(): T[] {
     return this.selectHelper.selectedItems
   }
+  validateSelection() {
+    this.selectHelper.selectedItems = this._selectedItems
+  }
 
   ngOnChanges(changes:SimpleChanges) {
     if(changes.selectedItems) {
-      this.selectHelper.selectedItems = this._selectedItems
+      this.validateSelection()
     }
   }
   get hasSelection() {

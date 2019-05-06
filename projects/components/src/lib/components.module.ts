@@ -14,6 +14,7 @@ import { ApiService } from "./services/api.service";
 import { PrintConfigService } from "./print/config/print-config-service";
 import { ConfigService } from "./services/config.service";
 import { SymbolService } from './services/symbol.service';
+import { SymbolAreaService } from './services/symbol-area.service';
 
 import { SymbolListComponent, SymbolListBaseComponent, PathListComponent } from './symbol-list/symbol-list.component';
 
@@ -44,6 +45,8 @@ import { SymbolNamePipe } from './symbol-list/symbol-name.pipe';
 import { AuthService } from './services/auth-service';
 import { ApiGuard } from './services/api-guard';
 import { BusyIndicatorComponent } from './busy-indicator/busy-indicator.component';
+import { PriceCalculatorComponent } from './price-calculator/price-calculator.component';
+import { FactoryContainerComponent } from './factory-container/factory-container.component';
 
 @NgModule({
   declarations: [
@@ -58,7 +61,7 @@ import { BusyIndicatorComponent } from './busy-indicator/busy-indicator.componen
     PrintComponent, 
     PrintPreviewComponent, 
     PrintConfigComponent, 
-    PrintConfigEditorComponent, PrintConfigRendererComponent, BusyIndicatorComponent
+    PrintConfigEditorComponent, PrintConfigRendererComponent, BusyIndicatorComponent, PriceCalculatorComponent, FactoryContainerComponent
   ],
   imports: [
     CommonModule,
@@ -85,7 +88,8 @@ import { BusyIndicatorComponent } from './busy-indicator/busy-indicator.componen
     ApiService,
     ApiGuard,
     AuthService,
-    PrintConfigService
+    PrintConfigService, 
+    SymbolAreaService
   ],
   entryComponents: [
     LoginComponent,

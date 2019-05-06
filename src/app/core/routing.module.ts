@@ -4,7 +4,8 @@ import {
     ListComponent,
     CatalogComponent,
     PrintComponent,
-    ApiGuard
+    ApiGuard,
+    PriceCalculatorComponent
 } from "components";
 
 import { RouterModule, Routes } from '@angular/router'
@@ -32,6 +33,11 @@ const routes: Routes = [
                 path: 'print', component: PrintComponent, canActivate: [ApiGuard],
                 label: 'Imprimer',
                 icon: 'print'
+            },
+            <IAppRoute>{
+                path: 'price', component: PriceCalculatorComponent, canActivate: [ApiGuard],
+                label: 'Prix',
+                icon: 'monetization_on'
             },
             <IAppRoute>{
                 path: 'config', component: ConfigComponent, canDeactivate: [ApiGuard], canActivate: [ApiGuard],
