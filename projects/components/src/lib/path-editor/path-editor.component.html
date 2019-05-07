@@ -36,6 +36,18 @@
             <button mat-raised-button autoRepeat (click)="rotate(-1)">- 1</button>
           </td>
         </tr>
+        <tr>
+          <td colspan="2" class="label">
+            <span>Dessin</span>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2">
+            <mat-form-field>
+              <input (paste)="pasteClipboard($event)" placeholder="Coller SVG" matInput>
+            </mat-form-field>
+          </td>
+        </tr>
       </table>
     </div>
     <div class="h-item f-w" style="position: relative;">
@@ -45,7 +57,7 @@
     </div>
   </div>
   <div class="pad-8 editor-toolbar">
-      <button mat-raised-button color="accent" (click)="next()">Suivant</button>
-      <button mat-raised-button color="accent" (click)="cancel()">Annuler</button>
+    <button #nextBtn mat-raised-button color="accent" (click)="next()">Suivant</button>
+    <button mat-raised-button color="accent" (click)="cancel()">Annuler</button>
   </div>
 </div>

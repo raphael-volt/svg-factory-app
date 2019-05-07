@@ -147,27 +147,24 @@ export class ListComponent implements OnInit, OnDestroy {
   private _pastData: string
 
   private clipBoardHandler = (event: ClipboardEvent) => {
-    const items = event.clipboardData.items
-    const n = items.length
-    let item
-    for (let i = 0; i < n; i++) {
-      item = items[i]
-      if (item.kind == "string") {
-        break
-      }
-      item = null
-    }
-    if (!this._pastFlag && item && !event.defaultPrevented) {
+    if (!this._pastFlag && !event.defaultPrevented) {
       this._pastFlag = true
       event.preventDefault()
       event.stopImmediatePropagation()
       const ref = this.importButton
       const t = this
-      item.getAsString((value) => {
+      let parseError = false
+      const s = this.service.checkClipboard(event)
+      .subscribe(value=>{
+        s.unsubscribe()
         t._pastData = value
         ref._elementRef.nativeElement.click()
+      },
+      e=>{
+        parseError = true
       })
+      if(parseError)
+        s.unsubscribe()
     }
-
   }
 }

@@ -1,9 +1,10 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { MatDialogRef, MatDialog } from "@angular/material";
-import { Matrix, IRect } from "ng-svg/geom";
-import { Use } from "ng-svg/core";
+import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
+import { MatDialogRef, MatDialog, MatButton } from "@angular/material";
+import { Matrix, IRect, SVGPath, PathData, getViewBox } from "ng-svg/geom";
+import { Use, ISymbol } from "ng-svg/core";
 import { SymbolService } from '../services/symbol.service';
 import { BusyIndicatorComponent } from '../busy-indicator/busy-indicator.component';
+import { FactoryService } from 'ng-svg/components';
 
 const hyp = (width: number, height: number) => {
   return Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2))
@@ -34,6 +35,9 @@ const use2Rect = (use: Use): IRect => {
 })
 export class PathEditorComponent implements OnInit {
 
+  @ViewChild("nextBtn")
+  private nextBtn:MatButton
+
   @Input()
   public symbols: Use[]
 
@@ -49,8 +53,9 @@ export class PathEditorComponent implements OnInit {
 
   constructor(
     private service: SymbolService,
+    private factory: FactoryService,
     private dialogRef: MatDialogRef<PathEditorComponent>,
-    private dialog:MatDialog
+    private dialog: MatDialog
   ) {
 
   }
@@ -74,14 +79,77 @@ export class PathEditorComponent implements OnInit {
     this.updateTransform()
   }
 
-  private initTransform() {
+  private pastData: {
+    target?: ISymbol,
+    use?: Use,
+    data?: ISymbol
+  }
+
+  private createTempSymbol() {
+
+  }
+
+  pasteClipboard(event: ClipboardEvent) {
+    event.stopImmediatePropagation()
+    event.preventDefault()
+    let parseError = false
+    const s = this.service.checkClipboard(event)
+      .subscribe(value => {
+        s.unsubscribe()
+        const coll = this.service.findPath(value)
+        if (coll.length) {
+          // create new symbol
+          const item: SVGPath = coll[0]
+          let use:Use = this.symbols[this.currentIndex]
+          const symbol = this.service.getSymbolByRef(use.href)
+          const pData: PathData = new PathData()
+          pData.commands = item.commands
+          this.pastData = {
+            target: symbol,
+            use: use,
+            data: {
+              id: symbol.id + "tmp",
+              paths: [
+                { d: pData.data }
+              ],
+              viewBox: `0 0 ${item.bounds.width} ${item.bounds.height}`
+            }
+          }
+          this.factory.addSymbol(this.pastData.data)
+          // reset transform values
+          this.resetTransform()
+          // use new symbol instance
+          use = {
+            href : "#"+this.pastData.data.id, 
+            width : item.bounds.width.toString(),
+            height: item.bounds.height.toString()
+          }
+          // update display
+          this.resetUsebox(use)
+          this.use = use
+          this.updateTransform()
+          this.nextBtn.focus()
+          /*
+          // should run after save
+          symbol.paths[0].d = this.pastData.data.paths[0].d
+          symbol.viewBox = `0 0 ${item.bounds.width} ${item.bounds.height}`
+          */
+        }
+      },
+        e => {
+          parseError = true
+        })
+    if (parseError)
+      s.unsubscribe()
+  }
+
+  private resetTransform() {
     this._mirorX = false
     this._mirorY = false
     this._rotation = 0
+  }
 
-    const currentUse: Use = this.symbols[this.currentIndex]
-
-    const use = Object.assign({}, currentUse)
+  private resetUsebox(use:Use) {
     const useRect: IRect = use2Rect(use)
     const max: number = useRect.width > useRect.height ?
       useRect.width : useRect.height
@@ -90,6 +158,14 @@ export class PathEditorComponent implements OnInit {
       width: max.toString(),
       height: max.toString()
     }
+  }
+  private initTransform() {
+    this.resetTransform()
+
+    const currentUse: Use = this.symbols[this.currentIndex]
+
+    const use = Object.assign({}, currentUse)
+    this.resetUsebox(use)
     this.use = use
     this.updateTransform()
   }
@@ -115,18 +191,29 @@ export class PathEditorComponent implements OnInit {
     return matrix
   }
   next() {
-    const use = this.symbols[this.currentIndex]
+    let use = this.symbols[this.currentIndex]
+    if(this.pastData) {
+      const u = this.pastData.use
+      const target = this.pastData.target
+      const data = this.pastData.data
+      target.viewBox = data.viewBox
+      target.paths = data.paths
+      use.width = u.width
+      use.height = u.height
+      this.pastData = null
+      this.factory.deleteSymbol(data)
+    }
     const symbol = this.service.getSymbolByRef(use.href)
     const matrix = this.currentMatrix(use2Rect(use))
     const busy = BusyIndicatorComponent.open(this.dialog, "spinner")
-    const r = this.service.setTransform(symbol, matrix, true, success=>{
+    const r = this.service.setTransform(symbol, matrix, true, success => {
       busy.close()
       use.width = r.width.toString()
       use.height = r.height.toString()
-      this.currentIndex ++
-      if(this.currentIndex < this.symbols.length)
+      this.currentIndex++
+      if (this.currentIndex < this.symbols.length)
         this.initTransform()
-      else 
+      else
         this.cancel()
     })
   }
