@@ -60,15 +60,19 @@ Add peer depencencies to automatically resolve build order :
 # build my-other-lib before my-lib
 ngh dep my-lib my-other-lib
 ```
-## Build
+## Build App
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+Actualy, building with compiled libraries is not working as expected.
+- ### WEB
+    ```
+    npm run build:web
+    ```
+- ### Darwin App
+    ```
+    npm run build:app
+    npm run darwin:pkg
+    ```
 
-```
-ng b --prod --base-href=/svg-app/ --output-hashing=none
-```
-
-Building the libraries seems not be required. 
 ## Running app tests
 
 Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
