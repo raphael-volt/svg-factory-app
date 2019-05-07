@@ -262,6 +262,31 @@ export class SymbolService {
     }
     return pathCollection
   }
+
+  checkClipboard(event: ClipboardEvent) {
+    return Observable.create((o:Observer<string>)=>{
+      const items = event.clipboardData.items
+      const n = items.length
+      let item
+      for (let i = 0; i < n; i++) {
+        item = items[i]
+        if (item.kind == "string") {
+          break
+        }
+        item = null
+      }
+      if(item) {
+        item.getAsString(
+          (value) => {
+            o.next(value)
+            o.complete()
+          }
+        )
+      }
+      else
+        o.error('svg content not found')
+    })
+  }
   /**
    * Create symbols then post them to the database.
    * @param collection SVGPath[]
